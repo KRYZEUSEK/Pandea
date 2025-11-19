@@ -1857,6 +1857,9 @@ MonoBehaviour:
   desiredDistance: 4
   moveSpeed: 4
   distanceBuffer: 0.5
+  rotationSpeed: 10
+  maxOffset: 1.5
+  offsetChangeInterval: 2
 --- !u!195 &1693240703
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -2214,7 +2217,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 5723329192619326990, guid: 714f359446c7ea04c9123a553993eb32, type: 3}
+  - {fileID: 2100000, guid: f32a1630039c79f448cd3b2400a24db4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
