@@ -1,144 +1,127 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro; // U¿yj tego, jeœli masz TextMeshPro
+using System.Collections;
 
 public class TimeBar : MonoBehaviour
 {
-    [Header("Referencje G³ówne")]
-    [SerializeField] private TimeManager timeManager;
-    [SerializeField] private Image totalTimeBar; // T³o paska
-    [SerializeField] private Image currentTimeBar; // Zielony pasek (g³ówny)
-    [SerializeField] private GameObject timeBarWhole; // Ca³y obiekt paska (do ukrycia)
+    [Header("Paski")]
+    [SerializeField] private Image mainBar;     // G³ówny pasek (np. Bia³y)
+    [SerializeField] private Image effectBar;   // Pasek efektów (zmienia kolor: Czerwony/Niebieski)
 
-    [Header("Wizualizacja Obra¿eñ Czasu")]
-    [Tooltip("Czerwony pasek, który wizualizuje utracony czas.")]
-    [SerializeField] private Image damageTimeBar;
+    [Header("Kolory")]
+    [SerializeField] private Color damageColor = Color.red;
+    [SerializeField] private Color healColor = Color.cyan; // Jasny niebieski
 
-    [Tooltip("Szybkoœæ animacji czerwonego paska, gdy znika.")]
-    [SerializeField] private float damageBarAnimationSpeed = 5f;
+    [Header("Ustawienia")]
+    [SerializeField] private float animationSpeed = 0.5f; // Czas trwania animacji
 
-
-    // Ta zmienna bêdzie œledziæ, czy animacja obra¿eñ jest aktywna.
-    private Coroutine damageAnimationCoroutine;
+    private Coroutine activeCoroutine;
 
     private void Start()
     {
-        // Sprawdzenie, czy TimeManager jest podpiêty
-        if (timeManager == null)
+        // Subskrypcja do Twojego TimeManagera
+        if (TimeManager.Instance != null)
         {
-            // Spróbuj znaleŸæ TimeManager automatycznie, jeœli nie jest podpiêty
-            timeManager = TimeManager.Instance;
-            if (timeManager == null)
-            {
-                Debug.LogError("Time Manager reference not set in TimeBar and could not be found!");
-                return;
-            }
+            TimeManager.Instance.OnTimeModified += HandleTimeModified;
         }
-
-        // Inicjalizacja pasków
-        totalTimeBar.fillAmount = 1f;
-        currentTimeBar.fillAmount = 1f;
-
-        if (damageTimeBar != null)
-        {
-            damageTimeBar.fillAmount = 1f;
-        }
-
-        // Subskrybuj zdarzenie z TimeManagera
-        timeManager.OnTimeModified += HandleTimeModification;
-
-
+        UpdateBarsInstant();
     }
 
-    /// <summary>
-    /// Anuluj subskrypcjê, gdy obiekt jest niszczony, aby unikn¹æ b³êdów pamiêci.
-    /// </summary>
     private void OnDestroy()
     {
-        if (timeManager != null)
+        if (TimeManager.Instance != null)
         {
-            timeManager.OnTimeModified -= HandleTimeModification;
+            TimeManager.Instance.OnTimeModified -= HandleTimeModified;
         }
     }
 
-    /// <summary>
-    /// Update jest wywo³ywany w ka¿dej klatce.
-    /// </summary>
     private void Update()
     {
-        if (timeManager == null) return;
-
-        // Pobierz znormalizowany czas (wartoœæ od 0.0 do 1.0)
-        float normalizedTime = timeManager.GetNormalizedTime();
-
-        // 1. Zielony pasek zawsze pokazuje aktualny czas
-        currentTimeBar.fillAmount = normalizedTime;
-
-        // 2. Czerwony pasek jest "blokowany" do zielonego...
-        // ...CHYBA ¯E korutyna animacji obra¿eñ jest aktywna!
-        if (damageAnimationCoroutine == null)
+        // W Update aktualizujemy paski tylko jeœli NIE ma aktywnej animacji zmiany (dodania/odjêcia)
+        // Dziêki temu pasek normalnie maleje wraz z up³ywem czasu (countdown)
+        if (activeCoroutine == null && TimeManager.Instance != null)
         {
-            // Brak animacji - trzymaj paski idealnie razem
-            damageTimeBar.fillAmount = normalizedTime;
-        }
-        // Jeœli korutyna JEST aktywna, to ona sama kontroluje 'damageTimeBar.fillAmount'
-
-        // 3. Ukryj ca³y pasek, jeœli czas siê skoñczy³
-        if (timeManager.IsTimeUp())
-        {
-            timeBarWhole.SetActive(false);
+            float currentNorm = TimeManager.Instance.GetNormalizedTime();
+            mainBar.fillAmount = currentNorm;
+            effectBar.fillAmount = currentNorm;
         }
     }
 
-    /// <summary>
-    /// Ta funkcja jest automatycznie wywo³ywana przez zdarzenie 'OnTimeModified' z TimeManagera.
-    /// </summary>
-    private void HandleTimeModification(float amount)
+    // --- TO JEST KLUCZOWA METODA ---
+    private void HandleTimeModified(float amount)
     {
-        // Reaguj tylko na negatywn¹ modyfikacjê (utratê czasu)
-        if (amount < 0f)
-        {
-            
-            if (damageTimeBar != null)
-            {
-                
-                if (damageAnimationCoroutine != null)
-                {
-                    StopCoroutine(damageAnimationCoroutine);
-                }
-                damageAnimationCoroutine = StartCoroutine(AnimateDamageBar());
-            }
+        // Zatrzymujemy poprzedni¹ animacjê, jeœli jakaœ trwa³a
+        if (activeCoroutine != null) StopCoroutine(activeCoroutine);
 
+        float targetFill = TimeManager.Instance.GetNormalizedTime();
+
+        if (amount > 0)
+        {
+            // === DODAWANIE CZASU (Niebieski Pasek) ===
+            // 1. Zmieniamy kolor paska pod spodem na Niebieski
+            effectBar.color = healColor;
+
+            // 2. Pasek pod spodem od razu skacze do NOWEJ (wy¿szej) wartoœci
+            effectBar.fillAmount = targetFill;
+
+            // 3. G³ówny pasek zostaje na starej wartoœci i powoli roœnie
+            // (Obliczamy star¹ wartoœæ na podstawie tego, gdzie pasek jest teraz)
+            activeCoroutine = StartCoroutine(AnimateMainBarToTarget(targetFill));
+        }
+        else
+        {
+            // === ODEJMOWANIE CZASU (Czerwony Pasek) ===
+            // 1. Zmieniamy kolor paska pod spodem na Czerwony
+            effectBar.color = damageColor;
+
+            // 2. G³ówny pasek od razu spada do NOWEJ (ni¿szej) wartoœci
+            mainBar.fillAmount = targetFill;
+
+            // 3. Czerwony pasek zostaje na starej (wysokiej) wartoœci i powoli spada
+            // (W tym przypadku effectBar jest "powy¿ej" mainBar, wiêc go widaæ)
+            activeCoroutine = StartCoroutine(AnimateEffectBarToTarget(targetFill));
         }
     }
 
-    /// <summary>
-    /// Korutyna, która przejmuje kontrolê nad czerwonym paskiem
-    /// i animuje go p³ynnie do pozycji zielonego paska.
-    /// </summary>
-    private IEnumerator AnimateDamageBar()
+    // Animacja przy DODAWANIU (G³ówny goni Niebieski)
+    private IEnumerator AnimateMainBarToTarget(float target)
     {
-        yield return null;
+        float startFill = mainBar.fillAmount;
+        float t = 0f;
 
-        float targetFill = currentTimeBar.fillAmount;
-
-        while (damageTimeBar.fillAmount > targetFill + 0.01f)
+        while (t < 1f)
         {
-            damageTimeBar.fillAmount = Mathf.Lerp(
-                damageTimeBar.fillAmount, // Z...
-                targetFill,             // Do...
-                Time.unscaledDeltaTime * damageBarAnimationSpeed // Z prêdkoœci¹ (niezale¿n¹ od pauzy!)
-            );
-            yield return null; // Czekaj do nastêpnej klatki
+            t += Time.deltaTime / animationSpeed;
+            mainBar.fillAmount = Mathf.Lerp(startFill, target, t);
+            yield return null;
         }
 
-        // Koniec animacji - zablokuj paski z powrotem razem
-        damageTimeBar.fillAmount = targetFill;
-        damageAnimationCoroutine = null; // Zaznacz, ¿e skoñczyliœmy (oddaj kontrolê do Update)
+        mainBar.fillAmount = target;
+        activeCoroutine = null; // Koniec animacji, wracamy do normalnego Update
     }
 
-    /// <summary>
+    // Animacja przy ODEJMOWANIU (Czerwony goni G³ówny)
+    private IEnumerator AnimateEffectBarToTarget(float target)
+    {
+        float startFill = effectBar.fillAmount;
+        float t = 0f;
+
+        while (t < 1f)
+        {
+            t += Time.deltaTime / animationSpeed;
+            effectBar.fillAmount = Mathf.Lerp(startFill, target, t);
+            yield return null;
+        }
+
+        effectBar.fillAmount = target;
+        activeCoroutine = null; // Koniec animacji
+    }
+
+    private void UpdateBarsInstant()
+    {
+        if (TimeManager.Instance == null) return;
+        float norm = TimeManager.Instance.GetNormalizedTime();
+        mainBar.fillAmount = norm;
+        effectBar.fillAmount = norm;
+    }
 }
-
