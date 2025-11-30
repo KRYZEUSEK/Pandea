@@ -22,7 +22,12 @@ public class MovementAlterPlant : BasePlant
         {
             // Uruchamiamy procedurê zmiany prêdkoœci
             StartCoroutine(RestoreMovement(agent));
-            this.gameObject.SetActive(false); // Dezaktywujemy roœlinê po u¿yciu
+
+            var renderer = GetComponent<Renderer>();
+            if (renderer != null) renderer.enabled = false;
+
+            var collider = GetComponent<Collider>();
+            if (collider != null) collider.enabled = false;
         }
     }
 
@@ -44,6 +49,6 @@ public class MovementAlterPlant : BasePlant
             agent.speed = originalSpeed;
         }
 
-
+        this.gameObject.SetActive(false); // Dezaktywujemy roœlinê po u¿yciu
     }
 }
