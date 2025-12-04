@@ -3,15 +3,16 @@ using UnityEngine;
 
 public class BurningPlant : BasePlant
 {
-    [Header("Atak")]
-    public GameObject projectilePrefab; // Tu przypisz prefab z FireProjectile
-    public Transform spawnPoint;        // Sk¹d wylatuje ogieñ (lufa/paszcza)
-    public float shootInterval = 3.0f;  // Co ile sekund strzela
+    [Header("Atak - Fala Ognia")]
+    public GameObject projectilePrefab; // Prefab FireProjectile
+    public Transform spawnPoint;        // Punkt tu¿ przy ziemi (¿eby fala sz³a do³em)
+    public float shootInterval = 3.0f;  // Co ile sekund fala
+    public int projectilesAmount = 12;  // Ile pocisków w jednym okrêgu (im wiêcej, tym gêstsza fala)
 
     private Coroutine shootingCoroutine;
-    private Transform targetPlayer;     // Przechowujemy referencjê do gracza, ¿eby celowaæ
+    private Transform targetPlayer;
 
-    // --- Implementacja BasePlant ---
+    // --- Implementacja BasePlant (Bez zmian w logice detekcji) ---
 
     protected override void OnPlayerEnter(GameObject player)
     {
@@ -32,31 +33,44 @@ public class BurningPlant : BasePlant
         }
     }
 
-    // --- Logika Strzelania ---
+    // --- Logika Fali Uderzeniowej ---
 
     IEnumerator ShootRoutine()
     {
-        // Ma³e opóŸnienie na start, ¿eby gracz nie dosta³ od razu po wejœciu
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.5f); // OpóŸnienie na start
 
         while (targetPlayer != null)
         {
-            ShootAtPlayer();
+            ShootCircularWave();
             yield return new WaitForSeconds(shootInterval);
         }
     }
 
-    void ShootAtPlayer()
+    void ShootCircularWave()
     {
         if (projectilePrefab == null || spawnPoint == null) return;
 
-        // 1. Tworzymy pocisk
-        GameObject proj = Instantiate(projectilePrefab, spawnPoint.position, Quaternion.identity);
+        // Obliczamy k¹t miêdzy ka¿dym pociskiem (360 stopni / iloœæ pocisków)
+        float angleStep = 360f / projectilesAmount;
 
-        // 2. Celowanie w gracza
-        // Obliczamy kierunek, ale ignorujemy wysokoœæ (Y), ¿eby ogieñ lecia³ p³asko po ziemi
-        Vector3 targetPos = new Vector3(targetPlayer.position.x, spawnPoint.position.y, targetPlayer.position.z);
+        for (int i = 0; i < projectilesAmount; i++)
+        {
+            // 1. Obliczamy rotacjê dla danego pocisku
+            float currentAngle = i * angleStep;
 
-        proj.transform.LookAt(targetPos);
+            // Tworzymy rotacjê wokó³ osi Y (p³asko po ziemi)
+            Quaternion rotation = Quaternion.Euler(0, currentAngle, 0);
+
+            // 2. Tworzymy pocisk w punkcie spawnu z wyliczon¹ rotacj¹
+            GameObject proj = Instantiate(projectilePrefab, spawnPoint.position, rotation);
+
+            // Opcjonalnie: Ignorujemy kolizjê miêdzy pociskiem a roœlin¹, ¿eby nie wybuch³ od razu
+            Collider plantCollider = GetComponent<Collider>();
+            Collider projCollider = proj.GetComponent<Collider>();
+            if (plantCollider != null && projCollider != null)
+            {
+                Physics.IgnoreCollision(plantCollider, projCollider);
+            }
+        }
     }
 }

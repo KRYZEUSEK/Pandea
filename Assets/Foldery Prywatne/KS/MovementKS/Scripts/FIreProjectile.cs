@@ -3,54 +3,64 @@ using UnityEngine;
 public class FireProjectile : MonoBehaviour
 {
     [Header("Ruch")]
-    public float speed = 10.0f;         // Prêdkoœæ lotu
-    public float maxLifetime = 5.0f;    // Zabezpieczenie: zniszcz pocisk po 5s, ¿eby nie lecia³ w nieskoñczonoœæ
+    public float speed = 8.0f;      // Prêdkoœæ fali (mo¿e byæ wolniejsza, by ³atwiej przeskoczyæ)
+    public float maxLifetime = 4.0f;
 
-    [Header("Tworzenie Œciany")]
-    public GameObject firePillarPrefab; // Prefab s³upa ognia (FirePillarHazard)
-    public float spawnInterval = 0.5f;  // Co ile metrów stawiaæ s³up ognia (gêstoœæ œciany)
-
-    private Vector3 lastSpawnPosition;
+    // [Header("Tworzenie Œciany")] 
+    // UWAGA: Wy³¹czy³em te pola, aby gracz móg³ przeskoczyæ pocisk i wyl¹dowaæ bezpiecznie.
+    // Jeœli w³¹czysz tworzenie œciany w okrêgu 360 stopni, gracz wyl¹duje w ogniu.
+    // public GameObject firePillarPrefab; 
+    // public float spawnInterval = 0.5f;  
+    // private Vector3 lastSpawnPosition;
 
     void Start()
     {
-        lastSpawnPosition = transform.position;
-        Destroy(gameObject, maxLifetime); // Auto-zniszczenie "g³owicy" po czasie
+        // lastSpawnPosition = transform.position;
+        Destroy(gameObject, maxLifetime);
     }
 
     void Update()
     {
-        // 1. Ruch pocisku do przodu
+        // 1. Ruch pocisku ZAWSZE do przodu wzglêdem swojej rotacji
+        // Dziêki temu, ¿e w BurningPlant obróciliœmy je o 360 stopni, ka¿dy poleci w swoj¹ stronê na zewn¹trz.
         transform.Translate(Vector3.forward * speed * Time.deltaTime);
 
-        // 2. Sprawdzamy dystans od ostatniego postawionego ognia
+        // --- SEKCJA TWORZENIA ŒCIANY (OPCJONALNA - ZAKOMENTOWANA DLA MECHANIKI SKAKANIA) ---
+        /*
         float distanceTraveled = Vector3.Distance(transform.position, lastSpawnPosition);
-
-        // Jeœli przelecieliœmy wystarczaj¹co daleko, stawiamy nowy s³up
         if (distanceTraveled >= spawnInterval)
         {
-            SpawnFirePillar();
-            lastSpawnPosition = transform.position;
+             SpawnFirePillar();
+             lastSpawnPosition = transform.position;
         }
+        */
     }
 
+    /*
     void SpawnFirePillar()
     {
         if (firePillarPrefab != null)
         {
-            // Stawiamy ogieñ w aktualnej pozycji pocisku, z rotacj¹ 0 (prosto)
             Instantiate(firePillarPrefab, transform.position, Quaternion.identity);
         }
     }
+    */
 
-    // Opcjonalnie: Zniszcz pocisk, jeœli w coœ uderzy (np. œcianê)
     void OnTriggerEnter(Collider other)
     {
-        // Ignorujemy kolizjê z graczem (¿eby go nie blokowaæ) i samym ogniem
-        if (!other.CompareTag("Player") && !other.GetComponent<FirePillarHazard>())
+        // Jeœli uderzy w gracza -> zadaj obra¿enia (zak³adam, ¿e masz skrypt TimeManager lub Health)
+        if (other.CompareTag("Player"))
+        {
+            if (TimeManager.Instance != null)
+            {
+                TimeManager.Instance.ModifyTime(-10f); // Przyk³adowe obra¿enia
+            }
+            Destroy(gameObject); // Pocisk znika po trafieniu gracza
+        }
+        // Niszczymy pocisk na œcianach/przeszkodach (ale nie na Triggerach np. strefy roœliny)
+        else if (!other.isTrigger && !other.GetComponent<BurningPlant>())
         {
             Destroy(gameObject);
         }
     }
 }
-
