@@ -1,37 +1,44 @@
 using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
-using UnityEngine.InputSystem; // Upewnij siê, ¿e masz tê liniê
+using UnityEngine.InputSystem;
 
 public class PlayerControllerClick : MonoBehaviour
 {
-    // Animacje
     const string IDLE = "Idle";
     const string WALK = "Walk";
-    const string JUMP_TRIGGER = "Jump"; // Trigger dla animacji skoku
+    const string JUMP_TRIGGER = "Jump";
 
     CustomActions input;
-
     NavMeshAgent agent;
     Animator animator;
+    Camera mainCamera; // FIX: Cache kamery
 
     [Header("Movement")]
     [SerializeField] ParticleSystem clickEffect;
-    [SerializeField] LayerMask clickableLayers;
+    [SerializeField] LayerMask clickableLayers; // Warstwa pod³ogi
+    [SerializeField] LayerMask obstacleLayers;  // FIX: Nowa warstwa dla œcian (do skoku)
     [SerializeField] float lookRotationSpeed = 8f;
 
     [Header("Jumping")]
     [SerializeField] float jumpHeight = 2.0f;
     [SerializeField] float jumpDuration = 0.5f;
     [SerializeField] float groundCheckDistance = 0.3f;
+    [SerializeField] float bodyRadius = 0.5f; // FIX: Promieñ kolizji gracza do skoku
 
     private bool isJumping = false;
     private bool isGrounded;
+    private bool isHoldingMove = false;
+
+    // FIX: Optymalizacja SetDestination
+    private Vector3 lastMousePos;
+    private float nextMoveTime;
 
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
+        mainCamera = Camera.main; // FIX: Przypisanie kamery raz
 
         input = new CustomActions();
         AssignInputs();
@@ -39,150 +46,148 @@ public class PlayerControllerClick : MonoBehaviour
 
     void AssignInputs()
     {
-        // Klikniêcie myszk¹, aby siê poruszyæ
-        input.Main.Move.performed += ctx => ClickToMove();
-
-        // Naciœniêcie przycisku "Jump"
+        input.Main.Move.performed += ctx => {
+            isHoldingMove = true;
+            MoveToCursor(true);
+        };
+        input.Main.Move.canceled += ctx => isHoldingMove = false;
         input.Main.Jump.performed += ctx => TryJump();
-
-        // --- NOWA LINIA ---
-        // Naciœniêcie przycisku "Stop" (np. 'S')
         input.Main.Stop.performed += ctx => StopMovement();
     }
 
-    void OnEnable()
-    {
-        input.Enable();
-    }
-    void OnDisable()
-    {
-        input.Disable();
-    }
-
-    // --- LOGIKA RUCHU I SKOKU ---
+    void OnEnable() => input.Enable();
+    void OnDisable() => input.Disable();
 
     private void Update()
     {
-        // 1. Zawsze sprawdzaj, czy jesteœmy na ziemi
         GroundCheck();
 
-        // 2. Jeœli skaczemy, korutyna JumpArc() przejmuje kontrolê.
-        if (isJumping)
-            return;
+        if (isJumping) return;
 
-        // 3. Jeœli nie skaczemy, wykonuj normaln¹ logikê
+        if (isHoldingMove)
+        {
+            // FIX: Ograniczenie spamowania SetDestination (np. co 0.1s)
+            if (Time.time >= nextMoveTime)
+            {
+                MoveToCursor(false);
+                nextMoveTime = Time.time + 0.1f;
+            }
+        }
+
         FaceTarget();
         SetAnimations();
     }
 
-    void ClickToMove()
+    void MoveToCursor(bool spawnEffect)
     {
-        // Nie pozwól na klikniêcie celu podczas skoku
-        if (isJumping)
-            return;
+        if (isJumping) return;
 
         RaycastHit hit;
-        // U¿yj Mouse.current.position, aby by³o zgodne z nowym Input System
-        if (Physics.Raycast(Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue()), out hit, 100, clickableLayers))
+        // FIX: U¿ycie cache'owanej kamery
+        if (Physics.Raycast(mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue()), out hit, 100, clickableLayers))
         {
             agent.SetDestination(hit.point);
-            if (clickEffect != null)
+
+            if (spawnEffect && clickEffect != null)
             {
-                // Ma³a poprawka: U¿yj Destroy, aby particle system nie zostawa³y w scenie
-                ParticleSystem newEffect = Instantiate(clickEffect, hit.point + new Vector3(0, 0.1f, 0), clickEffect.transform.rotation);
-                Destroy(newEffect.gameObject, 2.0f); // Zniszcz particle po 2 sekundach
+                ParticleSystem newEffect = Instantiate(clickEffect, hit.point + Vector3.up * 0.1f, clickEffect.transform.rotation);
+                Destroy(newEffect.gameObject, 2.0f);
             }
         }
     }
 
     void TryJump()
     {
-        // Mo¿emy skoczyæ tylko jeœli jesteœmy na ziemi i aktualnie nie skaczemy
         if (isGrounded && !isJumping)
         {
+            // isHoldingMove = false; // Opcjonalnie reset trzymania
             StartCoroutine(JumpArc());
         }
     }
 
-    // --- NOWA FUNKCJA ---
-    /// <summary>
-    /// Zatrzymuje agenta NavMesh, anuluj¹c jego bie¿¹c¹ œcie¿kê.
-    /// </summary>
     void StopMovement()
     {
-        // Mo¿emy zatrzymaæ agenta tylko wtedy, gdy jest na ziemi (i w³¹czony)
-        if (isJumping || !agent.enabled)
-            return;
-
-        // Ustawienie celu na bie¿¹c¹ pozycjê agenta jest
-        // najlepszym sposobem na anulowanie jego œcie¿ki.
-        agent.SetDestination(transform.position);
+        if (isJumping || !agent.enabled) return;
+        isHoldingMove = false;
+        agent.ResetPath(); // FIX: ResetPath jest czystsze ni¿ SetDestination(transform.position)
     }
 
     private IEnumerator JumpArc()
     {
         isJumping = true;
-        animator.Play("Jump_start"); // Rozwa¿ u¿ycie SetTrigger("Jump_start")
-                                     //animator.SetBool("isJumping", true);
+        animator.Play("Jump_start");
 
-        // Zapisz aktualny cel (jeœli 'S' zosta³o wciœniête przed skokiem,
-        // savedDestination bêdzie pozycj¹ gracza, co jest poprawne)
         Vector3 savedDestination = agent.destination;
-
         Vector3 horizontalVelocity = agent.velocity;
 
-        // 1. Wy³¹cz agenta
+        // Zabezpieczenie: Jeœli skaczemy z miejsca (velocity ~ 0), 
+        // przyjmijmy, ¿e ruchem jest to, gdzie postaæ patrzy.
+        if (horizontalVelocity.magnitude < 0.1f)
+        {
+            horizontalVelocity = transform.forward * 0.1f; // Minimalny ruch w przód
+        }
+
         agent.enabled = false;
 
-        // --- Symulacja fizyki skoku ---
         float timeToPeak = jumpDuration / 2.0f;
         float gravity = (-2 * jumpHeight) / Mathf.Pow(timeToPeak, 2);
         float verticalVelocity = (2 * jumpHeight) / timeToPeak;
 
-        Vector3 movement = (horizontalVelocity + Vector3.up * verticalVelocity) * Time.deltaTime;
-        transform.position += movement;
         yield return null;
-
 
         while (true)
         {
-            Vector3 rayStart = transform.position + Vector3.up * 0.1f;
-            bool hasLanded = Physics.Raycast(rayStart, Vector3.down, groundCheckDistance, clickableLayers);
+            float deltaTime = Time.deltaTime;
+            verticalVelocity += gravity * deltaTime;
 
-            if (hasLanded && verticalVelocity < 0)
+            // --- NOWE: Rêczne obracanie postaci w locie ---
+            // Sprawdzamy, czy poruszamy siê w poziomie, ¿eby nie obracaæ siê do (0,0,0)
+            if (horizontalVelocity.sqrMagnitude > 0.05f)
             {
-                break;
-            }
+                // Obliczamy rotacjê w stronê, w któr¹ faktycznie lecimy
+                Quaternion targetRotation = Quaternion.LookRotation(horizontalVelocity.normalized);
 
-            verticalVelocity += gravity * Time.deltaTime;
-            movement = (horizontalVelocity + Vector3.up * verticalVelocity) * Time.deltaTime;
-            transform.position += movement;
+                // P³ynnie obracamy postaæ (u¿ywaj¹c tej samej zmiennej lookRotationSpeed co przy chodzeniu)
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, deltaTime * lookRotationSpeed);
+            }
+            // ----------------------------------------------
+
+            // Przesuniêcie
+            Vector3 moveVector = (horizontalVelocity + Vector3.up * verticalVelocity) * deltaTime;
+
+            // (Tu powinna byæ Twoja logika kolizji ze œcianami z poprzedniej rozmowy, jeœli j¹ doda³eœ)
+            // ...
+
+            transform.position += moveVector;
+
+            // Logika l¹dowania
+            if (verticalVelocity < 0)
+            {
+                Vector3 rayStart = transform.position + Vector3.up * 0.5f;
+                // Zwiêkszy³em lekko dystans raycasta, ¿eby l¹dowanie by³o pewniejsze
+                if (Physics.Raycast(rayStart, Vector3.down, out RaycastHit hitGround, 0.6f + groundCheckDistance, clickableLayers))
+                {
+                    transform.position = hitGround.point;
+                    break;
+                }
+            }
 
             yield return null;
         }
 
-        // --- L¹dowanie ---
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position + Vector3.up * 0.1f, Vector3.down, out hit, 1.0f, clickableLayers))
-        {
-            transform.position = new Vector3(transform.position.x, hit.point.y, transform.position.z);
-        }
-
-        // 2. W³¹cz agenta z powrotem
         agent.enabled = true;
 
-        // 3. Zsynchronizuj pozycjê
-        agent.Warp(transform.position);
+        NavMeshHit navHit;
+        if (NavMesh.SamplePosition(transform.position, out navHit, 1.0f, NavMesh.AllAreas))
+        {
+            agent.Warp(navHit.position);
+        }
 
-        // 4. Przywróæ zapisany cel
-        agent.SetDestination(savedDestination);
+        if (savedDestination != Vector3.zero)
+            agent.SetDestination(savedDestination);
 
         isJumping = false;
-        //animator.SetBool("isJumping", false);
-        //animator.SetBool("isWalking", true);
     }
-
-    // --- FUNKCJE POMOCNICZE ---
 
     void GroundCheck()
     {
@@ -192,16 +197,25 @@ public class PlayerControllerClick : MonoBehaviour
 
     void FaceTarget()
     {
-        if (agent.remainingDistance <= agent.stoppingDistance)
-            return;
+        // FIX: Sprawdzenie pozosta³ego dystansu mo¿e byæ myl¹ce przy "Hold to move", 
+        // lepiej sprawdzaæ czy agent ma œcie¿kê (agent.hasPath) lub prêdkoœæ.
+        if (agent.velocity.sqrMagnitude < 0.1f) return;
 
-        Vector3 direction = (agent.destination - transform.position).normalized;
-        Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
-        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * lookRotationSpeed);
+        // FIX: U¿ycie steeringTarget zamiast destination
+        Vector3 targetPosition = agent.steeringTarget;
+        Vector3 direction = (targetPosition - transform.position).normalized;
+
+        // FIX: Zabezpieczenie przed b³êdem Zero Vector
+        if (direction.sqrMagnitude > 0.001f)
+        {
+            Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * lookRotationSpeed);
+        }
     }
 
     void SetAnimations()
     {
+        // U¿ywamy velocity agenta, to najdok³adniejszy wskaŸnik ruchu
         bool isWalking = agent.velocity.magnitude > 0.1f;
         animator.SetBool("isWalking", isWalking);
     }

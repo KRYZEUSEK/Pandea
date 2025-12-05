@@ -1,91 +1,90 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class TopDownFollowCamera : MonoBehaviour
 {
     [Header("Cel i Odleg³oœci")]
-    [Tooltip("Obiekt transform motocykla, za którym ma pod¹¿aæ kamera.")]
     public Transform target;
-    [Tooltip("Dystans kamery od motocykla.")]
-    public float distance = 6f;
-    [Tooltip("Wysokoœæ kamery nad motocyklem.")]
-    public float height = 2.5f;
+    public float distance = 8f;
+    public float height = 6f;
 
-    [Header("P³ynnoœæ i OpóŸnienie")]
-    [Tooltip("Szybkoœæ p³ynnego pod¹¿ania za pozycj¹ motocykla.")]
-    public float positionDamping = 5f;
-    [Tooltip("Szybkoœæ p³ynnego obracania siê kamery (Yaw).")]
-    public float rotationDamping = 3f;
+    [Header("P³ynnoœæ Pod¹¿ania (Position)")]
+    public float positionDamping = 4f; // Jak szybko kamera goni pozycjê
+    public float rotationDamping = 2f; // Jak szybko kamera obraca siê do celu
 
-    [Header("Pochylenie Kamery (Roll)")]
-    [Tooltip("Maksymalny k¹t pochylenia kamery (Roll) w reakcji na przechylenie motoru.")]
-    public float maxCameraRoll = 10f;
-    [Tooltip("Wspó³czynnik pochylenia kamery (im wiêkszy, tym kamera bardziej siê przechyla).")]
-    public float rollFactor = 0.5f;
-    [Tooltip("Szybkoœæ t³umienia pochylenia kamery.")]
-    public float rollDamping = 8f;
+    [Header("P³ynnoœæ Zmiany Kierunku (Nowoœæ)")]
+    [Tooltip("Jak szybko kamera reaguje na zmianê kierunku ruchu gracza. Mniejsza wartoœæ = ³agodniejsze ³uki.")]
+    public float directionSmoothing = 2.5f; // TO JEST KLUCZ DO NAPRAWY PRZESKOKU
 
-    private Rigidbody targetRb;
+    [Header("Logika Ruchu")]
+    public float moveThreshold = 0.1f;
+
+    // --- ZMIENNE PRYWATNE ---
+    private Vector3 lastTargetPosition;
+    private Vector3 currentHeading; // Wyg³adzony wektor kierunku ("plecy" gracza)
 
     void Start()
     {
-        if (target == null)
-        {
-            Debug.LogError("Brak zdefiniowanego celu (target) dla kamery motocykla!");
-            enabled = false;
-            return;
-        }
+        if (target == null) return;
 
-        targetRb = target.GetComponent<Rigidbody>();
-        if (targetRb == null)
-        {
-            Debug.LogWarning("Motor nie ma komponentu Rigidbody. Ruch kamery mo¿e byæ mniej dynamiczny.");
-        }
+        lastTargetPosition = target.position;
+        currentHeading = target.forward;
+
+        // Ustawienie startowe
+        UpdateCameraPosition(true);
     }
 
     void LateUpdate()
     {
         if (target == null) return;
+        UpdateCameraPosition(false);
+    }
 
-        // 1. OBLICZANIE DOCELOWEJ POZYCJI
+    void UpdateCameraPosition(bool instant)
+    {
+        // 1. OBLICZANIE RZECZYWISTEGO RUCHU
+        Vector3 displacement = target.position - lastTargetPosition;
+        Vector3 flatDisplacement = new Vector3(displacement.x, 0, displacement.z); // Ignorujemy Y
+        float moveDistance = flatDisplacement.magnitude;
 
-        // Docelowa pozycja kamery to pozycja motocykla, przesuniêta o wektor 'za' i 'nad' nim.
-        Vector3 docelowaPozycja = target.position - target.forward * distance + target.up * height;
+        // 2. AKTUALIZACJA KIERUNKU (Z WYG£ADZANIEM)
+        if (moveDistance > moveThreshold)
+        {
+            Vector3 inputDirection = flatDisplacement.normalized;
 
-        // P³ynne pod¹¿anie za pozycj¹
-        transform.position = Vector3.Lerp(transform.position, docelowaPozycja, Time.deltaTime * positionDamping);
+            if (instant)
+            {
+                currentHeading = inputDirection;
+            }
+            else
+            {
+                // TUTAJ JEST NAPRAWA:
+                // Zamiast: currentHeading = inputDirection;
+                // U¿ywamy Slerp, aby wektor "pleców" obraca³ siê powoli, a nie przeskakiwa³.
+                currentHeading = Vector3.Slerp(currentHeading, inputDirection, Time.deltaTime * directionSmoothing);
+            }
+        }
 
-        // 2. OBLICZANIE DOCELOWEJ ROTACJI (Yaw/Pitch)
+        // Zapisujemy pozycjê na nastêpn¹ klatkê
+        lastTargetPosition = target.position;
 
-        // Docelowa rotacja: kamera patrzy na punkt nieco przed motocyklem.
-        Quaternion docelowaRotacja = Quaternion.LookRotation(target.position + target.forward * 5f - transform.position);
+        // 3. OBLICZANIE POZYCJI DOCELOWEJ
+        // Pozycja jest obliczana na podstawie WYG£ADZONEGO wektora 'currentHeading'
+        Vector3 targetPos = target.position - currentHeading * distance + Vector3.up * height;
 
-        // P³ynne obracanie (Yaw)
-        transform.rotation = Quaternion.Slerp(transform.rotation, docelowaRotacja, Time.deltaTime * rotationDamping);
+        // 4. APLIKOWANIE RUCHU
+        if (instant)
+        {
+            transform.position = targetPos;
+            transform.LookAt(target.position);
+        }
+        else
+        {
+            // Lerp pozycji (t³umienie drgañ)
+            transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * positionDamping);
 
-
-        // 3. POCHYLENIE KAMERY (Roll)
-
-        // Kamera delikatnie pochyla siê, reaguj¹c na pochylenie motocykla (lub ruch boczny)
-        float currentTargetRoll = target.localEulerAngles.z;
-        if (currentTargetRoll > 180)
-            currentTargetRoll -= 360;
-
-        // Oblicz docelowy Roll kamery (Roll motoru * wspó³czynnik)
-        float docelowyRoll = -currentTargetRoll * rollFactor;
-
-        // Ograniczenie maksymalnego k¹ta pochylenia kamery
-        docelowyRoll = Mathf.Clamp(docelowyRoll, -maxCameraRoll, maxCameraRoll);
-
-        // Pozycja Roll kamery (Z) jest niezale¿na od reszty obrotu (Yaw/Pitch)
-        Quaternion rollRotacja = Quaternion.Euler(
-            transform.localEulerAngles.x,
-            transform.localEulerAngles.y,
-            docelowyRoll
-        );
-
-        // P³ynna interpolacja Roll
-        transform.rotation = Quaternion.Slerp(transform.rotation, rollRotacja, Time.deltaTime * rollDamping);
+            // LookAt z lekkim wyg³adzeniem (¿eby nie trzês³o przy mikro-ruchach)
+            Quaternion targetRotation = Quaternion.LookRotation(target.position - transform.position);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationDamping);
+        }
     }
 }
