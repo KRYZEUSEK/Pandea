@@ -14,19 +14,33 @@ public class MapGenerator : MonoBehaviour {
 	public const int mapChunkSize = 241;
 	[Range(0,6)]
 	public int editorPreviewLOD;
+
+	[Tooltip("Controls how zoomed in the noise map is" )]
 	public float noiseScale;
 
-	public int octaves;
+	[Tooltip("Number of layers of noise to add together to create the final noise map")]
+    public int octaves;
+	
 	[Range(0,1)]
-	public float persistance;
-	public float lacunarity;
+	[Tooltip("Controls how much each octave contributes to the overall shape (amplitude)")]
+    public float persistance;
 
-	public int seed;
+	[Tooltip("Controls how quickly the frequency increases for each octave")]
+    public float lacunarity;
+
+	[Tooltip("Controls the random seed used to generate the noise map")]
+    public int seed;
+
+	[Tooltip("Offset the map in the x and y directions")]
 	public Vector2 offset;
 
-	public float meshHeightMultiplier;
-	public AnimationCurve meshHeightCurve;
+	[Tooltip("Multiplier for the height of the mesh")]
+    public float meshHeightMultiplier;
 
+	[Tooltip("Curve to control the multiplication of the height of the mesh")]
+    public AnimationCurve meshHeightCurve;
+
+	[Tooltip("Whether to automatically update the map when any value changes in the inspector")]
 	public bool autoUpdate;
 
 	public TerrainType[] regions;
