@@ -48,6 +48,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 5
   maxLifetime: 3
+  burnDuration: 10
 --- !u!135 &6814217662614429913
 SphereCollider:
   m_ObjectHideFlags: 0
