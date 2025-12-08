@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50c7072c6859817458a6572c458c6ff5, type: 3}
+  m_Name: Tool
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 5935071896136878386, guid: 0337e13c6b66ec344990c01c60dabb5d, type: 3}
+  type: 2
+  description: "Narz\u0119dzie potrzebne do budowania."
+  uiPrefab: {fileID: 5935071896136878386, guid: 0337e13c6b66ec344990c01c60dabb5d, type: 3}
+  worldPrefab: {fileID: 344183342379279562, guid: b19413c3911b3224bb5ada3ab96dc13b, type: 3}
+  handScale: {x: 0.015, y: 0.015, z: 0.015}
+  handRotation: {x: -90, y: 0, z: 0}

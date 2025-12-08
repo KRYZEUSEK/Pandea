@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d371a7aea2ab48947a57f4e101976234, type: 3}
+  m_Name: Food
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 8392096246315305885, guid: 5d926dbfbc0bc854694a1c7dc5c6f491, type: 3}
+  type: 0
+  description: Oxygen regen.
+  uiPrefab: {fileID: 8392096246315305885, guid: 5d926dbfbc0bc854694a1c7dc5c6f491, type: 3}
+  worldPrefab: {fileID: 1596801275836014456, guid: 0527e53bd656a5742b2bbf38cc6c4b96, type: 3}
+  handScale: {x: 0.001, y: 0.001, z: 0.001}
+  handRotation: {x: 0, y: 0, z: 0}
+  restoreOxygen: 4
