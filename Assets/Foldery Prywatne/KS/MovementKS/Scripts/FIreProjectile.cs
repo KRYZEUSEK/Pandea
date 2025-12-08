@@ -3,61 +3,52 @@ using UnityEngine;
 public class FireProjectile : MonoBehaviour
 {
     [Header("Ruch")]
-    public float speed = 8.0f;      // Prêdkoœæ fali (mo¿e byæ wolniejsza, by ³atwiej przeskoczyæ)
+    public float speed = 8.0f;
     public float maxLifetime = 4.0f;
 
-    // [Header("Tworzenie Œciany")] 
-    // UWAGA: Wy³¹czy³em te pola, aby gracz móg³ przeskoczyæ pocisk i wyl¹dowaæ bezpiecznie.
-    // Jeœli w³¹czysz tworzenie œciany w okrêgu 360 stopni, gracz wyl¹duje w ogniu.
-    // public GameObject firePillarPrefab; 
-    // public float spawnInterval = 0.5f;  
-    // private Vector3 lastSpawnPosition;
+    [Header("Efekt Podpalenia")]
+    [Tooltip("Ile sekund gracz bêdzie p³on¹³ po trafieniu tym pociskiem.")]
+    public float burnDuration = 3.0f;
 
     void Start()
     {
-        // lastSpawnPosition = transform.position;
         Destroy(gameObject, maxLifetime);
     }
 
     void Update()
     {
-        // 1. Ruch pocisku ZAWSZE do przodu wzglêdem swojej rotacji
-        // Dziêki temu, ¿e w BurningPlant obróciliœmy je o 360 stopni, ka¿dy poleci w swoj¹ stronê na zewn¹trz.
+        // Ruch pocisku ZAWSZE do przodu wzglêdem swojej rotacji
         transform.Translate(Vector3.forward * speed * Time.deltaTime);
-
-        // --- SEKCJA TWORZENIA ŒCIANY (OPCJONALNA - ZAKOMENTOWANA DLA MECHANIKI SKAKANIA) ---
-        /*
-        float distanceTraveled = Vector3.Distance(transform.position, lastSpawnPosition);
-        if (distanceTraveled >= spawnInterval)
-        {
-             SpawnFirePillar();
-             lastSpawnPosition = transform.position;
-        }
-        */
     }
-
-    /*
-    void SpawnFirePillar()
-    {
-        if (firePillarPrefab != null)
-        {
-            Instantiate(firePillarPrefab, transform.position, Quaternion.identity);
-        }
-    }
-    */
 
     void OnTriggerEnter(Collider other)
     {
-        // Jeœli uderzy w gracza -> zadaj obra¿enia (zak³adam, ¿e masz skrypt TimeManager lub Health)
         if (other.CompareTag("Player"))
         {
-            if (TimeManager.Instance != null)
+            // --- ZMIANA: Logika podpalenia ---
+            // Szukamy skryptu PlayerBurnStatus na obiekcie gracza
+            PlayerBurnStatus burnStatus = other.GetComponent<PlayerBurnStatus>();
+
+            if (burnStatus != null)
             {
-                TimeManager.Instance.ModifyTime(-10f); // Przyk³adowe obra¿enia
+                // Jeœli gracz ma ten skrypt, podpalamy go
+                burnStatus.ApplyBurn(burnDuration);
+                Debug.Log($"Pocisk trafi³! Gracz podpalony na {burnDuration} sekund.");
             }
-            Destroy(gameObject); // Pocisk znika po trafieniu gracza
+            else
+            {
+                // Zabezpieczenie: Jeœli zapomnia³eœ dodaæ skryptu PlayerBurnStatus, 
+                // zadaj zwyk³e obra¿enia, ¿eby gracz nie czu³ siê nieœmiertelny.
+                Debug.LogWarning("Gracz nie ma komponentu PlayerBurnStatus! Zadajê zwyk³e obra¿enia.");
+                if (TimeManager.Instance != null)
+                {
+                    TimeManager.Instance.ModifyTime(-10f);
+                }
+            }
+
+            Destroy(gameObject); // Pocisk znika po trafieniu
         }
-        // Niszczymy pocisk na œcianach/przeszkodach (ale nie na Triggerach np. strefy roœliny)
+        // Niszczymy pocisk na œcianach/przeszkodach (ignorujemy inne triggery i sam¹ roœlinê)
         else if (!other.isTrigger && !other.GetComponent<BurningPlant>())
         {
             Destroy(gameObject);

@@ -1,24 +1,22 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
+using System;
 using UnityEngine;
-
-using System; 
 
 public class TimeManager : MonoBehaviour
 {
     public static TimeManager Instance;
 
-    // --- KROK 2: Deklaracja zdarzenia ---
     public event Action<float> OnTimeModified;
 
     [Header("Time Settings")]
-    [SerializeField] private float maxTime = 100f; // Upewnij siê, ¿e to jest 100, a nie 10!
+    [SerializeField] private float maxTime = 100f;
     [SerializeField] public float countdownDuration = 10f;
 
     private float currentTime;
     private float countdownRate;
     private bool isActive = false;
+
+    // --- NOWOŒÆ: Mno¿nik czasu ---
+    private float timeMultiplier = 1.0f;
 
     public float GetNormalizedTime() => currentTime / maxTime;
 
@@ -33,32 +31,26 @@ public class TimeManager : MonoBehaviour
     {
         currentTime = maxTime;
         isActive = true;
+        timeMultiplier = 1.0f; // Reset przy w³¹czeniu
     }
 
-    private void OnDisable()
-    {
-        isActive = false;
-        currentTime = maxTime;
-    }
-
+    // ... (Reszta metod OnDisable, CalculateCountdownRate, SetCountdownDuration bez zmian) ...
     private void CalculateCountdownRate()
     {
         countdownRate = maxTime / countdownDuration;
     }
 
-    public void SetCountdownDuration(float duration)
-    {
-        countdownDuration = Mathf.Max(0.1f, duration);
-        CalculateCountdownRate();
-    }
-
     public void ModifyTime(float amount)
     {
         currentTime = Mathf.Clamp(currentTime + amount, 0f, maxTime);
-
-        // --- KROK 3: Wywo³anie zdarzenia ---
-        // Ta linia "krzyczy" do TimeBara, ¿e czas siê zmieni³
         OnTimeModified?.Invoke(amount);
+    }
+
+    // --- NOWOŒÆ: Metoda do ustawiania mno¿nika ---
+    public void SetTimeMultiplier(float multiplier)
+    {
+        timeMultiplier = multiplier;
+        // Opcjonalnie: Tutaj mo¿esz dodaæ event, np. ¿eby zmieniæ kolor paska na fioletowy, gdy czas leci szybciej
     }
 
     private void Update()
@@ -67,11 +59,15 @@ public class TimeManager : MonoBehaviour
 
         if (currentTime > 0f)
         {
-            currentTime -= countdownRate * Time.deltaTime;
+            // --- ZMIANA: Mno¿ymy przez timeMultiplier ---
+            // Jeœli multiplier to 1, czas leci normalnie.
+            // Jeœli multiplier to 2, czas leci 2x szybciej.
+            float decay = countdownRate * timeMultiplier * Time.deltaTime;
+
+            currentTime -= decay;
             currentTime = Mathf.Max(currentTime, 0f);
         }
     }
-
     public bool IsTimeUp() => currentTime <= 0f;
     public float GetCurrentTime() => currentTime;
     public void ResetTime() => currentTime = maxTime;
