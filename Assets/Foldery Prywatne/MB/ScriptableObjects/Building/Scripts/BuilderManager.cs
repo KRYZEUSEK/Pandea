@@ -9,7 +9,11 @@ public class BuildingManager : MonoBehaviour
 {
 
 
-    [Header("Katalog budowli")]
+    [Header("UI")]
+    [SerializeField]
+    private GameObject buildMenuPanel;
+
+       [Header("Katalog budowli")]
     public BuildCatalog catalog;
     public int SelectedIndex { get; private set; } = -1;
 
@@ -336,6 +340,9 @@ public class BuildingManager : MonoBehaviour
         buildMode = true;
         currentRotation = 0f;
 
+        if (buildMenuPanel != null)
+            buildMenuPanel.SetActive(true);
+
         if (previewInstance != null) Destroy(previewInstance);
         if (selectedBuildable.previewPrefab != null)
             previewInstance = Instantiate(selectedBuildable.previewPrefab);
@@ -352,6 +359,10 @@ public class BuildingManager : MonoBehaviour
     private void ExitBuildMode()
     {
         buildMode = false;
+
+        if (buildMenuPanel != null)
+            buildMenuPanel.SetActive(false);
+
         if (previewInstance != null) Destroy(previewInstance);
         previewInstance = null;
         Debug.Log("Wyłączono tryb budowy.");
