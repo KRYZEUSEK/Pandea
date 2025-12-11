@@ -55,6 +55,64 @@ public class InventoryObject : ScriptableObject
         }
     }
 
+    public bool HasItems(IEnumerable<BuildCost> costs)
+    {
+        foreach (var cost in costs)
+        {
+            if (cost == null || cost.item == null || cost.amount <= 0)
+                return false;
+
+            int total = 0;
+            for (int i = 0; i < Slots.Length; i++)
+            {
+                var s = Slots[i];
+                if (s != null && s.item != null && s.item.id == cost.item.id)
+                {
+                    total += s.amount;
+                }
+            }
+
+            if (total < cost.amount)
+                return false; // brakuje któregoś kosztu
+        }
+        return true;
+    }
+
+    public bool ConsumeItems(IEnumerable<BuildCost> costs)
+    {
+        // Najpierw walidacja, żeby nie częściowo zużyć.
+        if (!HasItems(costs))
+            return false;
+
+        // Zużycie — iterujemy po kosztach i odejmujemy z odpowiednich slotów.
+        foreach (var cost in costs)
+        {
+            int leftToConsume = cost.amount;
+
+            for (int i = 0; i < Slots.Length && leftToConsume > 0; i++)
+            {
+                var s = Slots[i];
+                if (s != null && s.item != null && s.item.id == cost.item.id && s.amount > 0)
+                {
+                    int take = Mathf.Min(s.amount, leftToConsume);
+                    s.amount -= take;
+                    leftToConsume -= take;
+
+                    // Opcjonalnie wyczyść slot jeśli amount spadł do 0
+                    if (s.amount <= 0)
+                    {
+                        s.item = null;
+                        s.amount = 0;
+                    }
+                }
+            }
+
+            // Po tej pętli leftToConsume powinno być 0 — bo HasItems to gwarantował
+        }
+
+        return true;
+    }
+
 }
 
 

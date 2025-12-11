@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37c9330cf7ff63d47af00616eafcd044, type: 3}
+  m_Name: Cube
+  m_EditorClassIdentifier: 
+  id: cube
+  finalPrefab: {fileID: 5354945009080194273, guid: f0291b9a4a6c5574e8d0c8993cef3a1e, type: 3}
+  previewPrefab: {fileID: 2849729108813195646, guid: c518e04c2b7eb6a4c8d5a8527a56ea3f, type: 3}
+  placementOffset: {x: 0, y: 0, z: 0}
+  maxSlopeDegrees: 20
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 64
+  costs:
+  - item: {fileID: 11400000, guid: 310eb837797a869489be4e1acaf8c0c5, type: 2}
+    amount: 1
+  - item: {fileID: 11400000, guid: 1a0dadc868bc2db4293102821ceddf06, type: 2}
+    amount: 2

@@ -1,4 +1,5 @@
 
+using System;
 using UnityEngine;
 
 public class HotbarSelector : MonoBehaviour
@@ -7,7 +8,7 @@ public class HotbarSelector : MonoBehaviour
     public DisplayHotbar displayHotbar;
 
     public int CurrentIndex { get; private set; } = 0;
-
+    public event Action<int> OnSelectedIndexChanged;
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Alpha1)) SelectSlot(0);
@@ -40,6 +41,22 @@ public class HotbarSelector : MonoBehaviour
         // Podœwietlenie w UI (zawsze dzia³a, nawet dla pustych slotów)
         if (displayHotbar != null)
             displayHotbar.SetSelectedIndex(CurrentIndex);
+
+        OnSelectedIndexChanged?.Invoke(CurrentIndex);
     }
+
+
+    public bool IsWrenchEquipped()
+    {
+        if (inventory == null || inventory.Slots == null) return false;
+        if (CurrentIndex < 0 || CurrentIndex >= inventory.Slots.Length) return false;
+
+        var slot = inventory.Slots[CurrentIndex];
+        if (slot == null || slot.item == null) return false;
+
+        // Sprawdzamy po ID z ItemObject (u Ciebie jest pole: public string id)
+        return slot.item.id == "wrench";
+    }
+
 
 }

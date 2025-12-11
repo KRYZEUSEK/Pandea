@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50c7072c6859817458a6572c458c6ff5, type: 3}
   m_Name: Tool
   m_EditorClassIdentifier: 
+  id: wrench
   prefab: {fileID: 5935071896136878386, guid: 0337e13c6b66ec344990c01c60dabb5d, type: 3}
   type: 2
   description: "Narz\u0119dzie potrzebne do budowania."

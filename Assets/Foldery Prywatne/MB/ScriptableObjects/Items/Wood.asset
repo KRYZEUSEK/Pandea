@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50c7072c6859817458a6572c458c6ff5, type: 3}
   m_Name: Wood
   m_EditorClassIdentifier: 
+  id: Wood
   prefab: {fileID: 7717084990983463046, guid: e980fc400109b844ca9aa36ef2dbde1a, type: 3}
   type: 2
   description: Building material.

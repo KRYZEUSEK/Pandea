@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d371a7aea2ab48947a57f4e101976234, type: 3}
   m_Name: Food
   m_EditorClassIdentifier: 
+  id: Food
   prefab: {fileID: 8392096246315305885, guid: 5d926dbfbc0bc854694a1c7dc5c6f491, type: 3}
   type: 0
   description: Oxygen regen.

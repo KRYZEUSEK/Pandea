@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37c9330cf7ff63d47af00616eafcd044, type: 3}
+  m_Name: Base
+  m_EditorClassIdentifier: 
+  id: base
+  finalPrefab: {fileID: 9085582034172677080, guid: b2a2310cf45c2084da363592f885606d, type: 3}
+  previewPrefab: {fileID: 1741192777505707571, guid: 604c6c6bbcbf85e45a174ee69431600a, type: 3}
+  placementOffset: {x: 0, y: -5, z: 0}
+  maxSlopeDegrees: 20
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 64
+  costs:
+  - item: {fileID: 11400000, guid: 1a0dadc868bc2db4293102821ceddf06, type: 2}
+    amount: 2
+  - item: {fileID: 11400000, guid: 310eb837797a869489be4e1acaf8c0c5, type: 2}
+    amount: 2

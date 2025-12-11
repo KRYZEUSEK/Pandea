@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37c9330cf7ff63d47af00616eafcd044, type: 3}
+  m_Name: Plane
+  m_EditorClassIdentifier: 
+  id: plane
+  finalPrefab: {fileID: 4865239052726154062, guid: 3ff9a926a65ea2843884a714c7f0e19e, type: 3}
+  previewPrefab: {fileID: 6527626349110999336, guid: d06e9fb05ac67a04a8f1d7fa4c09f24a, type: 3}
+  placementOffset: {x: 0, y: 0, z: 0}
+  maxSlopeDegrees: 20
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 64
+  costs:
+  - item: {fileID: 11400000, guid: 310eb837797a869489be4e1acaf8c0c5, type: 2}
+    amount: 1
