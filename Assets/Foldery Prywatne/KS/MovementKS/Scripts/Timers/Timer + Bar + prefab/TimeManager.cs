@@ -11,11 +11,11 @@ public class TimeManager : MonoBehaviour
     [SerializeField] private float maxTime = 100f;
     [SerializeField] public float countdownDuration = 10f;
 
-    private float currentTime;
+    public float currentTime;
     private float countdownRate;
     private bool isActive = false;
 
-    // --- NOWOŒÆ: Mno¿nik czasu ---
+    // --- NOWOï¿½ï¿½: Mnoï¿½nik czasu ---
     private float timeMultiplier = 1.0f;
 
     public float GetNormalizedTime() => currentTime / maxTime;
@@ -31,7 +31,7 @@ public class TimeManager : MonoBehaviour
     {
         currentTime = maxTime;
         isActive = true;
-        timeMultiplier = 1.0f; // Reset przy w³¹czeniu
+        timeMultiplier = 1.0f; // Reset przy wï¿½ï¿½czeniu
     }
 
     // ... (Reszta metod OnDisable, CalculateCountdownRate, SetCountdownDuration bez zmian) ...
@@ -46,11 +46,11 @@ public class TimeManager : MonoBehaviour
         OnTimeModified?.Invoke(amount);
     }
 
-    // --- NOWOŒÆ: Metoda do ustawiania mno¿nika ---
+    // --- NOWOï¿½ï¿½: Metoda do ustawiania mnoï¿½nika ---
     public void SetTimeMultiplier(float multiplier)
     {
         timeMultiplier = multiplier;
-        // Opcjonalnie: Tutaj mo¿esz dodaæ event, np. ¿eby zmieniæ kolor paska na fioletowy, gdy czas leci szybciej
+        // Opcjonalnie: Tutaj moï¿½esz dodaï¿½ event, np. ï¿½eby zmieniï¿½ kolor paska na fioletowy, gdy czas leci szybciej
     }
 
     private void Update()
@@ -59,9 +59,9 @@ public class TimeManager : MonoBehaviour
 
         if (currentTime > 0f)
         {
-            // --- ZMIANA: Mno¿ymy przez timeMultiplier ---
-            // Jeœli multiplier to 1, czas leci normalnie.
-            // Jeœli multiplier to 2, czas leci 2x szybciej.
+            // --- ZMIANA: Mnoï¿½ymy przez timeMultiplier ---
+            // Jeï¿½li multiplier to 1, czas leci normalnie.
+            // Jeï¿½li multiplier to 2, czas leci 2x szybciej.
             float decay = countdownRate * timeMultiplier * Time.deltaTime;
 
             currentTime -= decay;

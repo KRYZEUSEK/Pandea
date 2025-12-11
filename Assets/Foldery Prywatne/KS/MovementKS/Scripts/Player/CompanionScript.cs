@@ -3,118 +3,223 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-// Wymusza obecnoœæ komponentu NavMeshAgent na obiekcie
+// Wymusza obecnoÅ›Ä‡ komponentu NavMeshAgent i AudioSource
 [RequireComponent(typeof(NavMeshAgent))]
+[RequireComponent(typeof(AudioSource))] 
 public class CompanionScript : MonoBehaviour
 {
-    [Header("Ustawienia Dystansu")]
-    [Tooltip("Po¿¹dana minimalna odleg³oœæ od gracza.")]
+    [Header("Ustawienia Dystansu (Oryginalne)")]
+    [Tooltip("PoÅ¼Ä…dana minimalna odlegÅ‚oÅ›Ä‡ od gracza.")]
     public float desiredDistance = 7.0f;
 
-    [Tooltip("Prêdkoœæ, z jak¹ kompan siê porusza.")]
+    [Tooltip("PrÄ™dkoÅ›Ä‡, z jakÄ… kompan siÄ™ porusza.")]
     public float moveSpeed = 4.0f;
 
-    [Tooltip("Bufor, w którym kompan nie podejmuje akcji, aby zapobiec drganiom.")]
+    [Tooltip("Bufor, w ktÃ³rym kompan nie podejmuje akcji.")]
     public float distanceBuffer = 0.5f;
 
-    [Header("Urozmaicenie Ruchu")]
-    [Tooltip("Szybkoœæ, z jak¹ kompan reaguje na zmianê kierunku.")]
+    [Header("Urozmaicenie Ruchu (Oryginalne)")]
+    [Tooltip("SzybkoÅ›Ä‡, z jakÄ… kompan reaguje na zmianÄ™ kierunku.")]
     public float rotationSpeed = 10f;
 
-    [Tooltip("Maksymalna odleg³oœæ losowego offsetu celu.")]
+    [Tooltip("Maksymalna odlegÅ‚oÅ›Ä‡ losowego offsetu celu.")]
     public float maxOffset = 1.5f;
 
-    [Tooltip("Co ile sekund zmieniaæ losowy offset celu.")]
+    [Tooltip("Co ile sekund zmieniaÄ‡ losowy offset celu.")]
     public float offsetChangeInterval = 2.0f;
+
+    // --- NOWE: Zmienne do systemu wody i tlenu ---
+    [Header("--- NOWE: System Wody ---")]
+    public ParticleSystem waterParticles; // Przypisz w inspektorze
+    public float maxWater = 100f;
+    public float waterConsumptionRate = 3f; // Ile wody zuÅ¼ywa na sekundÄ™
+    public float waterRecoveryRate = 10f; // Ile wody regeneruje siÄ™ w baÅ„ce
+    [SerializeField] private float currentWater; // Widoczne w inspektorze do podglÄ…du
+
+    [Header("--- NOWE: System Tlenu ---")]
+    public TimeManager czas;    // Skrypt gracza (status)
+    public AudioClip lowOxygenAlert;     // DÅºwiÄ™k alarmu
+    [Range(0, 100)]
+    public float alertThreshold = 20f;   // Poziom alarmowy (20%)
+    
+    private AudioSource audioSource;
+    private bool isAlerting = false;
+    // ---------------------------------------------
 
     // Odniesienia
     private Transform player;
     private NavMeshAgent agent;
 
-    // Zmienne wewnêtrzne dla logiki b³¹dzenia
+    // Zmienne wewnÄ™trzne dla logiki bÅ‚Ä…dzenia
     private float offsetTimer;
     private Vector3 randomOffset;
 
     void Awake()
     {
-        // Pobierz komponent NavMeshAgent, ustaw prêdkoœæ i WY£¥CZ automatyczny obrót
         agent = GetComponent<NavMeshAgent>();
         agent.speed = moveSpeed;
-        agent.updateRotation = false; // <-- Kluczowe dla p³ynnego obrotu
+        agent.updateRotation = false; 
 
-        // ZnajdŸ gracza po tagu "Player"
+        // Pobieramy AudioSource
+        audioSource = GetComponent<AudioSource>();
+
         GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
         if (playerObject != null)
         {
             player = playerObject.transform;
+            
+            // --- NOWE: Automatyczne znalezienie skryptu statusu gracza ---
+            if (czas == null)
+            {
+                czas = playerObject.GetComponent<TimeManager>();
+            }
         }
         else
         {
-            Debug.LogError("Nie znaleziono obiektu gracza! Upewnij siê, ¿e gracz ma tag 'Player'.");
+            Debug.LogError("Nie znaleziono obiektu gracza! Upewnij siÄ™, Å¼e gracz ma tag 'Player'.");
+        }
+    }
+
+    // --- NOWE: Inicjalizacja wody ---
+    void Start()
+    {
+        currentWater = maxWater;
+        if (waterParticles != null)
+        {
+            var emission = waterParticles.emission;
+            emission.enabled = false;
         }
     }
 
     void Update()
     {
-        // Upewnij siê, ¿e mamy gracza i agent jest aktywny
         if (player == null || agent == null || !agent.enabled) return;
 
-        MaintainDistance();
-        ApplyRotation(); // P³ynne obracanie w kierunku ruchu
+        MaintainDistance(); // Oryginalna logika ruchu
+
+        // --- NOWE: Logika strzelania i tlenu ---
+        bool isShooting = HandleShooting(); 
+        CheckOxygen();
+
+        // JeÅ›li strzelamy, obracamy siÄ™ do kursora. JeÅ›li nie - obracamy siÄ™ zgodnie z ruchem (oryginaÅ‚)
+        if (isShooting)
+        {
+            RotateTowardsCursor();
+        }
+        else
+        {
+            ApplyRotation();
+        }
     }
 
-    /// <summary>
-    /// G³ówna logika utrzymywania po¿¹danej odleg³oœci od gracza (bez uciekania).
-    /// </summary>
+    // --- NOWE: ObsÅ‚uga strzelania wodÄ… ---
+    bool HandleShooting()
+    {
+        // Sprawdzamy czy wciÅ›niÄ™to LPM i czy jest woda
+        if (Input.GetMouseButton(1) && currentWater > 0)
+        {
+            if (waterParticles != null)
+            {
+                var emission = waterParticles.emission;
+                emission.enabled = true;
+            }
+
+            currentWater -= waterConsumptionRate * Time.deltaTime;
+            currentWater = Mathf.Max(currentWater, 0); // Blokada na 0
+            return true; // Zwracamy informacjÄ™, Å¼e strzelamy
+        }
+        else
+        {
+            if (waterParticles != null)
+            {
+                var emission = waterParticles.emission;
+                emission.enabled = false;
+            }
+            return false; // Nie strzelamy
+        }
+    }
+
+    // --- NOWE: Obracanie kompana w stronÄ™ kursora ---
+    void RotateTowardsCursor()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit))
+        {
+            // Patrzymy w punkt uderzenia lasera myszki, ale zachowujemy wysokoÅ›Ä‡ kompana (Å¼eby siÄ™ nie przechylaÅ‚)
+            Vector3 targetPostition = new Vector3(hit.point.x, transform.position.y, hit.point.z);
+            Vector3 direction = (targetPostition - transform.position).normalized;
+            
+            if (direction != Vector3.zero)
+            {
+                Quaternion lookRotation = Quaternion.LookRotation(direction);
+                transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * rotationSpeed * 2); // Szybszy obrÃ³t przy celowaniu
+            }
+        }
+    }
+
+    // --- NOWE: Sprawdzanie tlenu gracza ---
+    void CheckOxygen()
+    {
+        if (czas == null || audioSource == null || lowOxygenAlert == null) return;
+
+        if (czas.currentTime <= alertThreshold)
+        {
+            if (!isAlerting)
+            {
+                audioSource.PlayOneShot(lowOxygenAlert);
+                isAlerting = true; 
+            }
+        }
+        else
+        {
+            isAlerting = false; 
+        }
+    }
+
+    // --- NOWE: Odnawianie wody ---
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("AirZone"))
+        {
+            currentWater += waterRecoveryRate * Time.deltaTime;
+            // Opcjonalnie dÅºwiÄ™k tankowania
+            Debug.Log("Woda odnowiona!");
+        }
+    }
+    
     void MaintainDistance()
     {
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
-
-        // Ustaw agenta, aby ZATRZYMA£ siê w po¿¹danej odleg³oœci
         agent.stoppingDistance = desiredDistance;
 
-        // --- Timer i Losowanie Offsetu ---
         offsetTimer -= Time.deltaTime;
         if (offsetTimer <= 0f)
         {
-            // Generuj nowy, losowy offset (w promieniu maxOffset)
             randomOffset = Random.insideUnitSphere * maxOffset;
-            randomOffset.y = 0; // Upewnij siê, ¿e pozostaje na ziemi
+            randomOffset.y = 0; 
             offsetTimer = offsetChangeInterval;
         }
 
-        // --- Logika: Jesteœmy ZA DALEKO ---
-        // Dystans jest wiêkszy ni¿ po¿¹dana odleg³oœæ plus bufor
         if (distanceToPlayer > desiredDistance + distanceBuffer)
         {
-            // Cel to pozycja gracza + losowy offset (meandrowanie)
             Vector3 targetPosition = player.position + randomOffset;
-
-            // U¿yj NavMesh.SamplePosition, aby upewniæ siê, ¿e cel jest na siatce NavMesh
             NavMeshHit hit;
             if (NavMesh.SamplePosition(targetPosition, out hit, 1.0f, NavMesh.AllAreas))
             {
                 agent.SetDestination(hit.position);
             }
         }
-
-        // --- Logika: Jesteœmy ZA BLISKO lub w SAM RAZ ---
-        // Nic nie rób. Agent jest bezczynny, dopóki gracz siê nie oddali.
     }
 
-    /// <summary>
-    /// P³ynnie obraca kompana w kierunku jego aktualnego ruchu (poniewa¿ agent.updateRotation jest wy³¹czone).
-    /// </summary>
     void ApplyRotation()
     {
-        // SprawdŸ, czy agent siê porusza i czy ma œcie¿kê
         if (agent.velocity.sqrMagnitude > 0.1f && agent.hasPath)
         {
-            // Oblicz kierunek ruchu (tylko na p³aszczyŸnie XZ)
             Vector3 direction = agent.velocity.normalized;
             Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
 
-            // P³ynny obrót za pomoc¹ Quaternion.Slerp
             transform.rotation = Quaternion.Slerp(
                 transform.rotation,
                 lookRotation,
