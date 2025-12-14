@@ -110,6 +110,7 @@ public class CompanionScript : MonoBehaviour
         {
             ApplyRotation();
         }
+        Debug.Log("Aktualna woda kompana: " + currentWater);
     }
 
     // --- NOWE: Obsługa strzelania wodą ---
@@ -179,13 +180,14 @@ public class CompanionScript : MonoBehaviour
     }
 
     // --- NOWE: Odnawianie wody ---
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerStay(Collider other)
     {
         if (other.CompareTag("AirZone"))
         {
-            currentWater += waterRecoveryRate * Time.deltaTime;
+            currentWater += (waterRecoveryRate * Time.deltaTime);
             // Opcjonalnie dźwięk tankowania
             Debug.Log("Woda odnowiona!");
+            currentWater = Mathf.Clamp(currentWater, 0, maxWater);
         }
     }
     
