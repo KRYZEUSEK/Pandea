@@ -10,10 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: faef6b52c8265b449916fa1431888b46, type: 3}
-  m_Name: FontStyleScriptable
+  m_Name: SecondaryFont
   m_EditorClassIdentifier: 
-  fontAssets:
-  - fontName: 0
-    fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  - fontName: 1
-    fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  styleName: primaryFontStyle
+  fontAsset: {fileID: 0}
