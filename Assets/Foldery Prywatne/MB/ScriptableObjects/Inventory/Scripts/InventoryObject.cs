@@ -109,8 +109,19 @@ public class InventoryObject : ScriptableObject
 
             // Po tej pętli leftToConsume powinno być 0 — bo HasItems to gwarantował
         }
-
+        OnInventoryChanged?.Invoke();
         return true;
+    }
+    public void SwapSlots(int fromIndex, int toIndex)
+    {
+        if (fromIndex == toIndex || fromIndex < 0 || toIndex < 0 || fromIndex >= Slots.Length || toIndex >= Slots.Length)
+            return;
+
+        var temp = Slots[fromIndex];
+        Slots[fromIndex] = Slots[toIndex];
+        Slots[toIndex] = temp;
+
+        OnInventoryChanged?.Invoke();
     }
 
 }

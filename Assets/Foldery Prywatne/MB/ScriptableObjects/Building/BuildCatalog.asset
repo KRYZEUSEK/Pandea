@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: BuildCatalog
   m_EditorClassIdentifier: 
   entries:
-  - {fileID: 11400000, guid: 3d42f1b3792b8854eb71fc8f92c5cca2, type: 2}
   - {fileID: 11400000, guid: ca57feeca3d291a49b7c5082879b84bb, type: 2}
+  - {fileID: 11400000, guid: 3d42f1b3792b8854eb71fc8f92c5cca2, type: 2}
   - {fileID: 11400000, guid: a5061ad20ad7cd24f9aaf49a36348d68, type: 2}

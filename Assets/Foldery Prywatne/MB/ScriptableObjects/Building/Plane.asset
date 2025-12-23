@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Plane
   m_EditorClassIdentifier: 
   id: plane
-  finalPrefab: {fileID: 4865239052726154062, guid: 3ff9a926a65ea2843884a714c7f0e19e, type: 3}
-  previewPrefab: {fileID: 6527626349110999336, guid: d06e9fb05ac67a04a8f1d7fa4c09f24a, type: 3}
+  finalPrefab: {fileID: 5354945009080194273, guid: f0291b9a4a6c5574e8d0c8993cef3a1e, type: 3}
+  previewPrefab: {fileID: 2849729108813195646, guid: c518e04c2b7eb6a4c8d5a8527a56ea3f, type: 3}
   placementOffset: {x: 0, y: 0, z: 0}
   maxSlopeDegrees: 20
   groundMask:

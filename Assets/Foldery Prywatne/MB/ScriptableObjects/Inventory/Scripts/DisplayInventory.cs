@@ -49,6 +49,7 @@ public class DisplayInventory : MonoBehaviour
         {
             CreateSlot(inventory.Slots[i], backpackParent, i);
         }
+
     }
 
     void CreateSlot(InventorySlot slot, Transform parent, int index)
@@ -95,12 +96,6 @@ public class DisplayInventory : MonoBehaviour
 
     public void SwapSlots(int fromIndex, int toIndex)
     {
-        if (fromIndex == toIndex || fromIndex < 0 || toIndex < 0) return;
-
-        var temp = inventory.Slots[fromIndex];
-        inventory.Slots[fromIndex] = inventory.Slots[toIndex];
-        inventory.Slots[toIndex] = temp;
-
-        RefreshInventory();
+        inventory.SwapSlots(fromIndex, toIndex);
     }
 }

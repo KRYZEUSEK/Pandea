@@ -67,18 +67,20 @@ public class BuildingManager : MonoBehaviour
     public Color validColor = new Color(0f, 1f, 0f, 0.35f);   // zielony, półprzezroczysty
     public Color invalidColor = new Color(1f, 0f, 0f, 0.35f);
 
-
+    CustomActions input;
     // Stan
     private GameObject previewInstance;
     private bool buildMode = false;
     private float currentRotation = 0f;
     private bool warnedGroundMask = false;
     private bool lastPreviewValid = false;
-
+    private Bounds previewBounds;
+    private bool previewBoundsCached = false;
 
     void Awake()
     {
-       
+        input = new CustomActions();
+        input.Main.Place.performed += ctx => TryPlaceFinalFromPreview();
     }
 
     void OnEnable()
@@ -88,6 +90,7 @@ public class BuildingManager : MonoBehaviour
 
         if (inventory != null)
             inventory.OnInventoryChanged += OnInventoryChanged;
+        input.Enable();
     }
 
     void OnDisable()
@@ -97,8 +100,153 @@ public class BuildingManager : MonoBehaviour
 
         if (inventory != null)
             inventory.OnInventoryChanged -= OnInventoryChanged;
+        input.Disable();
     }
 
+    private void HandleGlobalInput()
+    {
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            if (buildMode) ExitBuildMode();
+            else TryEnterBuildMode(selectedBuildable);
+        }
+
+        HandleCatalogCycling();
+    }
+    private void HandleCatalogCycling()
+    {
+        if (Input.GetKeyDown(KeyCode.LeftBracket)) CycleBuildable(-1);
+        if (Input.GetKeyDown(KeyCode.RightBracket)) CycleBuildable(+1);
+
+        if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
+        {
+            float s = Input.GetAxis("Mouse ScrollWheel");
+            if (s > 0f) CycleBuildable(-1);
+            else if (s < 0f) CycleBuildable(+1);
+        }
+    }
+    private void HandleBuildModeInput()
+    {
+        if (!HasRequiredTool())
+        {
+            ExitBuildMode();
+            return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Q)) currentRotation -= rotationStepDegrees;
+        if (Input.GetKeyDown(KeyCode.E)) currentRotation += rotationStepDegrees;
+
+        if (Input.GetMouseButtonDown(1))
+        {
+            if (!IsPointerOverUI())
+                TryPlaceFinalFromPreview();
+        }
+    }
+    private bool HasRequiredTool()
+    {
+        return hotbar != null && hotbar.IsWrenchEquipped();
+    }
+
+    private bool IsPointerOverUI()
+    {
+        return EventSystem.current != null &&
+               EventSystem.current.IsPointerOverGameObject();
+    }
+    private void UpdatePreview()
+    {
+        EnsureCamera();
+        EnsurePreviewInstance();
+
+        if (!TryUpdatePreviewPosition())
+            return;
+
+        ValidateAndColorPreview();
+    }
+    private bool TryUpdatePreviewPosition()
+    {
+        if (playerCamera == null || previewInstance == null || selectedBuildable == null)
+            return false;
+
+        Ray ray = playerCamera.ScreenPointToRay(Input.mousePosition);
+
+        // 1) XZ spod kursora albo fallback
+        if (!TryGetTargetXZFiltered(ray, placementMask, ignoreRayLayers, out Vector3 xz)
+            && !TryFallbackXZ(ray, out xz))
+            return false;
+
+        // 2) Snap do siatki (tylko XZ)
+        if (gridCellSize > 0f)
+        {
+            xz.x = Mathf.Round(xz.x / gridCellSize) * gridCellSize;
+            xz.z = Mathf.Round(xz.z / gridCellSize) * gridCellSize;
+        }
+
+        // 3) Osadzenie w dół + obrót
+        return TrySettlePreview(xz);
+    }
+
+    private void EnsureCamera()
+    {
+        if (playerCamera == null)
+            playerCamera = Camera.main;
+    }
+    private void EnsurePreviewInstance()
+    {
+        if (previewInstance != null) return;
+        if (selectedBuildable?.previewPrefab == null) return;
+
+        previewInstance = Instantiate(selectedBuildable.previewPrefab);
+    }
+    private bool TrySettlePreview(Vector3 xz)
+    {
+        if (previewInstance == null || selectedBuildable == null)
+            return false;
+
+        LayerMask groundMask = SafeGroundMask(selectedBuildable.groundMask);
+
+        if (!TryVerticalSettle(xz, groundMask, out RaycastHit hit))
+            return false;
+
+        // Oblicz wysokość preview
+        Bounds b = GetObjectBounds(previewInstance);
+        float halfHeight = b.extents.y;
+
+        Vector3 pos = hit.point;
+        pos.y += halfHeight + liftAboveGround;
+
+        // Obrót
+        Quaternion yaw = Quaternion.Euler(0f, currentRotation, 0f);
+
+        if (alignToGroundNormal)
+        {
+            Quaternion tilt = Quaternion.FromToRotation(Vector3.up, hit.normal);
+            previewInstance.transform.rotation = LimitTilt(tilt) * yaw;
+        }
+        else
+        {
+            previewInstance.transform.rotation = yaw;
+        }
+
+        previewInstance.transform.position = pos;
+        return true;
+    }
+
+    private void SnapToGrid(ref Vector3 pos)
+    {
+        pos.x = Mathf.Round(pos.x / gridCellSize) * gridCellSize;
+        pos.z = Mathf.Round(pos.z / gridCellSize) * gridCellSize;
+    }
+    private void ValidateAndColorPreview()
+    {
+        bool valid = ValidatePlacement(
+            previewInstance.transform.position,
+            previewInstance.transform.rotation,
+            out _, out _
+        );
+
+        if (valid != lastPreviewValid)
+            SetPreviewValid(valid);
+    }
     private void OnHotbarSelectedIndexChanged(int newIndex)
     {
         // Jeżeli zmienił się slot i nie mamy w ręce wrench → wyłącz tryb
@@ -122,109 +270,13 @@ public class BuildingManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.LeftBracket)) CycleBuildable(-1); // [
-        if (Input.GetKeyDown(KeyCode.RightBracket)) CycleBuildable(+1); // ]
+        HandleGlobalInput();
 
-        // Alt + scroll = cykl po katalogu (tylko gdy Alt wciśnięty)
-        if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
-        {
-            float s = Input.GetAxis("Mouse ScrollWheel");
-            if (s > 0f) CycleBuildable(-1);
-            else if (s < 0f) CycleBuildable(+1);
-        }
-
-   
-
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            if (buildMode)
-            {
-                // Jesteśmy w trybie budowy → wyjdź
-                ExitBuildMode();
-            }
-            else
-            {
-       
-                TryEnterBuildMode(selectedBuildable);
-            }
-        }
-
-
-        if (!buildMode || selectedBuildable == null) return;
-
-        if (hotbar == null || !hotbar.IsWrenchEquipped())
-        {
-            Debug.Log("Tryb budowy przerwany — brak 'wrench' w ręce.");
-            ExitBuildMode();
+        if (!buildMode)
             return;
-        }
 
-
-
-        // ===== Kamera =====
-        if (playerCamera == null)
-            playerCamera = Camera.main;
-        if (playerCamera == null)
-        {
-            Debug.LogWarning("BuildingManager: Brak Camera. Przypnij kamerę gracza.");
-            return;
-        }
-
-        // ===== Ghost – utwórz jeśli brak =====
-        if (previewInstance == null && selectedBuildable.previewPrefab != null)
-            previewInstance = Instantiate(selectedBuildable.previewPrefab);
-
-        // ===== 1) WYBÓR XZ POD KURSOREM (z filtrami warstw + fallbacki) =====
-        LayerMask groundMask = SafeGroundMask(selectedBuildable.groundMask);
-        Ray ray = playerCamera.ScreenPointToRay(Input.mousePosition);
-
-        if (TryGetTargetXZFiltered(ray, placementMask, ignoreRayLayers, out Vector3 xz)
-            || TryFallbackXZ(ray, out xz))
-        {
-            // (opcjonalnie) snap X/Z
-            if (gridCellSize > 0f)
-            {
-                xz.x = Mathf.Round(xz.x / gridCellSize) * gridCellSize;
-                xz.z = Mathf.Round(xz.z / gridCellSize) * gridCellSize;
-            }
-
-            // ===== 2) OSADZENIE pionowym rayem (niezależnie od kamery) =====
-            if (TryVerticalSettle(xz, groundMask, out RaycastHit settleHit))
-            {
-                // połowa wysokości ghosta
-                Bounds pb = GetObjectBounds(previewInstance);
-                float halfHeight = pb.extents.y;
-
-                Vector3 pos = settleHit.point;
-                pos.y += halfHeight + liftAboveGround;
-
-                Quaternion yaw = Quaternion.Euler(0f, currentRotation, 0f);
-                if (alignToGroundNormal)
-                {
-                    Quaternion tilt = Quaternion.FromToRotation(Vector3.up, settleHit.normal);
-                    previewInstance.transform.rotation = LimitTilt(tilt) * yaw;
-                }
-                else
-                {
-                    previewInstance.transform.rotation = yaw;
-                }
-
-                previewInstance.transform.position = pos;
-            }
-        }
-
-        // ===== Obrót Q/E =====
-        if (Input.GetKeyDown(KeyCode.Q)) currentRotation -= rotationStepDegrees;
-        if (Input.GetKeyDown(KeyCode.E)) currentRotation += rotationStepDegrees;
-
-        // ===== PPM = postaw (LPM zostaje dla ruchu) =====
-        if (Input.GetMouseButtonDown(1))
-        {
-            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
-                return;
-            TryPlaceFinalFromPreview();
-        }
-
+        HandleBuildModeInput();
+        UpdatePreview();
     }
 
 
