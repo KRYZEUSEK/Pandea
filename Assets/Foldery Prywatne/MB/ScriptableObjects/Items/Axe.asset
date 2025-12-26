@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50c7072c6859817458a6572c458c6ff5, type: 3}
+  m_Name: Axe
+  m_EditorClassIdentifier: 
+  id: axe
+  prefab: {fileID: 5935071896136878386, guid: 05f6c839584f3a84895ac31236706128, type: 3}
+  type: 1
+  description: 
+  uiPrefab: {fileID: 5935071896136878386, guid: 05f6c839584f3a84895ac31236706128, type: 3}
+  worldPrefab: {fileID: 4326328530748525030, guid: 1e811b4bc724fb84a99cc80818e9a13a, type: 3}
+  handScale: {x: 0.005, y: 0.005, z: 0.005}
+  handRotation: {x: 0, y: 0, z: 0}

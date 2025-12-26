@@ -80,7 +80,6 @@ public class BuildingManager : MonoBehaviour
     void Awake()
     {
         input = new CustomActions();
-        input.Main.Place.performed += ctx => TryPlaceFinalFromPreview();
     }
 
     void OnEnable()
@@ -113,6 +112,11 @@ public class BuildingManager : MonoBehaviour
 
         HandleCatalogCycling();
     }
+    private void OnPlacePerformed(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
+    {
+        if (IsPointerOverUI()) return;
+        TryPlaceFinalFromPreview();
+    }
     private void HandleCatalogCycling()
     {
         if (Input.GetKeyDown(KeyCode.LeftBracket)) CycleBuildable(-1);
@@ -136,11 +140,6 @@ public class BuildingManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Q)) currentRotation -= rotationStepDegrees;
         if (Input.GetKeyDown(KeyCode.E)) currentRotation += rotationStepDegrees;
 
-        if (Input.GetMouseButtonDown(1))
-        {
-            if (!IsPointerOverUI())
-                TryPlaceFinalFromPreview();
-        }
     }
     private bool HasRequiredTool()
     {
@@ -388,6 +387,8 @@ public class BuildingManager : MonoBehaviour
 
     private void EnterBuildMode(BuildableData data)
     {
+        input.Main.Place.performed += OnPlacePerformed;
+        input.Enable();
         selectedBuildable = data;
         buildMode = true;
         currentRotation = 0f;
@@ -410,6 +411,8 @@ public class BuildingManager : MonoBehaviour
 
     private void ExitBuildMode()
     {
+        input.Main.Place.performed -= OnPlacePerformed;
+        input.Disable();
         buildMode = false;
 
         if (buildMenuPanel != null)

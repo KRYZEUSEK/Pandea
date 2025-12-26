@@ -46,7 +46,19 @@ public class HotbarSelector : MonoBehaviour
     }
 
 
+
     public bool IsWrenchEquipped()
+    {
+        return IsItemEquipped("wrench");
+    }
+
+    // NOWE: ogólna metoda + skrót dla siekiery
+    public bool IsAxeEquipped()
+    {
+        return IsItemEquipped("axe");
+    }
+
+    public bool IsItemEquipped(string id)
     {
         if (inventory == null || inventory.Slots == null) return false;
         if (CurrentIndex < 0 || CurrentIndex >= inventory.Slots.Length) return false;
@@ -54,9 +66,10 @@ public class HotbarSelector : MonoBehaviour
         var slot = inventory.Slots[CurrentIndex];
         if (slot == null || slot.item == null) return false;
 
-        // Sprawdzamy po ID z ItemObject (u Ciebie jest pole: public string id)
-        return slot.item.id == "wrench";
+        // U Ciebie: public string id w ItemObject
+        return slot.item.id == id;
     }
+
 
 
 }
