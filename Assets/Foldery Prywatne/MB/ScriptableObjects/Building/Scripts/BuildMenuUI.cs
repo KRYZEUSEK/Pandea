@@ -1,4 +1,5 @@
 
+using System.Linq;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -10,6 +11,7 @@ public class BuildMenuUI : MonoBehaviour
     public BuildCatalog catalog;
     public BuildingManager buildingManager;
     public HotbarSelector hotbar;
+    public InventoryObject inventory;
 
     [Header("UI")]
     public Transform contentParent;  // np. GridLayoutGroup / VerticalLayoutGroup
@@ -40,7 +42,27 @@ public class BuildMenuUI : MonoBehaviour
             // Ustaw ikonê i tekst
             
             var tmp = btn.GetComponentInChildren<TMP_Text>(true);
-            if (tmp != null) tmp.text = string.IsNullOrEmpty(data.id) ? $"Build {i + 1}" : data.id;
+
+            if (tmp != null)
+            {
+                string buttonText = data.id + "\n";
+
+                foreach (var x in data.costs)
+                {
+                    var slot = inventory.Slots
+                        .FirstOrDefault(y => y.item != null && y.item.id == x.item.id);
+
+                    int ownedAmount = slot != null ? slot.amount : 0;
+
+                    buttonText += $"<size=80%>{ownedAmount}/{x.amount} {x.item.id}\n";
+                }
+
+                tmp.text = buttonText;
+            }
+            else
+            {
+                Debug.LogWarning("TMP_Text not found on button");
+            }
 
             // Klik: wybierz i ewentualnie odpal budowê
             btn.onClick.AddListener(() =>

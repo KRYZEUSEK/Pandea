@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": 1,
+      "name": "Miecz ognia",
+      "description": "Legendarny miecz zadający obrażenia od ognia.",
+      "image": "Img/sample"
+    },
+    {
+      "id": 2,
+      "name": "Tarcza lodu",
+      "description": "Chroni przed atakami i spowalnia wrogów.",
+      "image": "Img/sample"
+    },
+{
+      "id": 3,
+      "name": "Tarcza lodu",
+      "description": "Chroni przed atakami i spowalnia wrogów.",
+      "image": "Img/sample"
+    },
+{
+      "id": 4,
+      "name": "Tarcza lodu",
+      "description": "Chroni przed atakami i spowalnia wrogów.",
+      "image": "Img/sample"
+    },
+{
+      "id": 5,
+      "name": "Tarcza lodu",
+      "description": "Chroni przed atakami i spowalnia wrogów.",
+      "image": "Img/sample"
+    },
+{
+      "id": 6,
+      "name": "Tarcza lodu",
+      "description": "Chroni przed atakami i spowalnia wrogów.",
+      "image": "Img/sample"
+    }
+  ]
+}
