@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: SecondaryFont
   m_EditorClassIdentifier: 
   styleName: primaryFontStyle
-  fontAsset: {fileID: 0}
+  fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
