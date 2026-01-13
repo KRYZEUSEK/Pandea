@@ -4,5 +4,11 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/MainMenu.unity
+    guid: 4b583d06d8bb9e440b74ce0e28ba7606
+  - enabled: 1
+    path: Assets/Foldery Prywatne/KS/MovementKS/Scena1/Scena1.unity
+    guid: d7ea2224aef5a554db04ea8de39cd3c0
   m_configObjects: {}
