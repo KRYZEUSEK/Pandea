@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db17369aa36837c4c862aaacd5087e11, type: 3}
+  m_Name: cos
+  m_EditorClassIdentifier: 
+  plantName: 
+  plantDescription: 
+  plantPicture: {fileID: 0}
+  prefab: {fileID: 816007289291173318, guid: a648492d9ba982a478b94ceba43e6bfe, type: 3}
+  density: 0.337
+  minHeight: 0
+  maxHeight: 1
+  minScale: 0.8
+  maxScale: 1.2
