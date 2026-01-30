@@ -17,6 +17,6 @@ MonoBehaviour:
   type: 2
   description: "Narz\u0119dzie potrzebne do budowania."
   uiPrefab: {fileID: 5935071896136878386, guid: 0337e13c6b66ec344990c01c60dabb5d, type: 3}
-  worldPrefab: {fileID: 344183342379279562, guid: b19413c3911b3224bb5ada3ab96dc13b, type: 3}
-  handScale: {x: 0.015, y: 0.015, z: 0.015}
+  worldPrefab: {fileID: 9043859269254156615, guid: d880def6a77d74342bcebd342d58d1f8, type: 3}
+  handScale: {x: 0.002, y: 0.002, z: 0.002}
   handRotation: {x: -90, y: 0, z: 0}

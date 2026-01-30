@@ -22,7 +22,10 @@ public class HotbarSelector : MonoBehaviour
         else if (scroll < 0f) SelectSlot((CurrentIndex + 1) % 5);
     }
 
-
+    void Start()
+    {
+        SelectSlot(0);
+    }
     public void SelectSlot(int index)
     {
         CurrentIndex = Mathf.Clamp(index, 0, 4);

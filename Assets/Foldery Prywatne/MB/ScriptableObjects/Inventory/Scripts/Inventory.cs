@@ -6,7 +6,20 @@ public class Inventory : MonoBehaviour
 {
     public InventoryObject inventory;
 
+    [Header("Przedmioty na Start")]
+    public List<ItemObject> itemsToAddOnStart; // Przeci¹gnij przedmioty w Inspektorze
 
+    private void Start()
+    {
+        // Dodawanie przedmiotów z listy na pocz¹tku gry
+        foreach (var item in itemsToAddOnStart)
+        {
+            if (item != null)
+            {
+                inventory.AddItem(item, 1);
+            }
+        }
+    }
 
     public void OnTriggerEnter(Collider other)
     {
