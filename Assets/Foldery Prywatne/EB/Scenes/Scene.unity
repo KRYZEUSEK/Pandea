@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -922,6 +922,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   panel: {fileID: 749643486}
   button: {fileID: 2137184555}
+  hotbarScript: {fileID: 0}
 --- !u!114 &498343635
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2342,9 +2343,15 @@ MonoBehaviour:
   mapMaterial: {fileID: 2100000, guid: b0872f84cf3c7441d893168677410c73, type: 2}
   terrainLayerName: Terrain
   spawnableObjects:
-  - {fileID: 11400000, guid: 6915125b2d1089e41a97e9697db3d6ca, type: 2}
-  - {fileID: 11400000, guid: 0287ae0ef251e5846b1eaa8343fd0ca4, type: 2}
-  - {fileID: 11400000, guid: ebd8a30700effad488718566b1b21724, type: 2}
+  - {fileID: 11400000, guid: 114142a4b3795f44385543e2d419c580, type: 2}
+  - {fileID: 11400000, guid: d541d234820980a4cae664018a220bd1, type: 2}
+  - {fileID: 11400000, guid: 968ee1322c0892b40a33d111586efa63, type: 2}
+  - {fileID: 11400000, guid: 78e79add70ec8d142aeb8b5b8313efdd, type: 2}
+  - {fileID: 11400000, guid: 5c169f18013557447912aacafae7b6df, type: 2}
+  - {fileID: 11400000, guid: f1ed6dfd3c3d15e4294b99ff9969047b, type: 2}
+  - {fileID: 11400000, guid: e7c8abe8be9ce3243a056aa5032ca32e, type: 2}
+  - {fileID: 11400000, guid: 94dd587290258a74d9cadd13a23eceef, type: 2}
+  - {fileID: 11400000, guid: 3654d61766ba9ee45b096e0cf6c0b34b, type: 2}
 --- !u!1 &1036375126
 GameObject:
   m_ObjectHideFlags: 0
@@ -3007,6 +3014,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inventory: {fileID: 11400000, guid: 25d6dc41a3bf0cf4491b5fd8ca131fb6, type: 2}
+  itemsToAddOnStart: []
 --- !u!54 &1327671114
 Rigidbody:
   m_ObjectHideFlags: 0

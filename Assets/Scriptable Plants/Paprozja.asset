@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: db17369aa36837c4c862aaacd5087e11, type: 3}
-  m_Name: cos3
+  m_Name: Paprozja
   m_EditorClassIdentifier: 
   plantName: 
   plantDescription: 
   plantPicture: {fileID: 0}
-  prefab: {fileID: 4867667145513689942, guid: b23af1f137f2dc343a5622ff954ec166, type: 3}
-  density: 0
-  minHeight: 0.469
+  prefab: {fileID: 919132149155446097, guid: 6599042be09c561409fbd40dfc0a3339, type: 3}
+  density: 0.04
+  minHeight: 0
   maxHeight: 1
-  minScale: 0.8
-  maxScale: 1.2
+  minScale: 0.28
+  maxScale: 0.41
