@@ -13,12 +13,7 @@ public class ShootSlowPlant : BasePlant
 
     private Coroutine shootingCoroutine;
     private Transform targetPlayer;
-    private Collider plantCollider;
 
-    void Awake()
-    {
-        plantCollider = GetComponent<Collider>();
-    }
 
     protected override void OnPlayerEnter(GameObject player)
     {

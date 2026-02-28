@@ -26,6 +26,7 @@ public class BlindingPlant : BasePlant
     // --- Wejœcie: W³¹czamy efekt (Weight d¹¿y do 1) ---
     protected override void OnPlayerEnter(GameObject player)
     {
+        if (isDisabled) return;
         if (visionCoroutine != null) StopCoroutine(visionCoroutine);
         visionCoroutine = StartCoroutine(AnimateVignette(1f));
     }
