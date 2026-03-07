@@ -42,6 +42,15 @@ namespace UIScripts.Popups {
             }
         }
 
+        public void Toggle() {
+            if (isPopupActive) {
+                Hide();
+            }
+            else {
+                Show();
+            }
+        }
+
         protected virtual IEnumerator HideCoroutine() {
             popupAudioSource.PlayOneShot(popupHideClip);
             yield return new WaitForSecondsRealtime(popupHideClip.length);
