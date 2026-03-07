@@ -12,4 +12,8 @@ public class SceneChanger : MonoBehaviour {
 
         UnityEngine.SceneManagement.SceneManager.LoadScene(scenes[sceneIndex].name);
     }
+
+    public void ExitGame() {
+        Application.Quit();
+    }
 }
