@@ -2483,12 +2483,52 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2179658972652723899, guid: 9d08b748edf3607489b48a334895f1c4, type: 3}
+      propertyPath: ShapeModule.type
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2179658972652723899, guid: 9d08b748edf3607489b48a334895f1c4, type: 3}
+      propertyPath: ShapeModule.arc.mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2179658972652723899, guid: 9d08b748edf3607489b48a334895f1c4, type: 3}
+      propertyPath: ShapeModule.arc.spread
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2179658972652723899, guid: 9d08b748edf3607489b48a334895f1c4, type: 3}
+      propertyPath: ShapeModule.radiusThickness
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2179658972652723899, guid: 9d08b748edf3607489b48a334895f1c4, type: 3}
+      propertyPath: ShapeModule.alignToDirection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2179658972652723899, guid: 9d08b748edf3607489b48a334895f1c4, type: 3}
       propertyPath: InitialModule.startLifetime.scalar
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2179658972652723899, guid: 9d08b748edf3607489b48a334895f1c4, type: 3}
+      propertyPath: InitialModule.gravityModifier.scalar
+      value: -0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 2179658972652723899, guid: 9d08b748edf3607489b48a334895f1c4, type: 3}
+      propertyPath: ShapeModule.sphericalDirectionAmount
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2179658972652723899, guid: 9d08b748edf3607489b48a334895f1c4, type: 3}
       propertyPath: InitialModule.startLifetime.minScalar
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2308020187629438536, guid: 9d08b748edf3607489b48a334895f1c4, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 3.8272183
+      objectReference: {fileID: 0}
+    - target: {fileID: 2308020187629438536, guid: 9d08b748edf3607489b48a334895f1c4, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 4.5957236
+      objectReference: {fileID: 0}
+    - target: {fileID: 2308020187629438536, guid: 9d08b748edf3607489b48a334895f1c4, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 3.0262964
       objectReference: {fileID: 0}
     - target: {fileID: 2308020187629438536, guid: 9d08b748edf3607489b48a334895f1c4, type: 3}
       propertyPath: m_LocalPosition.x
