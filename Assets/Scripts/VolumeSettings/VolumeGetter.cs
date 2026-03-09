@@ -15,6 +15,10 @@ namespace VolumeSettings {
         }
 
         internal void UpdateVolume() {
+            if (audioSource == null) {
+                audioSource = GetComponent<AudioSource>();
+            }
+
             audioSource.volume = PlayerPrefs.GetFloat(volumeType.volumeTypeName, 1.0f);
         }
     }

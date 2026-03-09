@@ -15,9 +15,9 @@ MonoBehaviour:
   plantName: 
   plantDescription: 
   plantPicture: {fileID: 0}
-  prefab: {fileID: 0}
+  prefab: {fileID: 4867667145513689942, guid: b23af1f137f2dc343a5622ff954ec166, type: 3}
   density: 0
-  minHeight: 0
-  maxHeight: 0
+  minHeight: 0.469
+  maxHeight: 1
   minScale: 0.8
   maxScale: 1.2

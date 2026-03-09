@@ -6,6 +6,8 @@ public class TimeManager : MonoBehaviour
     public static TimeManager Instance;
 
     public event Action<float> OnTimeModified;
+    // --- NOWOŚĆ: Event informujący o końcu czasu ---
+    public event Action OnTimeFinished;
 
     [Header("Time Settings")]
     [SerializeField] private float maxTime = 100f;
@@ -14,9 +16,10 @@ public class TimeManager : MonoBehaviour
     public float currentTime;
     private float countdownRate;
     private bool isActive = false;
-
-    // --- NOWO��: Mno�nik czasu ---
     private float timeMultiplier = 1.0f;
+
+    // Zabezpieczenie, by event wywołał się tylko raz
+    private bool hasTimeEnded = false;
 
     public float GetNormalizedTime() => currentTime / maxTime;
 
@@ -31,10 +34,10 @@ public class TimeManager : MonoBehaviour
     {
         currentTime = maxTime;
         isActive = true;
-        timeMultiplier = 1.0f; // Reset przy w��czeniu
+        timeMultiplier = 1.0f;
+        hasTimeEnded = false; // Resetujemy flagę końca czasu
     }
 
-    // ... (Reszta metod OnDisable, CalculateCountdownRate, SetCountdownDuration bez zmian) ...
     private void CalculateCountdownRate()
     {
         countdownRate = maxTime / countdownDuration;
@@ -42,36 +45,43 @@ public class TimeManager : MonoBehaviour
 
     public void ModifyTime(float amount)
     {
+        if (hasTimeEnded) return; // Jeśli gra się skończyła, nie dodajemy czasu
+
         currentTime = Mathf.Clamp(currentTime + amount, 0f, maxTime);
         OnTimeModified?.Invoke(amount);
     }
 
-    // --- NOWO��: Metoda do ustawiania mno�nika ---
     public void SetTimeMultiplier(float multiplier)
     {
         timeMultiplier = multiplier;
-        // Opcjonalnie: Tutaj mo�esz doda� event, np. �eby zmieni� kolor paska na fioletowy, gdy czas leci szybciej
     }
 
     private void Update()
     {
-        if (!isActive) return;
+        // Jeśli czas nie leci lub już się skończył, nic nie robimy
+        if (!isActive || hasTimeEnded) return;
 
         if (currentTime > 0f)
         {
-            // --- ZMIANA: Mno�ymy przez timeMultiplier ---
-            // Je�li multiplier to 1, czas leci normalnie.
-            // Je�li multiplier to 2, czas leci 2x szybciej.
             float decay = countdownRate * timeMultiplier * Time.deltaTime;
-
             currentTime -= decay;
-            currentTime = Mathf.Max(currentTime, 0f);
+
+            // --- SPRAWDZENIE KOŃCA CZASU ---
+            if (currentTime <= 0f)
+            {
+                currentTime = 0f;
+                hasTimeEnded = true;
+                isActive = false; // Zatrzymujemy czas
+
+                // Krzyczymy do innych skryptów, że czas się skończył!
+                OnTimeFinished?.Invoke();
+            }
         }
     }
+
     public bool IsTimeUp() => currentTime <= 0f;
     public float GetCurrentTime() => currentTime;
     public void ResetTime() => currentTime = maxTime;
     public void StopTime() => isActive = false;
     public void StartTime() => isActive = true;
 }
-
