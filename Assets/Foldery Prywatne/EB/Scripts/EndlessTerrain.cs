@@ -4,8 +4,7 @@ using System.Collections.Generic;
 
 public class EndlessTerrain : MonoBehaviour
 {
-
-    const float scale = 5f;
+    const float scale = 1f;
 
     const float viewerMoveThresholdForChunkUpdate = 25f;
     const float sqrViewerMoveThresholdForChunkUpdate = viewerMoveThresholdForChunkUpdate * viewerMoveThresholdForChunkUpdate;
@@ -20,6 +19,10 @@ public class EndlessTerrain : MonoBehaviour
 
     [Header("Spawning Configuration")]
     public PlantScriptable[] spawnableObjects;
+
+    [Header("Story & Base Elements")]
+    [Tooltip("Dodaj tutaj unikalne obiekty (np. bazę główną), które mają zespawnować się tylko raz w określonym dystansie.")]
+    public StoryElement[] storyElements;
 
     public static Vector2 viewerPosition;
     Vector2 viewerPositionOld;
@@ -38,7 +41,29 @@ public class EndlessTerrain : MonoBehaviour
         chunkSize = MapGenerator.mapChunkSize - 1;
         chunksVisibleInViewDst = Mathf.RoundToInt(maxViewDst / chunkSize);
 
+        // Losowanie i kalkulowanie ukrytych lokacji dla obiektów fabularnych
+        CalculateStoryElementPositions();
+
         UpdateVisibleChunks();
+    }
+
+    void CalculateStoryElementPositions()
+    {
+        System.Random prng = new System.Random(mapGenerator.seed);
+
+        for (int i = 0; i < storyElements.Length; i++)
+        {
+            // Losujemy kąt (0-360 stopni) i odległość w zadanym przedziale
+            float angle = (float)(prng.NextDouble() * Mathf.PI * 2);
+            float distance = Mathf.Lerp(storyElements[i].minDistance, storyElements[i].maxDistance, (float)prng.NextDouble());
+
+            // Obliczamy wektor 2D (X, Z w świecie gry)
+            float spawnX = Mathf.Cos(angle) * distance;
+            float spawnY = Mathf.Sin(angle) * distance;
+
+            storyElements[i].targetPosition = new Vector2(spawnX, spawnY);
+            storyElements[i].isSpawned = false;
+        }
     }
 
     void Update()
@@ -54,7 +79,6 @@ public class EndlessTerrain : MonoBehaviour
 
     void UpdateVisibleChunks()
     {
-
         for (int i = 0; i < terrainChunksVisibleLastUpdate.Count; i++)
         {
             terrainChunksVisibleLastUpdate[i].SetVisible(false);
@@ -65,11 +89,7 @@ public class EndlessTerrain : MonoBehaviour
         int currentChunkCoordY = Mathf.RoundToInt(viewerPosition.y / chunkSize);
 
         int layerIndex = LayerMask.NameToLayer(terrainLayerName);
-        if (layerIndex == -1)
-        {
-            // Debug.LogError("Warstwa '" + terrainLayerName + "' nie istnieje! Używam Default.");
-            layerIndex = 0;
-        }
+        if (layerIndex == -1) layerIndex = 0;
 
         for (int yOffset = -chunksVisibleInViewDst; yOffset <= chunksVisibleInViewDst; yOffset++)
         {
@@ -83,7 +103,8 @@ public class EndlessTerrain : MonoBehaviour
                 }
                 else
                 {
-                    terrainChunkDictionary.Add(viewedChunkCoord, new TerrainChunk(viewedChunkCoord, chunkSize, detailLevels, transform, mapMaterial, layerIndex, spawnableObjects));
+                    // Przekazujemy referencję do 'this' (EndlessTerrain), aby Chunk miał dostęp do fabuły
+                    terrainChunkDictionary.Add(viewedChunkCoord, new TerrainChunk(viewedChunkCoord, chunkSize, detailLevels, transform, mapMaterial, layerIndex, spawnableObjects, this));
                 }
             }
         }
@@ -91,7 +112,6 @@ public class EndlessTerrain : MonoBehaviour
 
     public class TerrainChunk
     {
-
         GameObject meshObject;
         Vector2 position;
         Bounds bounds;
@@ -104,6 +124,7 @@ public class EndlessTerrain : MonoBehaviour
         LODMesh[] lodMeshes;
 
         PlantScriptable[] spawnSettings;
+        EndlessTerrain parentTerrain;
 
         MapData mapData;
         bool mapDataReceived;
@@ -112,12 +133,14 @@ public class EndlessTerrain : MonoBehaviour
         Transform objectsParent;
         bool objectsSpawned = false;
 
-        public TerrainChunk(Vector2 coord, int size, LODInfo[] detailLevels, Transform parent, Material material, int layerIndex, PlantScriptable[] spawnSettings)
+        public TerrainChunk(Vector2 coord, int size, LODInfo[] detailLevels, Transform parent, Material material, int layerIndex, PlantScriptable[] spawnSettings, EndlessTerrain parentTerrain)
         {
             this.detailLevels = detailLevels;
             this.spawnSettings = spawnSettings;
+            this.parentTerrain = parentTerrain;
 
             position = coord * size;
+            // Bounds w 2D (X, Y) odpowiadają globalnym kordom X i Z
             bounds = new Bounds(position, Vector2.one * size);
             Vector3 positionV3 = new Vector3(position.x, 0, position.y);
 
@@ -132,7 +155,6 @@ public class EndlessTerrain : MonoBehaviour
             meshObject.transform.position = positionV3 * scale;
             meshObject.transform.parent = parent;
             meshObject.transform.localScale = Vector3.one * scale;
-
 
             objectsParent = new GameObject("Objects").transform;
             objectsParent.SetParent(meshObject.transform);
@@ -199,19 +221,17 @@ public class EndlessTerrain : MonoBehaviour
 
                                 if (!objectsSpawned)
                                 {
-                                    SpawnObjects();
+                                    SpawnStoryElements(); // Najpierw sprawdzamy elementy bazy/fabuły
+                                    SpawnObjects();       // Potem rośliny
                                 }
 
                                 objectsParent.gameObject.SetActive(true);
                             }
                             else
                             {
-
                                 meshCollider.sharedMesh = null;
-
                                 objectsParent.gameObject.SetActive(false);
                             }
-
                         }
                         else if (!lodMesh.hasRequestedMesh)
                         {
@@ -226,78 +246,143 @@ public class EndlessTerrain : MonoBehaviour
             }
         }
 
+        void SpawnStoryElements()
+        {
+            if (parentTerrain.storyElements == null) return;
+
+            int width = mapData.heightMap.GetLength(0);
+            int height = mapData.heightMap.GetLength(1);
+            float chunkWorldX = position.x;
+            float chunkWorldY = position.y;
+
+            for (int i = 0; i < parentTerrain.storyElements.Length; i++)
+            {
+                StoryElement el = parentTerrain.storyElements[i];
+
+                // Jeśli obiekt jeszcze nie powstał i znajduje się na terenie tego chunka
+                if (!el.isSpawned && bounds.Contains(new Vector3(el.targetPosition.x, el.targetPosition.y, 0)))
+                {
+                    // Obliczamy lokalny index siatki wysokości na podstawie globalnych współrzędnych
+                    int gridX = Mathf.RoundToInt(el.targetPosition.x - (chunkWorldX - (width - 1) / 2f));
+                    int gridY = Mathf.RoundToInt((chunkWorldY + (height - 1) / 2f) - el.targetPosition.y);
+
+                    gridX = Mathf.Clamp(gridX, 0, width - 1);
+                    gridY = Mathf.Clamp(gridY, 0, height - 1);
+
+                    // Pobieramy dokładną wysokość terenu w tym miejscu
+                    float terrainHeight = mapData.heightMap[gridX, gridY];
+                    float heightMultiplier = mapGenerator.meshHeightMultiplier;
+                    float finalY = new AnimationCurve(mapGenerator.meshHeightCurve.keys).Evaluate(terrainHeight) * heightMultiplier;
+
+                    // Spawnowanie bazy/obiektu
+                    Vector3 spawnPos = new Vector3(el.targetPosition.x, finalY, el.targetPosition.y);
+                    GameObject go = Object.Instantiate(el.prefab, spawnPos, Quaternion.identity);
+
+                    // Ustawienie warstwy dla NavMesha
+                    go.layer = meshObject.layer;
+                    go.transform.parent = parentTerrain.transform; // Baza nie znika gdy chunk się wyładuje (zostaje na stałe)
+
+                    el.isSpawned = true; // Zaznaczamy, żeby nie zespawnowało się podwójnie
+                }
+            }
+        }
+
         void SpawnObjects()
         {
             objectsSpawned = true;
-
 
             if (spawnSettings == null || spawnSettings.Length == 0) return;
 
             int width = mapData.heightMap.GetLength(0);
             int height = mapData.heightMap.GetLength(1);
 
-
             float topLeftX = (width - 1) / -2f;
             float topLeftZ = (height - 1) / 2f;
 
-            System.Random prng = new System.Random(position.GetHashCode());
+            System.Random prng = new System.Random(mapGenerator.seed + position.GetHashCode());
 
+            float chunkWorldX = position.x;
+            float chunkWorldY = position.y;
 
-            int step = 2;
+            // ZMIANA: Zwiększony 'step' (z 1 na 3) mocno rozrzedzi roślinność
+            // Nie będą już generować się na każdej kratce terenu, a będą bardziej porozrzucane.
+            int step = 3;
 
             for (int y = 0; y < height; y += step)
             {
                 for (int x = 0; x < width; x += step)
                 {
-
                     float currentHeight = mapData.heightMap[x, y];
+                    float currentSlope = CalculateSlope(x, y, width, height, mapData.heightMap);
+
+                    float globalX = (chunkWorldX + x) / MapGenerator.mapChunkSize;
+                    float globalY = (chunkWorldY - y) / MapGenerator.mapChunkSize;
 
                     for (int i = 0; i < spawnSettings.Length; i++)
                     {
                         PlantScriptable plant = spawnSettings[i];
 
-                        if (plant == null || plant.prefab == null) continue;
+                        if (plant == null || plant.prefabs == null || plant.prefabs.Length == 0) continue;
+                        if (currentHeight < plant.minHeight || currentHeight > plant.maxHeight) continue;
+                        if (currentSlope > plant.maxSlope) continue;
 
-                        if (currentHeight >= plant.minHeight && currentHeight <= plant.maxHeight)
+                        float noiseValue = Mathf.PerlinNoise(
+                            globalX * plant.noiseScale + plant.noiseOffset.x,
+                            globalY * plant.noiseScale + plant.noiseOffset.y
+                        );
+
+                        if (noiseValue < plant.noiseThreshold) continue;
+                        if (prng.NextDouble() > plant.density) continue;
+
+                        float heightMultiplier = mapGenerator.meshHeightMultiplier;
+                        AnimationCurve heightCurve = new AnimationCurve(mapGenerator.meshHeightCurve.keys);
+                        float localY = heightCurve.Evaluate(currentHeight) * heightMultiplier;
+
+                        Vector3 localPos = new Vector3(topLeftX + x, localY, topLeftZ - y);
+
+                        // Wzmocniony jitter zapewnia organiczne rozrzucenie (łamanie siatki)
+                        float randomOffsetX = (float)prng.NextDouble() * step - (step / 2f);
+                        float randomOffsetZ = (float)prng.NextDouble() * step - (step / 2f);
+                        localPos.x += randomOffsetX;
+                        localPos.z += randomOffsetZ;
+
+                        int prefabIndex = prng.Next(0, plant.prefabs.Length);
+                        GameObject selectedPrefab = plant.prefabs[prefabIndex];
+
+                        if (selectedPrefab != null)
                         {
+                            GameObject go = Object.Instantiate(selectedPrefab, objectsParent);
+                            go.transform.localPosition = localPos;
+                            go.transform.localRotation = Quaternion.Euler(0, (float)prng.Next(0, 360), 0);
 
-                            if (prng.NextDouble() < plant.density)
-                            {
+                            float randomScale = Mathf.Lerp(plant.minScale, plant.maxScale, (float)prng.NextDouble());
+                            go.transform.localScale = Vector3.one * randomScale;
 
-                                float heightMultiplier = mapGenerator.meshHeightMultiplier;
-                                AnimationCurve heightCurve = new AnimationCurve(mapGenerator.meshHeightCurve.keys);
-                                float localY = heightCurve.Evaluate(currentHeight) * heightMultiplier;
+                            // ZMIANA: Przypisujemy drzewu warstwę terenu (np. "Terrain"), aby NavMesh na nie reagował!
+                            go.layer = meshObject.layer;
 
-                                // Wyznaczamy pozycję
-                                Vector3 localPos = new Vector3(topLeftX + x, localY, topLeftZ - y);
-
-                                // Dodajemy małe losowe przesunięcie (Jitter), żeby zbić efekt siatki
-                                float randomOffsetX = (float)prng.NextDouble() * step - (step / 2f);
-                                float randomOffsetZ = (float)prng.NextDouble() * step - (step / 2f);
-                                localPos.x += randomOffsetX;
-                                localPos.z += randomOffsetZ;
-
-                                // Tworzymy obiekt
-                                GameObject go = Object.Instantiate(plant.prefab, objectsParent);
-                                go.transform.localPosition = localPos;
-
-                                // Losowa rotacja wokół osi Y
-                                go.transform.localRotation = Quaternion.Euler(0, (float)prng.Next(0, 360), 0);
-
-                                // Losowa skala z zakresu zdefiniowanego w ScriptableObject
-                                float randomScale = Mathf.Lerp(plant.minScale, plant.maxScale, (float)prng.NextDouble());
-                                go.transform.localScale = Vector3.one * randomScale;
-
-                                // Jeśli coś zaspawnowaliśmy w tym punkcie, przerywamy pętlę roślin 
-                                // (żeby w tym samym miejscu nie powstały dwa obiekty na raz)
-                                goto NextPosition;
-                            }
+                            if (plant.isInteractable) go.tag = "Interactable";
+                            else go.isStatic = true;
                         }
-                    }
 
-                NextPosition:;
+                        goto NextGridPoint;
+                    }
+                NextGridPoint:;
                 }
             }
+        }
+
+        float CalculateSlope(int x, int y, int width, int height, float[,] heightMap)
+        {
+            float hL = heightMap[Mathf.Clamp(x - 1, 0, width - 1), y];
+            float hR = heightMap[Mathf.Clamp(x + 1, 0, width - 1), y];
+            float hD = heightMap[x, Mathf.Clamp(y - 1, 0, height - 1)];
+            float hU = heightMap[x, Mathf.Clamp(y + 1, 0, height - 1)];
+
+            float dX = Mathf.Abs(hL - hR);
+            float dZ = Mathf.Abs(hD - hU);
+
+            return Mathf.Max(dX, dZ) * 100f;
         }
 
         public void SetVisible(bool visible)
@@ -313,7 +398,6 @@ public class EndlessTerrain : MonoBehaviour
 
     class LODMesh
     {
-
         public Mesh mesh;
         public bool hasRequestedMesh;
         public bool hasMesh;
@@ -346,5 +430,20 @@ public class EndlessTerrain : MonoBehaviour
     {
         public int lod;
         public float visibleDstThreshold;
+    }
+
+    // ZMIANA: Struktura do przechowywania ustawień bazy i elementów fabuły
+    [System.Serializable]
+    public class StoryElement
+    {
+        public string name = "Baza Startowa";
+        public GameObject prefab;
+        [Tooltip("Minimalny dystans od środka świata (punktu startu)")]
+        public float minDistance = 50f;
+        [Tooltip("Maksymalny dystans od środka świata")]
+        public float maxDistance = 150f;
+
+        [HideInInspector] public Vector2 targetPosition;
+        [HideInInspector] public bool isSpawned;
     }
 }
