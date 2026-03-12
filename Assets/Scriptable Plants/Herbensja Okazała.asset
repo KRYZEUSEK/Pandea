@@ -18,9 +18,14 @@ MonoBehaviour:
     i bujne drobne kwiaty. Ro\u015Blina ta jest bezpieczna a nawet pomocna, po przerwaniu
     \u0142odygi czujesz zapach dzi\u0119ki, kt\xF3remu czujesz przyp\u0142yw si\u0142. "
   plantPicture: {fileID: 0}
-  prefab: {fileID: 2003509766817447365, guid: 67a809b8074e9db48835b601699fcfae, type: 3}
+  prefabs: []
+  isInteractable: 0
   density: 0
   minHeight: 0
-  maxHeight: 0
-  minScale: 0.018
-  maxScale: 0.028
+  maxHeight: 1
+  maxSlope: 45
+  noiseScale: 10
+  noiseThreshold: 0.4
+  noiseOffset: {x: 0, y: 0}
+  minScale: 0.5
+  maxScale: 0.5
