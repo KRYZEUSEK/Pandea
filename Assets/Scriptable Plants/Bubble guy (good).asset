@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db17369aa36837c4c862aaacd5087e11, type: 3}
+  m_Name: Bubble guy (good)
+  m_EditorClassIdentifier: 
+  plantName: Netlenthes caerulea
+  plantDescription: "Ro\u015Blina sk\u0142ada si\u0119 z kilku zdrewnia\u0142ych
+    \u0142odyg, w kt\xF3rych z trzec lekko \u015Bwiec\u0105cych si\u0119 czubk\xF3w
+    powoli tworz\u0105 si\u0119 b\u0105belki tlenu. Na ca\u0142ej d\u0142ugo\u015Bci
+    \u0142odyg te\u017C s\u0105cz\u0105 si\u0119 pojedyncze, drobne b\u0105belki
+    tlenu. Ro\u015Blina ta po przerwaniu \u0142odygi wypuszcza zebrany tlen. "
+  plantPicture: {fileID: 0}
+  prefab: {fileID: 7310819246955563193, guid: f41821bdf6c463942987482766c5ec1b, type: 3}
+  density: 0.401
+  minHeight: 0
+  maxHeight: 1
+  minScale: 0.28
+  maxScale: 0.41
