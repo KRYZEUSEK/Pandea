@@ -4,43 +4,36 @@ using System.Collections;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
 
-
 public class PlayerControllerClick1 : MonoBehaviour
 {
-    const string IDLE = "Idle";
-    const string WALK = "Walk";
-    const string JUMP_TRIGGER = "Jump";
+    const string JUMP_START_STATE = "Jump_start";
 
     CustomActions input;
     NavMeshAgent agent;
     Animator animator;
-    Camera mainCamera; // FIX: Cache kamery
+    Camera mainCamera;
 
     [Header("Movement")]
     [SerializeField] ParticleSystem clickEffect;
-    [SerializeField] LayerMask clickableLayers; // Warstwa podłogi
-    [SerializeField] LayerMask obstacleLayers;  // FIX: Nowa warstwa dla ścian (do skoku)
+    [SerializeField] LayerMask clickableLayers;
     [SerializeField] float lookRotationSpeed = 8f;
 
-    [Header("Jumping")]
-    [SerializeField] float jumpHeight = 2.0f;
-    [SerializeField] float jumpDuration = 0.5f;
+    [Header("Jumping & Pivot Fix (Head Pivot)")]
+    [SerializeField] float heightFromPivotToFeet = 1.2f;
+    [SerializeField] float jumpHeight = 2.5f;
+    [SerializeField] float jumpDuration = 0.6f;
     [SerializeField] float groundCheckDistance = 0.3f;
-    [SerializeField] float bodyRadius = 0.5f; // FIX: Promień kolizji gracza do skoku
 
-    private bool isJumping = false;
+    private bool isJumpingInternal = false;
     private bool isGrounded;
     private bool isHoldingMove = false;
-
-    // FIX: Optymalizacja SetDestination
-    private Vector3 lastMousePos;
     private float nextMoveTime;
 
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
-        mainCamera = Camera.main; // FIX: Przypisanie kamery raz
+        mainCamera = Camera.main;
 
         input = new CustomActions();
         AssignInputs();
@@ -64,11 +57,11 @@ public class PlayerControllerClick1 : MonoBehaviour
     {
         GroundCheck();
 
-        if (isJumping) return;
+        // Jeśli skaczemy, nie pozwalamy na logikę chodzenia/obracania do celu
+        if (isJumpingInternal) return;
 
         if (isHoldingMove)
         {
-            // NOWE: blokada ruchu, gdy kursor nad UI
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
                 return;
 
@@ -79,63 +72,66 @@ public class PlayerControllerClick1 : MonoBehaviour
             }
         }
 
-
         FaceTarget();
         SetAnimations();
     }
 
+    void GroundCheck()
+    {
+        Vector3 feetPosition = transform.position - (Vector3.up * heightFromPivotToFeet);
+        Vector3 rayStart = feetPosition + (Vector3.up * 0.1f);
+        Debug.DrawRay(rayStart, Vector3.down * groundCheckDistance, Color.red);
+        isGrounded = Physics.Raycast(rayStart, Vector3.down, groundCheckDistance, clickableLayers);
+    }
+
     void MoveToCursor(bool spawnEffect)
     {
-        if (isJumping) return;
+        if (isJumpingInternal) return;
 
-        // NOWE: Sprawdź czy mysz nad UI
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             return;
 
-        RaycastHit hit;
-        if (Physics.Raycast(mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue()), out hit, 100, clickableLayers))
+        Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
+        if (Physics.Raycast(ray, out RaycastHit hit, 100, clickableLayers))
         {
             agent.SetDestination(hit.point);
-
             if (spawnEffect && clickEffect != null)
             {
-                ParticleSystem newEffect = Instantiate(clickEffect, hit.point + Vector3.up * 0.1f, clickEffect.transform.rotation);
-                Destroy(newEffect.gameObject, 2.0f);
+                Instantiate(clickEffect, hit.point + Vector3.up * 0.1f, clickEffect.transform.rotation);
             }
         }
     }
 
-
     void TryJump()
     {
-        if (isGrounded && !isJumping)
+        if (isGrounded && !isJumpingInternal)
         {
-            // isHoldingMove = false; // Opcjonalnie reset trzymania
             StartCoroutine(JumpArc());
         }
     }
 
     void StopMovement()
     {
-        if (isJumping || !agent.enabled) return;
+        if (isJumpingInternal || !agent.enabled) return;
         isHoldingMove = false;
-        agent.ResetPath(); // FIX: ResetPath jest czystsze niż SetDestination(transform.position)
+        agent.ResetPath();
     }
 
     private IEnumerator JumpArc()
     {
-        isJumping = true;
-        animator.Play("Jump_start");
+        isJumpingInternal = true;
+
+        // --- POPRAWKA ANIMACJI ---
+        animator.applyRootMotion = false;
+        animator.SetBool("isWalking", false); // Wymuszamy koniec animacji chodzenia
+        animator.SetBool("isJumping", true);  // Odpalamy logikę skoku
+        animator.Play(JUMP_START_STATE);      // Startujemy animację wybicia
 
         Vector3 savedDestination = agent.destination;
         Vector3 horizontalVelocity = agent.velocity;
 
-        // Zabezpieczenie: Jeśli skaczemy z miejsca (velocity ~ 0), 
-        // przyjmijmy, że ruchem jest to, gdzie postać patrzy.
-        if (horizontalVelocity.magnitude < 0.1f)
-        {
-            horizontalVelocity = transform.forward * 0.1f; // Minimalny ruch w przód
-        }
+        if (horizontalVelocity.magnitude < 0.2f)
+            horizontalVelocity = transform.forward * 2.0f;
 
         agent.enabled = false;
 
@@ -150,34 +146,15 @@ public class PlayerControllerClick1 : MonoBehaviour
             float deltaTime = Time.deltaTime;
             verticalVelocity += gravity * deltaTime;
 
-            // --- NOWE: Ręczne obracanie postaci w locie ---
-            // Sprawdzamy, czy poruszamy się w poziomie, żeby nie obracać się do (0,0,0)
-            if (horizontalVelocity.sqrMagnitude > 0.05f)
-            {
-                // Obliczamy rotację w stronę, w którą faktycznie lecimy
-                Quaternion targetRotation = Quaternion.LookRotation(horizontalVelocity.normalized);
-
-                // Płynnie obracamy postać (używając tej samej zmiennej lookRotationSpeed co przy chodzeniu)
-                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, deltaTime * lookRotationSpeed);
-            }
-            // ----------------------------------------------
-
-            // Przesunięcie
             Vector3 moveVector = (horizontalVelocity + Vector3.up * verticalVelocity) * deltaTime;
-
-            // (Tu powinna być Twoja logika kolizji ze ścianami z poprzedniej rozmowy, jeśli ją dodałeś)
-            // ...
-
             transform.position += moveVector;
 
-            // Logika lądowania
             if (verticalVelocity < 0)
             {
-                Vector3 rayStart = transform.position + Vector3.up * 0.5f;
-                // Zwiększyłem lekko dystans raycasta, żeby lądowanie było pewniejsze
-                if (Physics.Raycast(rayStart, Vector3.down, out RaycastHit hitGround, 0.6f + groundCheckDistance, clickableLayers))
+                Vector3 feetPosition = transform.position - (Vector3.up * heightFromPivotToFeet);
+                if (Physics.Raycast(feetPosition + Vector3.up * 0.2f, Vector3.down, out RaycastHit hitGround, 0.4f, clickableLayers))
                 {
-                    transform.position = hitGround.point;
+                    transform.position = hitGround.point + (Vector3.up * heightFromPivotToFeet);
                     break;
                 }
             }
@@ -185,37 +162,29 @@ public class PlayerControllerClick1 : MonoBehaviour
             yield return null;
         }
 
+        // --- LĄDOWANIE ---
         agent.enabled = true;
+        animator.SetBool("isJumping", false); // Pozwalamy przejść do Idle/Walk
 
         NavMeshHit navHit;
-        if (NavMesh.SamplePosition(transform.position, out navHit, 1.0f, NavMesh.AllAreas))
+        if (NavMesh.SamplePosition(transform.position, out navHit, 3.0f, NavMesh.AllAreas))
         {
             agent.Warp(navHit.position);
         }
 
+        agent.ResetPath();
+
         if (savedDestination != Vector3.zero)
             agent.SetDestination(savedDestination);
 
-        isJumping = false;
-    }
-
-    void GroundCheck()
-    {
-        Vector3 rayStart = transform.position + Vector3.up * 0.1f;
-        isGrounded = Physics.Raycast(rayStart, Vector3.down, groundCheckDistance, clickableLayers);
+        isJumpingInternal = false;
     }
 
     void FaceTarget()
     {
-        // FIX: Sprawdzenie pozostałego dystansu może być mylące przy "Hold to move", 
-        // lepiej sprawdzać czy agent ma ścieżkę (agent.hasPath) lub prędkość.
-        if (agent.velocity.sqrMagnitude < 0.1f) return;
+        if (!agent.enabled || agent.velocity.sqrMagnitude < 0.1f) return;
 
-        // FIX: Użycie steeringTarget zamiast destination
-        Vector3 targetPosition = agent.steeringTarget;
-        Vector3 direction = (targetPosition - transform.position).normalized;
-
-        // FIX: Zabezpieczenie przed błędem Zero Vector
+        Vector3 direction = (agent.steeringTarget - transform.position).normalized;
         if (direction.sqrMagnitude > 0.001f)
         {
             Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
@@ -225,8 +194,13 @@ public class PlayerControllerClick1 : MonoBehaviour
 
     void SetAnimations()
     {
-        // Używamy velocity agenta, to najdokładniejszy wskaźnik ruchu
-        bool isWalking = agent.velocity.magnitude > 0.1f;
-        animator.SetBool("isWalking", isWalking);
+        // KLUCZOWA POPRAWKA: Jeśli skaczemy, nie dotykamy parametrów chodzenia
+        if (isJumpingInternal) return;
+
+        if (agent.enabled)
+        {
+            bool isWalking = agent.velocity.magnitude > 0.1f;
+            animator.SetBool("isWalking", isWalking);
+        }
     }
 }
