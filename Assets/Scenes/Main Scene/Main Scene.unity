@@ -8359,7 +8359,7 @@ GameObject:
   - component: {fileID: 1152206355}
   - component: {fileID: 1152206354}
   m_Layer: 5
-  m_Name: PickupRadiusText
+  m_Name: TooCloseToBaseText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8398,15 +8398,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Press "E" to pick up
-
-'
+  m_text: "Statek zak\u0142\xF3ca sygna\u0142 - odejd\u017A dalej "
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
@@ -10393,6 +10391,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8934105229606034244, guid: ce6e3f2667dac9a42b5ef6072be02542, type: 3}
+      propertyPath: warningUI
+      value: 
+      objectReference: {fileID: 1152206352}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class HeldAmplifierDeployer : MonoBehaviour
 {
@@ -10,23 +11,62 @@ public class HeldAmplifierDeployer : MonoBehaviour
     public string requiredParentName = "ToolHoldPoint";
 
     [Header("Ustawienia Spawnu")]
-    [Tooltip("Gotowy prefab wzmacniacza (z trackerem), który pojawi siê na ziemi.")]
     public GameObject amplifierPrefab;
 
+    [Header("Ustawienia Zasiêgu (Statek)")]
+    public string shipTag = "Ship";
+    public float minDistanceFromShip = 20f;
+
+    [Tooltip("Dok³adna nazwa obiektu tekstu w hierarchii. Skrypt sam go znajdzie!")]
+    public string warningUIName = "TooCloseToBaseText"; // <-- ZMIANA: Szukamy po nazwie
+
     private float currentHoldTime = 0f;
+    private GameObject shipObject;
+    private GameObject warningUI; // Skrypt sam wype³ni tê zmienn¹
+    private Coroutine warningCoroutine;
 
     void Update()
     {
-        // 1. Zabezpieczenie: Sprawdzamy, czy przedmiot na pewno jest w rêce gracza
         if (transform.parent == null || transform.parent.name != requiredParentName)
         {
             currentHoldTime = 0f;
             return;
         }
 
-        // 2. Obs³uga przytrzymania klawisza F
+        // --- 2. REAKCJA NA SAM KLIK ---
+        if (Input.GetKeyDown(deployKey))
+        {
+            FindWarningUI(); // Szukamy napisu w UI
+
+            if (shipObject == null) shipObject = GameObject.FindGameObjectWithTag(shipTag);
+
+            if (shipObject != null)
+            {
+                float distanceToShip = Vector3.Distance(transform.position, shipObject.transform.position);
+
+                if (distanceToShip < minDistanceFromShip)
+                {
+                    if (warningCoroutine != null) StopCoroutine(warningCoroutine);
+                    warningCoroutine = StartCoroutine(ShowWarningTimer());
+                }
+            }
+        }
+
+        // --- 3. OBS£UGA PRZYTRZYMANIA KLAWISZA ---
         if (Input.GetKey(deployKey))
         {
+            if (shipObject != null && Vector3.Distance(transform.position, shipObject.transform.position) < minDistanceFromShip)
+            {
+                currentHoldTime = 0f;
+                return;
+            }
+
+            if (warningUI != null && warningUI.activeSelf)
+            {
+                if (warningCoroutine != null) StopCoroutine(warningCoroutine);
+                warningUI.SetActive(false);
+            }
+
             currentHoldTime += Time.deltaTime;
 
             if (currentHoldTime >= requiredHoldTime)
@@ -41,46 +81,63 @@ public class HeldAmplifierDeployer : MonoBehaviour
         }
     }
 
+    // --- NOWA FUNKCJA: Inteligentne szukanie wy³¹czonego UI ---
+    void FindWarningUI()
+    {
+        if (warningUI != null) return; // Jeœli ju¿ znalaz³, nie szukaj ponownie
+
+        // Szuka wszystkich Canvasów i ich dzieci (nawet tych z odznaczonym ptaszkiem)
+        Canvas[] canvases = FindObjectsOfType<Canvas>();
+        foreach (Canvas canvas in canvases)
+        {
+            Transform[] allChildren = canvas.GetComponentsInChildren<Transform>(true);
+            foreach (Transform child in allChildren)
+            {
+                if (child.name == warningUIName)
+                {
+                    warningUI = child.gameObject;
+                    Debug.Log("Sukces: Skrypt znalaz³ i podpi¹³ napis: " + warningUIName);
+                    return;
+                }
+            }
+        }
+        Debug.LogError("B³¹d: Nie znaleziono obiektu UI o nazwie: " + warningUIName);
+    }
+
+    private IEnumerator ShowWarningTimer()
+    {
+        if (warningUI != null)
+        {
+            warningUI.SetActive(true);
+            yield return new WaitForSeconds(3.0f);
+            warningUI.SetActive(false);
+        }
+    }
+
     void DeployAmplifier()
     {
-        if (amplifierPrefab == null)
-        {
-            Debug.LogError("Nie przypisano prefabu w polu Amplifier Prefab!");
-            return;
-        }
+        if (warningUI != null) warningUI.SetActive(false);
 
-        // --- 1. ROZSTAWIANIE WZMACNIACZA NA ZIEMI ---
+        if (amplifierPrefab == null) return;
+
         Vector3 spawnPosition = transform.root.position;
         GameObject deployedAmplifier = Instantiate(amplifierPrefab, spawnPosition, transform.root.rotation);
 
         AmplifierTracker tracker = deployedAmplifier.GetComponent<AmplifierTracker>();
         if (tracker != null) tracker.Deploy();
 
-        // --- 2. INTELIGENTNE USUWANIE Z EKWIPUNKU ---
-        // Szukamy Twojego skryptu HotbarSelector na g³ównym obiekcie gracza
         HotbarSelector hotbar = transform.root.GetComponentInChildren<HotbarSelector>();
-
         if (hotbar != null && hotbar.inventory != null)
         {
-            // Pobieramy numer slotu, który gracz ma teraz wybrany
             int activeIndex = hotbar.CurrentIndex;
             var activeSlot = hotbar.inventory.Slots[activeIndex];
 
-            // Jeœli w tym slocie jest przedmiot, usuwamy z niego 1 sztukê
             if (activeSlot != null && activeSlot.item != null)
             {
-                Debug.Log($"Usuwam {activeSlot.item.name} ze slotu nr {activeIndex}");
                 hotbar.inventory.RemoveItem(activeSlot.item, 1);
             }
         }
-        else
-        {
-            Debug.LogError("B£¥D: Nie mog³em znaleŸæ HotbarSelector na graczu!");
-        }
 
-        // --- 3. UKRYCIE WIZUALNE ---
-        // Natychmiast ukrywamy obiekt, a system ekwipunku w u³amku sekundy sam 
-        // usunie go komend¹ ClearHeldTool() z PlayerInteraction1
         gameObject.SetActive(false);
         Destroy(gameObject);
     }

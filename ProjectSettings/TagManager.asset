@@ -9,6 +9,7 @@ TagManager:
   - Decor
   - Tree
   - Objective1
+  - Ship
   layers:
   - Default
   - TransparentFX
