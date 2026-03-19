@@ -49,7 +49,7 @@ public class LocalNavMeshBuilder : MonoBehaviour
             UpdateNavMesh(true);
             // ZMIANA: Zamiast odświeżać NavMesh w każdej klatce (co obciąża procesor),
             // system będzie go aktualizował 2 razy na sekundę. To w zupełności wystarczy dla AI.
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.2f);
         }
     }
 

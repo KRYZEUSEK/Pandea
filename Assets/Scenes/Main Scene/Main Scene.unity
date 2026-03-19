@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -9058,14 +9058,20 @@ MonoBehaviour:
     prefab: {fileID: 5618743318629138398, guid: 84a543b2cefd01e45ab89b1b3f7ce9d9, type: 3}
     minDistance: 2
     maxDistance: 5
+    spawnImmediately: 0
     targetPosition: {x: 0, y: 0}
     isSpawned: 0
+    isHeightAdjusted: 0
+    spawnedInstance: {fileID: 0}
   - name: Docelowy element
     prefab: {fileID: 1741192777505707571, guid: 604c6c6bbcbf85e45a174ee69431600a, type: 3}
     minDistance: 150
     maxDistance: 150
+    spawnImmediately: 1
     targetPosition: {x: 0, y: 0}
     isSpawned: 0
+    isHeightAdjusted: 0
+    spawnedInstance: {fileID: 0}
 --- !u!114 &1262877389
 MonoBehaviour:
   m_ObjectHideFlags: 0

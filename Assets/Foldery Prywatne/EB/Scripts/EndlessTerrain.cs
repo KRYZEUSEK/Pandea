@@ -259,30 +259,39 @@ public class EndlessTerrain : MonoBehaviour
             {
                 StoryElement el = parentTerrain.storyElements[i];
 
-                // Jeśli obiekt jeszcze nie powstał i znajduje się na terenie tego chunka
-                if (!el.isSpawned && bounds.Contains(new Vector3(el.targetPosition.x, el.targetPosition.y, 0)))
+                // ZMIANA: Sprawdzamy czy wysokość tego obiektu została już skorygowana na tym chunku
+                if (!el.isHeightAdjusted && bounds.Contains(new Vector3(el.targetPosition.x, el.targetPosition.y, 0)))
                 {
-                    // Obliczamy lokalny index siatki wysokości na podstawie globalnych współrzędnych
                     int gridX = Mathf.RoundToInt(el.targetPosition.x - (chunkWorldX - (width - 1) / 2f));
                     int gridY = Mathf.RoundToInt((chunkWorldY + (height - 1) / 2f) - el.targetPosition.y);
 
                     gridX = Mathf.Clamp(gridX, 0, width - 1);
                     gridY = Mathf.Clamp(gridY, 0, height - 1);
 
-                    // Pobieramy dokładną wysokość terenu w tym miejscu
                     float terrainHeight = mapData.heightMap[gridX, gridY];
                     float heightMultiplier = mapGenerator.meshHeightMultiplier;
                     float finalY = new AnimationCurve(mapGenerator.meshHeightCurve.keys).Evaluate(terrainHeight) * heightMultiplier;
 
-                    // Spawnowanie bazy/obiektu
-                    Vector3 spawnPos = new Vector3(el.targetPosition.x, finalY, el.targetPosition.y);
-                    GameObject go = Object.Instantiate(el.prefab, spawnPos, Quaternion.identity);
+                    Vector3 correctPos = new Vector3(el.targetPosition.x, finalY, el.targetPosition.y);
 
-                    // Ustawienie warstwy dla NavMesha
-                    go.layer = meshObject.layer;
-                    go.transform.parent = parentTerrain.transform; // Baza nie znika gdy chunk się wyładuje (zostaje na stałe)
+                    // ZMIANA: Jeśli obiekt był zespawnowany od razu, po prostu korygujemy jego pozycję
+                    if (el.spawnImmediately && el.spawnedInstance != null)
+                    {
+                        el.spawnedInstance.transform.position = correctPos;
+                        el.spawnedInstance.layer = meshObject.layer;
+                    }
+                    // W przeciwnym razie spawniemy go standardowo po dojściu na miejsce
+                    else if (!el.isSpawned)
+                    {
+                        GameObject go = Object.Instantiate(el.prefab, correctPos, Quaternion.identity);
+                        go.layer = meshObject.layer;
+                        go.transform.parent = parentTerrain.transform;
 
-                    el.isSpawned = true; // Zaznaczamy, żeby nie zespawnowało się podwójnie
+                        el.spawnedInstance = go;
+                        el.isSpawned = true;
+                    }
+
+                    el.isHeightAdjusted = true; // Zaznaczamy, że w tej sesji obiekt otrzymał już poprawną wysokość
                 }
             }
         }
@@ -358,9 +367,6 @@ public class EndlessTerrain : MonoBehaviour
                             float randomScale = Mathf.Lerp(plant.minScale, plant.maxScale, (float)prng.NextDouble());
                             go.transform.localScale = Vector3.one * randomScale;
 
-                            // ZMIANA: Przypisujemy drzewu warstwę terenu (np. "Terrain"), aby NavMesh na nie reagował!
-                            go.layer = meshObject.layer;
-
                             if (plant.isInteractable) go.tag = "Interactable";
                             else go.isStatic = true;
                         }
@@ -432,18 +438,20 @@ public class EndlessTerrain : MonoBehaviour
         public float visibleDstThreshold;
     }
 
-    // ZMIANA: Struktura do przechowywania ustawień bazy i elementów fabuły
     [System.Serializable]
     public class StoryElement
     {
-        public string name = "Baza Startowa";
+        public string name = "Cel Misji";
         public GameObject prefab;
-        [Tooltip("Minimalny dystans od środka świata (punktu startu)")]
         public float minDistance = 50f;
-        [Tooltip("Maksymalny dystans od środka świata")]
         public float maxDistance = 150f;
+
+        [Tooltip("Zaznacz to, jeśli obiekt ma istnieć na scenie od razu po odpaleniu gry (np. do systemu questów). Zostanie przyciągnięty do ziemi, gdy gracz się do niego zbliży.")]
+        public bool spawnImmediately = false;
 
         [HideInInspector] public Vector2 targetPosition;
         [HideInInspector] public bool isSpawned;
+        [HideInInspector] public bool isHeightAdjusted;
+        [HideInInspector] public GameObject spawnedInstance;
     }
 }
