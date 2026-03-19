@@ -4,87 +4,43 @@ public class TopDownFollowCamera : MonoBehaviour
 {
     [Header("Cel i Odleg³oœci")]
     public Transform target;
+    [Tooltip("Jak daleko z ty³u ma byæ kamera (na osi Z)")]
     public float distance = 8f;
-    public float height = 6f;
+    [Tooltip("Jak wysoko nad graczem ma byæ kamera (na osi Y)")]
+    public float height = 10f;
 
-    [Header("P³ynnoœæ Pod¹¿ania (Position)")]
-    public float positionDamping = 4f; // Jak szybko kamera goni pozycjê
-    public float rotationDamping = 2f; // Jak szybko kamera obraca siê do celu
+    [Header("P³ynnoœæ (Damping)")]
+    [Tooltip("Jak szybko kamera dogania pozycjê gracza. Wiêcej = szybciej.")]
+    public float positionDamping = 8f;
 
-    [Header("P³ynnoœæ Zmiany Kierunku (Nowoœæ)")]
-    [Tooltip("Jak szybko kamera reaguje na zmianê kierunku ruchu gracza. Mniejsza wartoœæ = ³agodniejsze ³uki.")]
-    public float directionSmoothing = 2.5f; // TO JEST KLUCZ DO NAPRAWY PRZESKOKU
-
-    [Header("Logika Ruchu")]
-    public float moveThreshold = 0.1f;
-
-    // --- ZMIENNE PRYWATNE ---
-    private Vector3 lastTargetPosition;
-    private Vector3 currentHeading; // Wyg³adzony wektor kierunku ("plecy" gracza)
+    // Zmienna przechowuj¹ca sta³e przesuniêcie kamery w przestrzeni œwiata
+    private Vector3 offset;
 
     void Start()
     {
         if (target == null) return;
 
-        lastTargetPosition = target.position;
-        currentHeading = target.forward;
+        // Ustalamy sta³¹ pozycjê wzglêdem œwiata (Z i Y)
+        offset = new Vector3(0, height, -distance);
 
-        // Ustawienie startowe
-        UpdateCameraPosition(true);
+        // Ustawiamy kamerê natychmiast na start, ¿eby nie "lecia³a" z punktu 0,0,0
+        transform.position = target.position + offset;
+        transform.LookAt(target.position);
     }
 
     void LateUpdate()
     {
         if (target == null) return;
-        UpdateCameraPosition(false);
-    }
 
-    void UpdateCameraPosition(bool instant)
-    {
-        // 1. OBLICZANIE RZECZYWISTEGO RUCHU
-        Vector3 displacement = target.position - lastTargetPosition;
-        Vector3 flatDisplacement = new Vector3(displacement.x, 0, displacement.z); // Ignorujemy Y
-        float moveDistance = flatDisplacement.magnitude;
+        // 1. DOCELOWA POZYCJA (Pozycja gracza + nasz sztywny offset)
+        // Zauwa¿, ¿e nie ma tu ju¿ ¿adnych rotacji gracza (target.forward)
+        Vector3 targetPosition = target.position + offset;
 
-        // 2. AKTUALIZACJA KIERUNKU (Z WYG£ADZANIEM)
-        if (moveDistance > moveThreshold)
-        {
-            Vector3 inputDirection = flatDisplacement.normalized;
+        // 2. P£YNNE PRZESUWANIE (Lerp)
+        // To zniweluje wszelkie szarpania wynikaj¹ce z fizyki (wchodzenie na krzaki itp.)
+        transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * positionDamping);
 
-            if (instant)
-            {
-                currentHeading = inputDirection;
-            }
-            else
-            {
-                // TUTAJ JEST NAPRAWA:
-                // Zamiast: currentHeading = inputDirection;
-                // U¿ywamy Slerp, aby wektor "pleców" obraca³ siê powoli, a nie przeskakiwa³.
-                currentHeading = Vector3.Slerp(currentHeading, inputDirection, Time.deltaTime * directionSmoothing);
-            }
-        }
-
-        // Zapisujemy pozycjê na nastêpn¹ klatkê
-        lastTargetPosition = target.position;
-
-        // 3. OBLICZANIE POZYCJI DOCELOWEJ
-        // Pozycja jest obliczana na podstawie WYG£ADZONEGO wektora 'currentHeading'
-        Vector3 targetPos = target.position - currentHeading * distance + Vector3.up * height;
-
-        // 4. APLIKOWANIE RUCHU
-        if (instant)
-        {
-            transform.position = targetPos;
-            transform.LookAt(target.position);
-        }
-        else
-        {
-            // Lerp pozycji (t³umienie drgañ)
-            transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * positionDamping);
-
-            // LookAt z lekkim wyg³adzeniem (¿eby nie trzês³o przy mikro-ruchach)
-            Quaternion targetRotation = Quaternion.LookRotation(target.position - transform.position);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationDamping);
-        }
+        // 3. KAMERA ZAWSZE PATRZY NA GRACZA
+        transform.LookAt(target.position);
     }
 }
