@@ -13,14 +13,18 @@ public class TemporaryWin : MonoBehaviour
     public float czasPrzejscia = 3.0f;
 
     [Header("Referencje UI")]
-    [Tooltip("Przeci¹gnij tutaj czarny obrazek z Canvasa")]
-    public Image faderImage;
+    [Tooltip("Wpisz dok³adn¹ nazwê czarnego obrazka z Canvasa (wielkoœæ liter ma znaczenie!)")]
+    public string nazwaObiektuFader = "FaderImage"; // <-- ZMIANA: Zmienna tekstowa na nazwê obiektu
 
+    private Image faderImage; // <-- ZMIANA: Skrypt sam wype³ni tê zmienn¹
     private bool czyGraczWzasiegu = false;
 
     private void Start()
     {
-        // Upewniamy siê, ¿e na starcie ekran jest w 100% przezroczysty
+        // 1. Najpierw szukamy obrazka w Canvasie
+        ZnajdzFaderImage();
+
+        // 2. Upewniamy siê, ¿e na starcie ekran jest w 100% przezroczysty
         if (faderImage != null)
         {
             Color startColor = faderImage.color;
@@ -30,7 +34,33 @@ public class TemporaryWin : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("Brak przypisanego Fader Image w skrypcie TemporaryWin!");
+            Debug.LogWarning("Brak przypisanego Fader Image (o nazwie: " + nazwaObiektuFader + ") w skrypcie TemporaryWin!");
+        }
+    }
+
+    // --- NOWA FUNKCJA: Szukanie obrazka po nazwie ---
+    private void ZnajdzFaderImage()
+    {
+        // Pobieramy wszystkie Canvasy ze sceny
+        Canvas[] canvases = FindObjectsOfType<Canvas>();
+        foreach (Canvas canvas in canvases)
+        {
+            // Przeszukujemy dzieci ka¿dego Canvasa (parametr 'true' oznacza, ¿e znajdzie te¿ te wy³¹czone)
+            Transform[] allChildren = canvas.GetComponentsInChildren<Transform>(true);
+            foreach (Transform child in allChildren)
+            {
+                if (child.name == nazwaObiektuFader)
+                {
+                    // ZnaleŸliœmy odpowiedni obiekt! Pobieramy z niego komponent Image
+                    faderImage = child.GetComponent<Image>();
+
+                    if (faderImage != null)
+                    {
+                        Debug.Log("TemporaryWin: Znaleziono i podpiêto obrazek œciemniania -> " + nazwaObiektuFader);
+                    }
+                    return; // Przerywamy szukanie, bo ju¿ mamy to, co chcieliœmy
+                }
+            }
         }
     }
 
@@ -73,7 +103,7 @@ public class TemporaryWin : MonoBehaviour
         }
         else
         {
-            // Jeœli zapomnia³eœ podpi¹æ obrazka, gra po prostu odczeka w ukryciu
+            // Jeœli skrypt nie znalaz³ obrazka, gra po prostu odczeka w ukryciu
             yield return new WaitForSeconds(czasPrzejscia);
         }
 
