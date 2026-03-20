@@ -284,7 +284,6 @@ public class EndlessTerrain : MonoBehaviour
                     else if (!el.isSpawned)
                     {
                         GameObject go = Object.Instantiate(el.prefab, correctPos, Quaternion.identity);
-                        go.layer = meshObject.layer;
                         go.transform.parent = parentTerrain.transform;
 
                         el.spawnedInstance = go;

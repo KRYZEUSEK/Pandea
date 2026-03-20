@@ -271,7 +271,7 @@ MonoBehaviour:
   targetTag: Objective1
   detectionRange: 1000
   pointerLength: 10
-  activeDuration: 10
+  activeDuration: 60
   blinkSpeed: 8
   lineColor: {r: 1, g: 0, b: 0, a: 1}
   maxGlowIntensity: 4
