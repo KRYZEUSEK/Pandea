@@ -13,34 +13,74 @@ public class TopDownFollowCamera : MonoBehaviour
     [Tooltip("Jak szybko kamera dogania pozycjê gracza. Wiêcej = szybciej.")]
     public float positionDamping = 8f;
 
-    // Zmienna przechowuj¹ca sta³e przesuniêcie kamery w przestrzeni œwiata
-    private Vector3 offset;
+    [Header("Obrót Kamery (ŒPM)")]
+    [Tooltip("Szybkoœæ obrotu kamery przy ruchu myszk¹.")]
+    public float rotationSpeed = 5f;
+    [Tooltip("P³ynnoœæ zatrzymywania obrotu (Damping). Wiêcej = sztywniej, mniej = du¿e 'œlizganie'.")]
+    public float rotationDamping = 10f;
+
+    // K¹ty obrotu
+    private float currentAngle = 0f;
+    private float targetAngle = 0f;
 
     void Start()
     {
         if (target == null) return;
 
-        // Ustalamy sta³¹ pozycjê wzglêdem œwiata (Z i Y)
-        offset = new Vector3(0, height, -distance);
+        // Ustawiamy startowy k¹t na podstawie obecnej rotacji kamery w œwiecie
+        currentAngle = transform.eulerAngles.y;
+        targetAngle = currentAngle;
 
-        // Ustawiamy kamerê natychmiast na start, ¿eby nie "lecia³a" z punktu 0,0,0
-        transform.position = target.position + offset;
-        transform.LookAt(target.position);
+        // Wymuszamy natychmiastowe ustawienie kamery na start (bez p³ynnego dojazdu)
+        UpdateCameraPosition(true);
     }
 
     void LateUpdate()
     {
         if (target == null) return;
 
-        // 1. DOCELOWA POZYCJA (Pozycja gracza + nasz sztywny offset)
-        // Zauwa¿, ¿e nie ma tu ju¿ ¿adnych rotacji gracza (target.forward)
-        Vector3 targetPosition = target.position + offset;
+        // --- 1. OBS£UGA OBROTU MYSZK¥ ---
+        // Input.GetMouseButton(2) to Œrodkowy Przycisk Myszki (kó³ko)
+        if (Input.GetMouseButton(2))
+        {
+            // Zmieniamy docelowy k¹t na podstawie ruchu myszki w osi X (lewo/prawo)
+            targetAngle += Input.GetAxis("Mouse X") * rotationSpeed;
+        }
 
-        // 2. P£YNNE PRZESUWANIE (Lerp)
-        // To zniweluje wszelkie szarpania wynikaj¹ce z fizyki (wchodzenie na krzaki itp.)
-        transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * positionDamping);
+        // --- 2. P£YNNE PRZEJŒCIE K¥TA (Lerp) ---
+        // Zapewnia to miêkki start i stop przy obracaniu kamery
+        currentAngle = Mathf.Lerp(currentAngle, targetAngle, Time.deltaTime * rotationDamping);
 
-        // 3. KAMERA ZAWSZE PATRZY NA GRACZA
+        // --- 3. AKTUALIZACJA POZYCJI KAMERY ---
+        UpdateCameraPosition(false);
+    }
+
+    void UpdateCameraPosition(bool isInstant)
+    {
+        // Wyliczamy bazowy offset tak, jak robi³eœ to wczeœniej
+        Vector3 baseOffset = new Vector3(0, height, -distance);
+
+        // Tworzymy rotacjê wokó³ osi Y (w górê) o nasz wyliczony, p³ynny k¹t
+        Quaternion rotation = Quaternion.Euler(0, currentAngle, 0);
+
+        // Mno¿ymy rotacjê przez offset - to obraca nasz¹ pozycjê wokó³ gracza jak planetê!
+        Vector3 rotatedOffset = rotation * baseOffset;
+
+        // Nasza nowa, docelowa pozycja
+        Vector3 targetPosition = target.position + rotatedOffset;
+
+        if (isInstant)
+        {
+            // Natychmiastowe ustawienie (u¿ywane tylko w funkcji Start)
+            transform.position = targetPosition;
+        }
+        else
+        {
+            // P³ynne pod¹¿anie za graczem, gdy ten idzie
+            transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * positionDamping);
+        }
+
+        // Na koniec kamera zawsze musi patrzeæ w œrodek gracza
         transform.LookAt(target.position);
     }
 }
