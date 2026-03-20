@@ -1641,6 +1641,8 @@ MonoBehaviour:
   distance: 6
   height: 15
   positionDamping: 6
+  rotationSpeed: 5
+  rotationDamping: 10
 --- !u!114 &963194231
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3707,7 +3709,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2308994396383215194, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
       propertyPath: loopSlides
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2308994396383215194, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
       propertyPath: slides.Array.size
@@ -3715,7 +3717,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2308994396383215194, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
       propertyPath: changeSlideAfterClick
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2308994396383215194, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
       propertyPath: slides.Array.data[0].text
@@ -3768,7 +3770,7 @@ PrefabInstance:
     - target: {fileID: 2308994396383215194, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
       propertyPath: slides.Array.data[2].picture
       value: 
-      objectReference: {fileID: 21300000, guid: 2af4c8599ee94214ea24cb3a0812cd29, type: 3}
+      objectReference: {fileID: 0}
     - target: {fileID: 2308994396383215194, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
       propertyPath: slides.Array.data[3].picture
       value: 
@@ -3784,6 +3786,10 @@ PrefabInstance:
     - target: {fileID: 3971876061285296652, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4766928990034451327, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -127.9
       objectReference: {fileID: 0}
     - target: {fileID: 5059990623075677474, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
       propertyPath: m_SizeDelta.x
@@ -3820,6 +3826,14 @@ PrefabInstance:
     - target: {fileID: 5696266901436270782, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
       propertyPath: m_fontSizeBase
       value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 6346318614721927477, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 133
+      objectReference: {fileID: 0}
+    - target: {fileID: 6875380558496502449, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7453220740580738564, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
       propertyPath: m_Pivot.x
