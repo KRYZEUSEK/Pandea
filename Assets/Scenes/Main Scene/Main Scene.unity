@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -3329,6 +3329,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 204348411}
     m_Modifications:
+    - target: {fileID: 2761979935580200523, guid: 34c6eb18ee56b2646a247d2a38351b64, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2761979935580200523, guid: 34c6eb18ee56b2646a247d2a38351b64, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ExitGame
+      objectReference: {fileID: 0}
+    - target: {fileID: 5323464236583491451, guid: 34c6eb18ee56b2646a247d2a38351b64, type: 3}
+      propertyPath: m_text
+      value: "Wyjd\u017A z gry"
+      objectReference: {fileID: 0}
+    - target: {fileID: 5459372991564799215, guid: 34c6eb18ee56b2646a247d2a38351b64, type: 3}
+      propertyPath: m_Name
+      value: ExitGameButton
+      objectReference: {fileID: 0}
     - target: {fileID: 5947778913087900958, guid: 34c6eb18ee56b2646a247d2a38351b64, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
