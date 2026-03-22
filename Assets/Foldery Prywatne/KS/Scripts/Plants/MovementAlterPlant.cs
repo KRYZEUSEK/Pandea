@@ -23,11 +23,19 @@ public class MovementAlterPlant : BasePlant
             // Uruchamiamy procedurê zmiany prêdkoœci
             StartCoroutine(RestoreMovement(agent));
 
-            var renderer = GetComponent<Renderer>();
-            if (renderer != null) renderer.enabled = false;
+            // --- POPRAWKA: Szukamy WSZYSTKICH Rendererów w obiekcie i jego dzieciach ---
+            Renderer[] renderers = GetComponentsInChildren<Renderer>();
+            foreach (Renderer r in renderers)
+            {
+                r.enabled = false;
+            }
 
-            var collider = GetComponent<Collider>();
-            if (collider != null) collider.enabled = false;
+            // --- POPRAWKA: Wy³¹czamy wszystkie Collidery, ¿eby nie wdepn¹æ drugi raz ---
+            Collider[] colliders = GetComponentsInChildren<Collider>();
+            foreach (Collider c in colliders)
+            {
+                c.enabled = false;
+            }
         }
     }
 
@@ -49,6 +57,7 @@ public class MovementAlterPlant : BasePlant
             agent.speed = originalSpeed;
         }
 
-        this.gameObject.SetActive(false); // Dezaktywujemy roœlinê po u¿yciu
+        // 5. Dopiero po odzyskaniu prêdkoœci ca³kowicie usuwamy obiekt z gry
+        this.gameObject.SetActive(false);
     }
 }
