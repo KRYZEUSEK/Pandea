@@ -39,14 +39,29 @@ namespace UIScripts.Popups {
             timeSinceLastSlideChange = 0f;
 
             if (slide.picture != null) { 
+                if (imageArea == null) {
+                    Debug.LogError("Image area is not assigned. Cannot show slide picture.");
+                    return;
+                }
+
                 imageArea.sprite = slide.picture;
             }
 
             if (slide.text != "") {
+                if (textArea == null) {
+                    Debug.LogError("Text area is not assigned. Cannot show slide text.");
+                    return;
+                }
+
                 textArea.text = slide.text;
             }
 
-            if (slide.clip != null) { 
+            if (slide.clip != null) {
+                if (popupAudioSource == null) {
+                    Debug.LogError("Popup audio source is not assigned. Cannot play slide audio.");
+                    return;
+                }
+
                 popupAudioSource.PlayOneShot(slide.clip);
             }
 
