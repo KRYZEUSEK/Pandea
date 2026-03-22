@@ -5,21 +5,47 @@ using UnityEngine.Rendering.PostProcessing; // Musisz dodaæ tê liniê!
 public class BlindingPlant : BasePlant
 {
     [Header("Post Processing")]
-    public PostProcessVolume postProcessVolume; // Przypisz tu obiekt GlobalPostProcess
+    [Tooltip("Dok³adna nazwa obiektu na scenie z efektem œlepoty.")]
+    public string postProcessObjectName = "BlindPostProcess"; // <-- ZMIANA: Szukamy po nazwie
+
+    private PostProcessVolume postProcessVolume; // <-- ZMIANA: Skrypt sam wype³ni tê zmienn¹
 
     [Header("Ustawienia")]
     public float fadeDuration = 0.5f; // Jak szybko wchodzimy w "œlepotê"
 
     private Coroutine visionCoroutine;
 
-
     new private void Awake() // Lub Start()
     {
-        // Zabezpieczenie: Na starcie gry zawsze zerujemy efekt, 
-        // ¿eby gracz nie zaczyna³ gry "œlepy", jeœli zapomnieliœmy przestawiæ suwak.
+        // 1. Najpierw szukamy obiektu na scenie
+        ZnajdzPostProcess();
+
+        // 2. Zabezpieczenie: Na starcie gry zawsze zerujemy efekt
         if (postProcessVolume != null)
         {
             postProcessVolume.weight = 0f;
+        }
+    }
+
+    // --- NOWA FUNKCJA: Szukanie obiektu po nazwie ---
+    private void ZnajdzPostProcess()
+    {
+        // Szukamy aktywnego obiektu na scenie o podanej nazwie
+        GameObject ppObject = GameObject.Find(postProcessObjectName);
+
+        if (ppObject != null)
+        {
+            // Pobieramy komponent z tego obiektu
+            postProcessVolume = ppObject.GetComponent<PostProcessVolume>();
+
+            if (postProcessVolume == null)
+            {
+                Debug.LogError($"BlindingPlant: Znaleziono obiekt '{postProcessObjectName}', ale brakuje na nim komponentu PostProcessVolume!");
+            }
+        }
+        else
+        {
+            Debug.LogError($"BlindingPlant: B£¥D! Nie znaleziono na scenie obiektu o nazwie '{postProcessObjectName}'.");
         }
     }
 
@@ -40,9 +66,9 @@ public class BlindingPlant : BasePlant
 
     IEnumerator AnimateVignette(float targetWeight)
     {
+        // Jeœli skrypt nie znalaz³ obiektu na starcie, przerywamy korutynê
         if (postProcessVolume == null)
         {
-            Debug.LogError("Nie przypisa³eœ Post Process Volume!");
             yield break;
         }
 
