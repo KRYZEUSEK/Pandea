@@ -12,17 +12,19 @@ public class HeldAmplifierDeployer : MonoBehaviour
 
     [Header("Ustawienia Spawnu")]
     public GameObject amplifierPrefab;
+    [Tooltip("Przesuniêcie w osi Y. Zazwyczaj wartoœæ ujemna (np. -1), ¿eby opuœciæ obiekt do stóp gracza.")]
+    public float wysokoscSpawnuOffset = -1.0f; // <-- NOWA ZMIENNA
 
     [Header("Ustawienia Zasiêgu (Statek)")]
     public string shipTag = "Ship";
     public float minDistanceFromShip = 20f;
 
     [Tooltip("Dok³adna nazwa obiektu tekstu w hierarchii. Skrypt sam go znajdzie!")]
-    public string warningUIName = "TooCloseToBaseText"; // <-- ZMIANA: Szukamy po nazwie
+    public string warningUIName = "TooCloseToBaseText";
 
     private float currentHoldTime = 0f;
     private GameObject shipObject;
-    private GameObject warningUI; // Skrypt sam wype³ni tê zmienn¹
+    private GameObject warningUI;
     private Coroutine warningCoroutine;
 
     void Update()
@@ -33,10 +35,9 @@ public class HeldAmplifierDeployer : MonoBehaviour
             return;
         }
 
-        // --- 2. REAKCJA NA SAM KLIK ---
         if (Input.GetKeyDown(deployKey))
         {
-            FindWarningUI(); // Szukamy napisu w UI
+            FindWarningUI();
 
             if (shipObject == null) shipObject = GameObject.FindGameObjectWithTag(shipTag);
 
@@ -52,7 +53,6 @@ public class HeldAmplifierDeployer : MonoBehaviour
             }
         }
 
-        // --- 3. OBS£UGA PRZYTRZYMANIA KLAWISZA ---
         if (Input.GetKey(deployKey))
         {
             if (shipObject != null && Vector3.Distance(transform.position, shipObject.transform.position) < minDistanceFromShip)
@@ -81,12 +81,10 @@ public class HeldAmplifierDeployer : MonoBehaviour
         }
     }
 
-    // --- NOWA FUNKCJA: Inteligentne szukanie wy³¹czonego UI ---
     void FindWarningUI()
     {
-        if (warningUI != null) return; // Jeœli ju¿ znalaz³, nie szukaj ponownie
+        if (warningUI != null) return;
 
-        // Szuka wszystkich Canvasów i ich dzieci (nawet tych z odznaczonym ptaszkiem)
         Canvas[] canvases = FindObjectsOfType<Canvas>();
         foreach (Canvas canvas in canvases)
         {
@@ -96,12 +94,10 @@ public class HeldAmplifierDeployer : MonoBehaviour
                 if (child.name == warningUIName)
                 {
                     warningUI = child.gameObject;
-                    Debug.Log("Sukces: Skrypt znalaz³ i podpi¹³ napis: " + warningUIName);
                     return;
                 }
             }
         }
-        Debug.LogError("B³¹d: Nie znaleziono obiektu UI o nazwie: " + warningUIName);
     }
 
     private IEnumerator ShowWarningTimer()
@@ -120,7 +116,9 @@ public class HeldAmplifierDeployer : MonoBehaviour
 
         if (amplifierPrefab == null) return;
 
-        Vector3 spawnPosition = transform.root.position;
+        // --- ZMIANA: Dodajemy offset do pozycji startowej ---
+        Vector3 spawnPosition = transform.root.position + new Vector3(0, wysokoscSpawnuOffset, 0);
+
         GameObject deployedAmplifier = Instantiate(amplifierPrefab, spawnPosition, transform.root.rotation);
 
         AmplifierTracker tracker = deployedAmplifier.GetComponent<AmplifierTracker>();

@@ -15,9 +15,18 @@ public class AmplifierTracker : MonoBehaviour
     [Tooltip("Przez ile sekund wzmacniacz ma wskazywaæ cel.")]
     public float activeDuration = 5f;
 
+    [Header("Wygl¹d Linii")]
+    [Tooltip("Gruboœæ linii na pocz¹tku (przy wzmacniaczu).")]
+    public float startWidth = 0.5f; // ZWIÊKSZONO DOMYŒLN¥ WARTOŒÆ
+    [Tooltip("Gruboœæ linii na koñcu (na grocie wskaŸnika).")]
+    public float endWidth = 0.0f;
+    [Tooltip("Wysokoœæ, z której wylatuje laser (wzglêdem œrodka obiektu).")]
+    public float heightOffset = 1.0f; // NOWA ZMIENNA (zamiast sztywnego 0.5f)
+
     [Header("Efekt Migania (Stroboskop)")]
     [Tooltip("Szybkoœæ pulsowania linii.")]
     public float blinkSpeed = 8f;
+    [Tooltip("G³ówny kolor lasera (mo¿esz w³¹czyæ tu opcjê HDR w edytorze)")]
     public Color lineColor = Color.red;
     [Tooltip("Jak mocno linia ma œwieciæ w szczytowym momencie b³ysku?")]
     public float maxGlowIntensity = 4f;
@@ -33,9 +42,9 @@ public class AmplifierTracker : MonoBehaviour
         lineRenderer.enabled = false;
         lineRenderer.positionCount = 2;
 
-        // Automatyczne ustawienie cienkiej linii (grubsza u nasady, zwê¿aj¹ca siê ku koñcowi)
-        lineRenderer.startWidth = 0.05f;
-        lineRenderer.endWidth = 0.0f;
+        // Ustawienie gruboœci pobrane ze zmiennych publicznych
+        lineRenderer.startWidth = startWidth;
+        lineRenderer.endWidth = endWidth;
     }
 
     public void Deploy()
@@ -49,6 +58,11 @@ public class AmplifierTracker : MonoBehaviour
     void Update()
     {
         if (!isDeployed) return;
+
+        // --- DODATEK: Aktualizacja gruboœci w czasie rzeczywistym ---
+        // Przydatne, jeœli zmieniasz wartoœci w Inspektorze podczas gry
+        lineRenderer.startWidth = startWidth;
+        lineRenderer.endWidth = endWidth;
 
         // 1. Odliczanie czasu dzia³ania (np. 5 sekund)
         currentActiveTime += Time.deltaTime;
@@ -71,7 +85,7 @@ public class AmplifierTracker : MonoBehaviour
 
         lineRenderer.enabled = true;
 
-        // 3. Rysowanie linii i agresywna animacja migania
+        // 3. Rysowanie linii i animacja migania
         DrawPointer();
         BlinkEffect();
     }
@@ -110,8 +124,8 @@ public class AmplifierTracker : MonoBehaviour
         Vector3 direction = (currentTarget.position - transform.position).normalized;
         direction.y = 0;
 
-        // Punkt pocz¹tkowy podniesiony lekko nad ziemiê
-        Vector3 startPos = transform.position + Vector3.up * 0.5f;
+        // Punkt pocz¹tkowy podniesiony o nasz nowy offset z Inspektora
+        Vector3 startPos = transform.position + Vector3.up * heightOffset;
         Vector3 endPos = startPos + (direction * pointerLength);
 
         lineRenderer.SetPosition(0, startPos);
