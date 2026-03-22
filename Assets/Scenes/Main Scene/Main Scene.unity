@@ -4141,10 +4141,11 @@ MonoBehaviour:
   spawnableObjects:
   - {fileID: 11400000, guid: d541d234820980a4cae664018a220bd1, type: 2}
   - {fileID: 11400000, guid: 2e83aa7494805fd4cb95cb7340f33699, type: 2}
+  - {fileID: 11400000, guid: 114142a4b3795f44385543e2d419c580, type: 2}
   - {fileID: 11400000, guid: 968ee1322c0892b40a33d111586efa63, type: 2}
-  - {fileID: 11400000, guid: 78e79add70ec8d142aeb8b5b8313efdd, type: 2}
-  - {fileID: 11400000, guid: 5c169f18013557447912aacafae7b6df, type: 2}
   - {fileID: 11400000, guid: bca853f68cef3f34180d7ea1dc8ae13e, type: 2}
+  - {fileID: 11400000, guid: 5c169f18013557447912aacafae7b6df, type: 2}
+  - {fileID: 11400000, guid: 78e79add70ec8d142aeb8b5b8313efdd, type: 2}
   storyElements:
   - name: Baza
     prefab: {fileID: 5618743318629138398, guid: 84a543b2cefd01e45ab89b1b3f7ce9d9, type: 3}
@@ -4157,8 +4158,8 @@ MonoBehaviour:
     spawnedInstance: {fileID: 0}
   - name: Docelowy element
     prefab: {fileID: 453713994423378124, guid: a9af48c1345507246983b7ee73d83746, type: 3}
-    minDistance: 50
-    maxDistance: 50
+    minDistance: 90
+    maxDistance: 120
     spawnImmediately: 1
     targetPosition: {x: 0, y: 0}
     isSpawned: 0
@@ -4695,8 +4696,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "P - ekwipunek\tE - upu\u015B\u0107 wybrany przedmiot \nB - budowa\tR-\u015Bcinanie
-    drzew(2 uderzenia)"
+  m_text: "E - upu\u015B\u0107 wybrany przedmiot \nPrzyciski 1 do 5 - wybierz dany
+    slot ekwipunku\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -4902,67 +4903,6 @@ Transform:
   - {fileID: 350723008}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &1457454979
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 207709599870191990, guid: ce6e3f2667dac9a42b5ef6072be02542, type: 3}
-      propertyPath: m_Name
-      value: Wzmacniacz_test
-      objectReference: {fileID: 0}
-    - target: {fileID: 4231889359488405008, guid: ce6e3f2667dac9a42b5ef6072be02542, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 13.59
-      objectReference: {fileID: 0}
-    - target: {fileID: 4231889359488405008, guid: ce6e3f2667dac9a42b5ef6072be02542, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1.12
-      objectReference: {fileID: 0}
-    - target: {fileID: 4231889359488405008, guid: ce6e3f2667dac9a42b5ef6072be02542, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 3.42
-      objectReference: {fileID: 0}
-    - target: {fileID: 4231889359488405008, guid: ce6e3f2667dac9a42b5ef6072be02542, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4231889359488405008, guid: ce6e3f2667dac9a42b5ef6072be02542, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4231889359488405008, guid: ce6e3f2667dac9a42b5ef6072be02542, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4231889359488405008, guid: ce6e3f2667dac9a42b5ef6072be02542, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4231889359488405008, guid: ce6e3f2667dac9a42b5ef6072be02542, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4231889359488405008, guid: ce6e3f2667dac9a42b5ef6072be02542, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4231889359488405008, guid: ce6e3f2667dac9a42b5ef6072be02542, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8934105229606034244, guid: ce6e3f2667dac9a42b5ef6072be02542, type: 3}
-      propertyPath: warningUI
-      value: 
-      objectReference: {fileID: 1152206352}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: ce6e3f2667dac9a42b5ef6072be02542, type: 3}
 --- !u!1 &1491961315
 GameObject:
   m_ObjectHideFlags: 0
@@ -6026,33 +5966,34 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2308994396383215194, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
       propertyPath: slides.Array.data[0].text
-      value: "Witaj w grze Pandea! Twoim celem jest zbudowanie stabilizator\xF3w
-        sygna\u0142u i znalezienie miejsca, z kt\xF3rego sygna\u0142 dochodzi. W
-        mi\u0119dzyczasie musisz przetrwa\u0107 na nieprzyjaznej planecie, na kt\xF3rej
-        si\u0119 rozbi\u0142e\u015B \u2013 masz ograniczone rezerwy tlenu oraz musisz
-        si\u0119 zmierzy\u0107 z nieprzyjazn\u0105 flor\u0105"
+      value: "Witaj w grze Pandea! Twoim celem jest postawienie stabilizator\xF3w
+        sygna\u0142u i znalezienie miejsca, z kt\xF3rego dochodzi odebrany przez
+        ciebie sygna\u0142. W mi\u0119dzyczasie musisz przetrwa\u0107 na nieprzyjaznej
+        planecie, na kt\xF3rej si\u0119 rozbi\u0142e\u015B \u2013 masz ograniczone
+        rezerwy tlenu oraz musisz si\u0119 zmierzy\u0107 z nieprzyjazn\u0105 flor\u0105"
       objectReference: {fileID: 0}
     - target: {fileID: 2308994396383215194, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
       propertyPath: slides.Array.data[1].text
       value: "\u017Beby porusza\u0107 si\u0119 twoj\u0105 postaci\u0105, musisz nacisn\u0105\u0107
         lewy przycisk myszy w miejscu, do kt\xF3rego chcesz si\u0119 uda\u0107. Mo\u017Cesz
-        te\u017C skaka\u0107 klikaj\u0105c spacj\u0119."
+        te\u017C skaka\u0107 klikaj\u0105c spacj\u0119. Aby obr\xF3ci\u0107 kamer\u0119
+        przytrzymaj scroll (\u015Bpm) oraz obracaj myszk\u0119. "
       objectReference: {fileID: 0}
     - target: {fileID: 2308994396383215194, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
       propertyPath: slides.Array.data[2].text
       value: "Na g\xF3rze twojego ekranu znajdziesz zielony pasek, kt\xF3ry z ka\u017Cd\u0105
         sekund\u0105 spada \u2013 to pasek tlenu. Nie pozw\xF3l, \u017Ceby spad\u0142
-        do zera, bo b\u0119dziesz musia\u0142 zaczyna\u0107 gr\u0119 od pocz\u0105tku!
-        Tlen mo\u017Cesz stale odnawia\u0107 w ba\u0144ce powietrza produkowanej
-        przez baz\u0119, lub tymczasowo, niszcz\u0105c niekt\xF3re ro\u015Bliny przy
-        u\u017Cyciu siekiery z paska ekwipunku"
+        do zera, inaczej przegrasz! Tlen mo\u017Cesz stale odnawia\u0107 w ba\u0144ce
+        powietrza produkowanej przez baz\u0119, lub tymczasowo, niszcz\u0105c niekt\xF3re
+        ro\u015Bliny, poprzez wej\u015Bcie w nie. "
       objectReference: {fileID: 0}
     - target: {fileID: 2308994396383215194, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
       propertyPath: slides.Array.data[3].text
       value: "Ale uwa\u017Caj! Tak jak niszczenie ro\u015Blin mo\u017Ce nie\u015B\u0107
         za sob\u0105 pozytywne efekty, tak samo mo\u017Ce wpl\u0105ta\u0107 ci\u0119
         w niez\u0142e tarapaty, na przyk\u0142ad obni\u017Caj\u0105c tw\xF3j poziom
-        powietrza, lub zmniejszaj\u0105c pr\u0119dko\u015B\u0107 ruchu."
+        powietrza, lub ograniczaj\u0105c wizj\u0119. Niekt\xF3re efekty ro\u015Blin
+        mo\u017Cna zaobserwowa\u0107 ju\u017C kiedy si\u0119 do nich podchodzi!\r"
       objectReference: {fileID: 0}
     - target: {fileID: 2308994396383215194, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
       propertyPath: slides.Array.data[4].clip
@@ -6060,6 +6001,17 @@ PrefabInstance:
       objectReference: {fileID: 8300000, guid: b266d6778011ac34c88d5be94a22aee2, type: 3}
     - target: {fileID: 2308994396383215194, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
       propertyPath: slides.Array.data[4].text
+      value: "Twoim zadaniem jest postawienie wzmacniacza sygna\u0142u , kt\xF3ry
+        wska\u017Ce kierunek, z kt\xF3rego owy sygna\u0142 pochodzi a nast\u0119pnie
+        odnalezienie tego miejsca. (Aby wybra\u0107 wzmacniacz kliknij 1, aby go
+        postawi\u0107 przytrzymaj klawisz F, przez 3 sekundy)."
+      objectReference: {fileID: 0}
+    - target: {fileID: 2308994396383215194, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
+      propertyPath: slides.Array.data[5].clip
+      value: 
+      objectReference: {fileID: 8300000, guid: b266d6778011ac34c88d5be94a22aee2, type: 3}
+    - target: {fileID: 2308994396383215194, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
+      propertyPath: slides.Array.data[5].text
       value: "Z poszczeg\xF3lnych ro\u015Blin mo\u017Cesz wydoby\u0107 budulec. Z
         niego mo\u017Cesz stworzy\u0107 dodatkowe bazy, lub stabilizatory sygna\u0142u
         wybieraj\u0105c klucz francuski (kliknij 1) na pasku ekwipunku."
@@ -6630,87 +6582,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1915120201}
   m_CullTransparentMesh: 1
---- !u!1001 &1925886282
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: -8679921383154817045, guid: 6599042be09c561409fbd40dfc0a3339, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -2.7821627
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 6599042be09c561409fbd40dfc0a3339, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -58.9067
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 6599042be09c561409fbd40dfc0a3339, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 58.372112
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 6599042be09c561409fbd40dfc0a3339, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 6599042be09c561409fbd40dfc0a3339, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 6599042be09c561409fbd40dfc0a3339, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 6599042be09c561409fbd40dfc0a3339, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 6599042be09c561409fbd40dfc0a3339, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 6599042be09c561409fbd40dfc0a3339, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 6599042be09c561409fbd40dfc0a3339, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -4587302668392987624, guid: 6599042be09c561409fbd40dfc0a3339, type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: 956904ef0128d69419e65368386eba9a, type: 2}
-    - target: {fileID: -3272106112100924687, guid: 6599042be09c561409fbd40dfc0a3339, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -3272106112100924687, guid: 6599042be09c561409fbd40dfc0a3339, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0.019001007
-      objectReference: {fileID: 0}
-    - target: {fileID: -2571118854743697038, guid: 6599042be09c561409fbd40dfc0a3339, type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: 956904ef0128d69419e65368386eba9a, type: 2}
-    - target: {fileID: 919132149155446097, guid: 6599042be09c561409fbd40dfc0a3339, type: 3}
-      propertyPath: m_Name
-      value: paprozja
-      objectReference: {fileID: 0}
-    - target: {fileID: 2438656852951536746, guid: 6599042be09c561409fbd40dfc0a3339, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0.019
-      objectReference: {fileID: 0}
-    - target: {fileID: 5509654439515443377, guid: 6599042be09c561409fbd40dfc0a3339, type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: 956904ef0128d69419e65368386eba9a, type: 2}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 6599042be09c561409fbd40dfc0a3339, type: 3}
 --- !u!1 &1938322866
 GameObject:
   m_ObjectHideFlags: 0
@@ -7057,6 +6928,4 @@ SceneRoots:
   - {fileID: 136626720}
   - {fileID: 211582104}
   - {fileID: 694188268}
-  - {fileID: 1925886282}
-  - {fileID: 1457454979}
   - {fileID: 1210712467}
