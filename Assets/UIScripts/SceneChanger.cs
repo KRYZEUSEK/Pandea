@@ -1,19 +1,17 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-public class SceneChanger : MonoBehaviour {
-    // wszystkie sceny powinny byc w ustawieniach builda
-    [SerializeField] private Object[] scenes;
+public class SceneChanger : MonoBehaviour
+{
 
-    public void ChangeScene(int sceneIndex) {
-        if (sceneIndex < 0 || sceneIndex >= scenes.Length) {
-            Debug.LogError("Scene index out of range!");
-            return;
-        }
-
-        UnityEngine.SceneManagement.SceneManager.LoadScene(scenes[sceneIndex].name);
+    public void ChangeScene(int buildIndex)
+    {
+        // £aduje scenê na podstawie jej numeru (indeksu) w File -> Build Settings
+        SceneManager.LoadScene(buildIndex);
     }
 
-    public void ExitGame() {
+    public void ExitGame()
+    {
         Application.Quit();
     }
 }
