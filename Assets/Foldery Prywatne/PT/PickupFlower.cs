@@ -5,11 +5,11 @@ public class PickupFlower : MonoBehaviour
 {
     [Header("Ustawienia Interakcji")]
     [SerializeField] private KeyCode actionKey = KeyCode.O; // Klawisz do interakcji (domyœlnie 'O')
-    [SerializeField] private float range = 15f; // zasiêg interakcji
+    [SerializeField] private float range = 15f; // zasiêg interakcji od GRACZA
 
     [Header("Referencje")]
     [SerializeField] private HotbarSelector hotbarSelector;
-    [SerializeField] private Camera playerCam; 
+    [SerializeField] private Camera playerCam;
 
     [Header("Loot Settings")]
     [SerializeField] private GameObject plantItemPrefab; // Tutaj wstaw prefab 'Plant' z folderu Items3D narazie tylko dla jednego typu roœliny, ale mo¿na rozbudowaæ o ró¿ne prefaby dla ró¿nych roœlin
@@ -38,15 +38,27 @@ public class PickupFlower : MonoBehaviour
         Ray ray = playerCam.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
-        Debug.DrawRay(ray.origin, ray.direction * range, Color.red, 2f);
+        // Debug promienia z kamery
+        Debug.DrawRay(ray.origin, ray.direction * 50f, Color.red, 2f);
 
-        if (Physics.Raycast(ray, out hit, range, Physics.AllLayers, QueryTriggerInteraction.Collide)) // sprawdzamy czy trafiliœmy w jakiœ collider, uwzglêdniaj¹c trigger (roœliny s¹ triggerami)
+        // U¿ywamy wiêkszego zasiêgu dla Raycastu z kamery, ¿eby w ogóle trafiæ w obiekt wzrokiem
+        if (Physics.Raycast(ray, out hit, 100f, Physics.AllLayers, QueryTriggerInteraction.Collide))
         {
             BasePlant plant = hit.collider.GetComponentInParent<BasePlant>();
 
             if (plant != null)
             {
-                CollectPlant(plant);
+                // --- NOWA LOGIKA SPRAWDZANIA ODLEG£OŒCI OD GRACZA ---
+                float distanceToPlayer = Vector3.Distance(transform.position, plant.transform.position);
+
+                if (distanceToPlayer <= range)
+                {
+                    CollectPlant(plant);
+                }
+                else
+                {
+                    Debug.Log("<color=yellow>Za daleko!</color> Jesteœ w odleg³oœci: " + distanceToPlayer + "m. Musisz podejœæ bli¿ej (zasiêg: " + range + "m)");
+                }
             }
             else
             {
@@ -90,6 +102,10 @@ public class PickupFlower : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        // Rysujemy sferê zasiêgu wokó³ GRACZA w edytorze, ¿eby widzieæ dok¹d siêga rêka/siekiera
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, range);
+
         if (playerCam != null)
         {
             Gizmos.color = Color.blue;
