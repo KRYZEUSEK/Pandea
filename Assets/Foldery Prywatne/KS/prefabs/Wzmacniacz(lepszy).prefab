@@ -265,9 +265,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   deployKey: 102
-  requiredHoldTime: 2
+  calibrationSpeed: 1.5
+  sweetSpotMin: 0.7
+  sweetSpotMax: 0.85
+  calibrationContainerName: BackgroundWzmacniacz
+  pointerName: Pointer
   requiredParentName: ToolHoldPoint
   amplifierPrefab: {fileID: 7918201101477978089, guid: 9980d6246fcbeeb479a789c9934d66dd, type: 3}
+  wysokoscSpawnuOffset: -1
   shipTag: Ship
   minDistanceFromShip: 20
   warningUIName: TooCloseToBaseText

@@ -1,102 +1,165 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class HeldAmplifierDeployer : MonoBehaviour
 {
-    [Header("Ustawienia Interakcji")]
+    [Header("Ustawienia Interakcji (Kalibracja)")]
     public KeyCode deployKey = KeyCode.F;
-    public float requiredHoldTime = 2.0f;
+    public float calibrationSpeed = 1.5f;
+    public float sweetSpotMin = 0.70f;
+    public float sweetSpotMax = 0.85f;
+
+    [Header("UI Kalibracji (Wyszukiwanie po nazwie)")]
+    [Tooltip("Dok³adna nazwa obiektu, który ma byæ w³¹czany/wy³¹czany (np. CalibrationCanvas)")]
+    public string calibrationContainerName = "CalibrationCanvas";
+    [Tooltip("Dok³adna nazwa obiektu wskaŸnika, który ma siê poruszaæ")]
+    public string pointerName = "Pointer";
 
     [Header("Ustawienia Bezpieczeñstwa")]
     public string requiredParentName = "ToolHoldPoint";
 
     [Header("Ustawienia Spawnu")]
     public GameObject amplifierPrefab;
-    [Tooltip("Przesuniêcie w osi Y. Zazwyczaj wartoœæ ujemna (np. -1), ¿eby opuœciæ obiekt do stóp gracza.")]
-    public float wysokoscSpawnuOffset = -1.0f; // <-- NOWA ZMIENNA
+    public float wysokoscSpawnuOffset = -1.0f;
 
     [Header("Ustawienia Zasiêgu (Statek)")]
     public string shipTag = "Ship";
     public float minDistanceFromShip = 20f;
-
-    [Tooltip("Dok³adna nazwa obiektu tekstu w hierarchii. Skrypt sam go znajdzie!")]
     public string warningUIName = "TooCloseToBaseText";
 
-    private float currentHoldTime = 0f;
     private GameObject shipObject;
+
+    // Zmienne UI (prywatne, skrypt znajdzie je sam)
     private GameObject warningUI;
+    private GameObject calibrationUIContainer;
+    private RectTransform pointerRect;
+
     private Coroutine warningCoroutine;
+
+    private bool isCalibrating = false;
+    private float calibrationValue = 0f;
+    private bool movingForward = true;
 
     void Update()
     {
         if (transform.parent == null || transform.parent.name != requiredParentName)
         {
-            currentHoldTime = 0f;
+            StopCalibration();
             return;
+        }
+
+        if (isCalibrating)
+        {
+            // Ruch paska w górê i w dó³ (Ping-Pong)
+            if (movingForward)
+            {
+                calibrationValue += Time.deltaTime * calibrationSpeed;
+                if (calibrationValue >= 1f)
+                {
+                    calibrationValue = 1f;
+                    movingForward = false;
+                }
+            }
+            else
+            {
+                calibrationValue -= Time.deltaTime * calibrationSpeed;
+                if (calibrationValue <= 0f)
+                {
+                    calibrationValue = 0f;
+                    movingForward = true;
+                }
+            }
+
+            // Aktualizacja pozycji wskaŸnika w UI
+            if (pointerRect != null)
+            {
+                pointerRect.anchorMin = new Vector2(calibrationValue, 0);
+                pointerRect.anchorMax = new Vector2(calibrationValue, 1);
+                pointerRect.anchoredPosition = Vector2.zero;
+            }
         }
 
         if (Input.GetKeyDown(deployKey))
         {
-            FindWarningUI();
+            // Szukamy ca³ego UI po nazwach (tylko raz, jeœli czegoœ brakuje)
+            FindUIElements();
 
             if (shipObject == null) shipObject = GameObject.FindGameObjectWithTag(shipTag);
 
-            if (shipObject != null)
-            {
-                float distanceToShip = Vector3.Distance(transform.position, shipObject.transform.position);
-
-                if (distanceToShip < minDistanceFromShip)
-                {
-                    if (warningCoroutine != null) StopCoroutine(warningCoroutine);
-                    warningCoroutine = StartCoroutine(ShowWarningTimer());
-                }
-            }
-        }
-
-        if (Input.GetKey(deployKey))
-        {
             if (shipObject != null && Vector3.Distance(transform.position, shipObject.transform.position) < minDistanceFromShip)
             {
-                currentHoldTime = 0f;
+                if (warningCoroutine != null) StopCoroutine(warningCoroutine);
+                warningCoroutine = StartCoroutine(ShowWarningTimer());
+                StopCalibration();
                 return;
             }
 
-            if (warningUI != null && warningUI.activeSelf)
+            if (!isCalibrating)
             {
-                if (warningCoroutine != null) StopCoroutine(warningCoroutine);
-                warningUI.SetActive(false);
+                // ROZPOCZÊCIE KALIBRACJI
+                isCalibrating = true;
+                calibrationValue = 0f;
+                movingForward = true;
+
+                if (calibrationUIContainer != null) calibrationUIContainer.SetActive(true);
             }
-
-            currentHoldTime += Time.deltaTime;
-
-            if (currentHoldTime >= requiredHoldTime)
+            else
             {
-                DeployAmplifier();
-                currentHoldTime = 0f;
+                // ZATWIERDZENIE KALIBRACJI
+                if (calibrationValue >= sweetSpotMin && calibrationValue <= sweetSpotMax)
+                {
+                    DeployAmplifier();
+                }
+                else
+                {
+                    StopCalibration();
+                }
             }
-        }
-        else
-        {
-            if (currentHoldTime > 0) currentHoldTime = 0f;
         }
     }
 
-    void FindWarningUI()
+    void StopCalibration()
     {
-        if (warningUI != null) return;
+        isCalibrating = false;
+        calibrationValue = 0f;
 
-        Canvas[] canvases = FindObjectsOfType<Canvas>();
+        if (calibrationUIContainer != null) calibrationUIContainer.SetActive(false);
+    }
+
+    // --- ZAKTUALIZOWANA FUNKCJA: Szuka wszystkich potrzebnych elementów UI po nazwach ---
+    void FindUIElements()
+    {
+        // Jeœli wszystko ju¿ mamy, nie marnujemy zasobów procesora na szukanie
+        if (warningUI != null && calibrationUIContainer != null && pointerRect != null) return;
+
+        // Szukamy we wszystkich Canvasach (nawet tych wy³¹czonych w hierarchii)
+        Canvas[] canvases = FindObjectsOfType<Canvas>(true);
         foreach (Canvas canvas in canvases)
         {
             Transform[] allChildren = canvas.GetComponentsInChildren<Transform>(true);
             foreach (Transform child in allChildren)
             {
-                if (child.name == warningUIName)
+                if (warningUI == null && child.name == warningUIName)
                 {
                     warningUI = child.gameObject;
-                    return;
+                }
+
+                if (calibrationUIContainer == null && child.name == calibrationContainerName)
+                {
+                    calibrationUIContainer = child.gameObject;
+                }
+
+                if (pointerRect == null && child.name == pointerName)
+                {
+                    pointerRect = child.GetComponent<RectTransform>();
                 }
             }
+        }
+
+        if (calibrationUIContainer == null || pointerRect == null)
+        {
+            Debug.LogWarning("Nie znaleziono UI Kalibracji! Upewnij siê, ¿e nazwy w Inspektorze zgadzaj¹ siê z nazwami w Hierarchii.");
         }
     }
 
@@ -112,13 +175,11 @@ public class HeldAmplifierDeployer : MonoBehaviour
 
     void DeployAmplifier()
     {
+        StopCalibration();
         if (warningUI != null) warningUI.SetActive(false);
-
         if (amplifierPrefab == null) return;
 
-        // --- ZMIANA: Dodajemy offset do pozycji startowej ---
         Vector3 spawnPosition = transform.root.position + new Vector3(0, wysokoscSpawnuOffset, 0);
-
         GameObject deployedAmplifier = Instantiate(amplifierPrefab, spawnPosition, transform.root.rotation);
 
         AmplifierTracker tracker = deployedAmplifier.GetComponent<AmplifierTracker>();
