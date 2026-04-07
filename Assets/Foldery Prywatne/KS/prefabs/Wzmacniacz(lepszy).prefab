@@ -268,6 +268,9 @@ MonoBehaviour:
   calibrationSpeed: 1.5
   sweetSpotMin: 0.7
   sweetSpotMax: 0.85
+  timePenalty: 10
+  failCooldown: 3
+  explosionEffectPrefab: {fileID: 3503826174107351529, guid: 76bda197c746f154b9f71323e3f1d054, type: 3}
   calibrationContainerName: BackgroundWzmacniacz
   pointerName: Pointer
   requiredParentName: ToolHoldPoint
