@@ -1,72 +1,89 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using UnityEngine.AI;
 
 public class HeldAmplifierDeployer : MonoBehaviour
 {
-    [Header("Ustawienia Interakcji (Kalibracja)")]
+    [Header("Ustawienia Interakcji (3 Etapy)")]
     public KeyCode deployKey = KeyCode.F;
-    public float calibrationSpeed = 1.5f;
-    public float sweetSpotMin = 0.70f;
-    public float sweetSpotMax = 0.85f;
+    public int requiredStages = 3;
+    public float baseCalibrationSpeed = 1.2f;
+    public float speedMultiplierPerStage = 1.25f;
+    public float sweetSpotWidth = 0.15f;
+
+    [Header("Ustawienia Ruchomej Strefy (Fina³)")]
+    public float sweetSpotMoveSpeed = 0.8f;
 
     [Header("Kara za b³¹d")]
     public float timePenalty = 10f;
+    [Tooltip("Czas blokady po b³êdzie (sekundy)")]
     public float failCooldown = 2.0f;
     public GameObject explosionEffectPrefab;
 
-    [Header("UI Kalibracji (Wyszukiwanie po nazwie)")]
+    [Header("UI Kalibracji (Nazwy)")]
     public string calibrationContainerName = "CalibrationCanvas";
     public string pointerName = "Pointer";
+    public string sweetSpotName = "SweetSpot";
 
-    [Header("Ustawienia Bezpieczeñstwa")]
+    [Header("Ustawienia Bezpieczeñstwa / Spawnu")]
     public string requiredParentName = "ToolHoldPoint";
-
-    [Header("Ustawienia Spawnu")]
     public GameObject amplifierPrefab;
     public float wysokoscSpawnuOffset = -1.0f;
 
-    [Header("Ustawienia Zasiêgu (Statek)")]
+    [Header("Ustawienia Zasiêgu")]
     public string shipTag = "Ship";
     public float minDistanceFromShip = 20f;
     public string warningUIName = "TooCloseToBaseText";
 
+    // Prywatne UI
     private GameObject warningUI;
     private GameObject calibrationUIContainer;
     private RectTransform pointerRect;
+    private Image pointerImage;
+    private RectTransform sweetSpotRect;
     private Coroutine warningCoroutine;
 
-    private bool isCalibrating = false;
-    private bool isOnCooldown = false;
-    private float calibrationValue = 0f;
-    private bool movingForward = true;
+    private NavMeshAgent playerAgent;
 
-    // --- POPRAWKA 1: Sprz¹tanie po wyci¹gniêciu przedmiotu ---
+    // Logika stanu
+    private bool isCalibrating = false;
+    private float pointerValue = 0f;
+    private bool pointerMovingForward = true;
+
+    private int currentStage = 1;
+    private float currentPointerSpeed;
+    private float sweetSpotMin;
+    private float sweetSpotMax;
+
+    private float sweetSpotCenter = 0.5f;
+    private bool sweetSpotMovingForward = true;
+
+    // --- POPRAWKA 1: Bezpieczny system blokady (odporny na exploity) ---
+    private float cooldownEndTime = 0f;
+
     void OnEnable()
     {
-        isCalibrating = false;
-        isOnCooldown = false;
-        calibrationValue = 0f;
-        movingForward = true;
+        if (playerAgent == null)
+        {
+            playerAgent = transform.root.GetComponentInChildren<NavMeshAgent>();
+        }
+        // Upewniamy siê, ¿e po wyci¹gniêciu przedmiotu stan kalibracji jest czysty
+        ResetCalibrationVariables();
     }
 
-    // --- POPRAWKA 2: Sprz¹tanie ratunkowe, gdy gracz chowa przedmiot ---
     void OnDisable()
     {
-        // Wy³¹czamy UI kalibracji na twardo
-        if (calibrationUIContainer != null)
-            calibrationUIContainer.SetActive(false);
-
-        // Wy³¹czamy napis ostrzegawczy na twardo
-        if (warningUI != null)
-            warningUI.SetActive(false);
-
-        // Resetujemy stany, ¿eby nie zablokowaæ przedmiotu permanentnie
-        isCalibrating = false;
-        isOnCooldown = false;
-
-        // Zatrzymujemy wszelkie timery
+        StopCalibration();
         StopAllCoroutines();
+    }
+
+    void ResetCalibrationVariables()
+    {
+        isCalibrating = false;
+        pointerValue = 0f;
+        pointerMovingForward = true;
+        currentStage = 1;
     }
 
     void Update()
@@ -80,7 +97,15 @@ public class HeldAmplifierDeployer : MonoBehaviour
         if (isCalibrating)
         {
             UpdatePointer();
+
+            if (currentStage == requiredStages)
+            {
+                UpdateMovingSweetSpot();
+            }
         }
+
+        // Sprawdzamy czy blokada czasowa ju¿ minê³a
+        bool isOnCooldown = Time.time < cooldownEndTime;
 
         if (Input.GetKeyDown(deployKey) && !isOnCooldown)
         {
@@ -92,6 +117,12 @@ public class HeldAmplifierDeployer : MonoBehaviour
     {
         FindUIElements();
 
+        if (calibrationUIContainer == null || pointerRect == null || sweetSpotRect == null)
+        {
+            Debug.LogWarning("Brak elementów UI Kalibracji na scenie! Rozk³adanie anulowane.");
+            return;
+        }
+
         GameObject ship = GameObject.FindGameObjectWithTag(shipTag);
         if (ship != null && Vector3.Distance(transform.position, ship.transform.position) < minDistanceFromShip)
         {
@@ -101,107 +132,160 @@ public class HeldAmplifierDeployer : MonoBehaviour
             return;
         }
 
-        if (!isCalibrating)
-        {
-            StartCalibration();
-        }
-        else
-        {
-            CheckResult();
-        }
+        if (!isCalibrating) StartCalibration();
+        else CheckResult();
     }
 
     void StartCalibration()
     {
+        ResetCalibrationVariables();
         isCalibrating = true;
-        calibrationValue = 0f;
-        movingForward = true;
+        currentPointerSpeed = baseCalibrationSpeed;
 
+        // --- POPRAWKA 2: Blokujemy ruch raz, na samym pocz¹tku ---
+        if (playerAgent != null && playerAgent.isOnNavMesh)
+        {
+            playerAgent.isStopped = true;
+            playerAgent.velocity = Vector3.zero;
+        }
+
+        RandomizeSweetSpot();
         if (calibrationUIContainer != null) calibrationUIContainer.SetActive(true);
+    }
+
+    void UpdateMovingSweetSpot()
+    {
+        float limit = sweetSpotWidth / 2f;
+
+        if (sweetSpotMovingForward)
+        {
+            sweetSpotCenter += Time.deltaTime * sweetSpotMoveSpeed;
+            if (sweetSpotCenter >= 1f - limit)
+            {
+                sweetSpotCenter = 1f - limit;
+                sweetSpotMovingForward = false;
+            }
+        }
+        else
+        {
+            sweetSpotCenter -= Time.deltaTime * sweetSpotMoveSpeed;
+            if (sweetSpotCenter <= limit)
+            {
+                sweetSpotCenter = limit;
+                sweetSpotMovingForward = true;
+            }
+        }
+
+        sweetSpotMin = sweetSpotCenter - limit;
+        sweetSpotMax = sweetSpotCenter + limit;
+
+        UpdateSweetSpotUI();
+    }
+
+    void RandomizeSweetSpot()
+    {
+        float limit = sweetSpotWidth / 2f;
+        sweetSpotCenter = Random.Range(limit, 1f - limit);
+
+        sweetSpotMin = sweetSpotCenter - limit;
+        sweetSpotMax = sweetSpotCenter + limit;
+        UpdateSweetSpotUI();
+    }
+
+    void UpdateSweetSpotUI()
+    {
+        if (sweetSpotRect != null)
+        {
+            sweetSpotRect.anchorMin = new Vector2(sweetSpotMin, 0);
+            sweetSpotRect.anchorMax = new Vector2(sweetSpotMax, 1);
+            sweetSpotRect.anchoredPosition = Vector2.zero;
+        }
     }
 
     void UpdatePointer()
     {
-        if (movingForward)
+        if (pointerMovingForward)
         {
-            calibrationValue += Time.deltaTime * calibrationSpeed;
-            if (calibrationValue >= 1f) { calibrationValue = 1f; movingForward = false; }
+            pointerValue += Time.deltaTime * currentPointerSpeed;
+            if (pointerValue >= 1f) { pointerValue = 1f; pointerMovingForward = false; }
         }
         else
         {
-            calibrationValue -= Time.deltaTime * calibrationSpeed;
-            if (calibrationValue <= 0f) { calibrationValue = 0f; movingForward = true; }
+            pointerValue -= Time.deltaTime * currentPointerSpeed;
+            if (pointerValue <= 0f) { pointerValue = 0f; pointerMovingForward = true; }
         }
 
         if (pointerRect != null)
         {
-            pointerRect.anchorMin = new Vector2(calibrationValue, 0);
-            pointerRect.anchorMax = new Vector2(calibrationValue, 1);
+            pointerRect.anchorMin = new Vector2(pointerValue, 0);
+            pointerRect.anchorMax = new Vector2(pointerValue, 1);
             pointerRect.anchoredPosition = Vector2.zero;
+        }
+
+        if (pointerImage != null)
+        {
+            pointerImage.color = (pointerValue >= sweetSpotMin && pointerValue <= sweetSpotMax) ? Color.green : Color.cyan;
         }
     }
 
     void CheckResult()
     {
-        if (calibrationValue >= sweetSpotMin && calibrationValue <= sweetSpotMax)
+        if (pointerValue >= sweetSpotMin && pointerValue <= sweetSpotMax)
         {
-            DeployAmplifier();
+            if (currentStage >= requiredStages) DeployAmplifier();
+            else
+            {
+                currentStage++;
+                currentPointerSpeed *= speedMultiplierPerStage;
+                // --- POPRAWKA 3: Zawsze zmieniaj miejsce strefy na nowym etapie ---
+                RandomizeSweetSpot();
+            }
         }
-        else
-        {
-            ApplyFailureConsequences();
-        }
+        else ApplyFailureConsequences();
     }
 
     void ApplyFailureConsequences()
     {
         StopCalibration();
-        StartCoroutine(CooldownRoutine());
 
-        if (TimeManager.Instance != null)
-        {
-            TimeManager.Instance.ModifyTime(-timePenalty);
-        }
+        // Zapisujemy w czasie rzeczywistym, kiedy minie blokada
+        cooldownEndTime = Time.time + failCooldown;
+        Debug.Log("<color=orange>Wzmacniacz zablokowany - trwa restart systemów po spiêciu...</color>");
 
-        if (explosionEffectPrefab != null)
-        {
-            Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
-        }
-    }
-
-    IEnumerator CooldownRoutine()
-    {
-        isOnCooldown = true;
-        yield return new WaitForSeconds(failCooldown);
-        isOnCooldown = false;
+        if (TimeManager.Instance) TimeManager.Instance.ModifyTime(-timePenalty);
+        if (explosionEffectPrefab) Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
     }
 
     void StopCalibration()
     {
-        isCalibrating = false;
-        calibrationValue = 0f;
-
+        ResetCalibrationVariables();
         if (calibrationUIContainer != null) calibrationUIContainer.SetActive(false);
+
+        // --- POPRAWKA 2: Bezpieczne odblokowanie ruchu ---
+        if (playerAgent != null && playerAgent.isOnNavMesh)
+        {
+            playerAgent.ResetPath(); // Najpierw czyœcimy kolejkê klikniêæ gracza z czasu minigry!
+            playerAgent.isStopped = false; // Potem go uwalniamy
+        }
     }
 
     void FindUIElements()
     {
-        if (warningUI != null && calibrationUIContainer != null && pointerRect != null) return;
+        if (warningUI != null && calibrationUIContainer != null && pointerRect != null && sweetSpotRect != null) return;
 
         Canvas[] canvases = FindObjectsOfType<Canvas>(true);
         foreach (Canvas canvas in canvases)
         {
-            Transform[] allChildren = canvas.GetComponentsInChildren<Transform>(true);
-            foreach (Transform child in allChildren)
+            foreach (Transform child in canvas.GetComponentsInChildren<Transform>(true))
             {
-                if (warningUI == null && child.name == warningUIName)
-                    warningUI = child.gameObject;
-
-                if (calibrationUIContainer == null && child.name == calibrationContainerName)
-                    calibrationUIContainer = child.gameObject;
-
-                if (pointerRect == null && child.name == pointerName)
+                if (child.name == warningUIName) warningUI = child.gameObject;
+                if (child.name == calibrationContainerName) calibrationUIContainer = child.gameObject;
+                if (child.name == pointerName)
+                {
                     pointerRect = child.GetComponent<RectTransform>();
+                    pointerImage = child.GetComponent<Image>();
+                }
+                if (child.name == sweetSpotName) sweetSpotRect = child.GetComponent<RectTransform>();
             }
         }
     }
@@ -218,22 +302,18 @@ public class HeldAmplifierDeployer : MonoBehaviour
 
     void DeployAmplifier()
     {
-        StopCalibration();
-        if (warningUI != null) warningUI.SetActive(false);
+        StopCalibration(); // To odblokuje agenta gracza
         if (amplifierPrefab == null) return;
 
-        Vector3 spawnPosition = transform.root.position + new Vector3(0, wysokoscSpawnuOffset, 0);
-        GameObject deployedAmplifier = Instantiate(amplifierPrefab, spawnPosition, transform.root.rotation);
+        Vector3 spawnPos = transform.root.position + new Vector3(0, wysokoscSpawnuOffset, 0);
+        GameObject deployed = Instantiate(amplifierPrefab, spawnPos, transform.root.rotation);
 
-        AmplifierTracker tracker = deployedAmplifier.GetComponent<AmplifierTracker>();
-        if (tracker != null) tracker.Deploy();
+        if (deployed.TryGetComponent<AmplifierTracker>(out var tracker)) tracker.Deploy();
 
         HotbarSelector hotbar = transform.root.GetComponentInChildren<HotbarSelector>();
-        if (hotbar != null && hotbar.inventory != null)
+        if (hotbar != null && hotbar.inventory != null && hotbar.inventory.Slots.Length > hotbar.CurrentIndex)
         {
-            int activeIndex = hotbar.CurrentIndex;
-            var activeSlot = hotbar.inventory.Slots[activeIndex];
-
+            var activeSlot = hotbar.inventory.Slots[hotbar.CurrentIndex];
             if (activeSlot != null && activeSlot.item != null)
             {
                 hotbar.inventory.RemoveItem(activeSlot.item, 1);

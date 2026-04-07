@@ -265,14 +265,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   deployKey: 102
-  calibrationSpeed: 1.5
-  sweetSpotMin: 0.7
-  sweetSpotMax: 0.85
-  timePenalty: 10
+  requiredStages: 3
+  baseCalibrationSpeed: 1.2
+  speedMultiplierPerStage: 1
+  sweetSpotWidth: 0.2
+  sweetSpotMoveSpeed: 0.8
+  timePenalty: 5
   failCooldown: 3
   explosionEffectPrefab: {fileID: 3503826174107351529, guid: 76bda197c746f154b9f71323e3f1d054, type: 3}
   calibrationContainerName: BackgroundWzmacniacz
   pointerName: Pointer
+  sweetSpotName: SweetSpot
   requiredParentName: ToolHoldPoint
   amplifierPrefab: {fileID: 7918201101477978089, guid: 9980d6246fcbeeb479a789c9934d66dd, type: 3}
   wysokoscSpawnuOffset: -1
