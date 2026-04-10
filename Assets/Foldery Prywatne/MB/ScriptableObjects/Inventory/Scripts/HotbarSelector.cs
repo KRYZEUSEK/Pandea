@@ -6,11 +6,12 @@ public class HotbarSelector : MonoBehaviour
 {
     public InventoryObject inventory;
     public DisplayHotbar displayHotbar;
-
+    public GameObject zielnikUI;
     public int CurrentIndex { get; private set; } = 0;
     public event Action<int> OnSelectedIndexChanged;
     void Update()
     {
+        if (zielnikUI != null && zielnikUI.activeInHierarchy) return;
         if (Input.GetKeyDown(KeyCode.Alpha1)) SelectSlot(0);
         if (Input.GetKeyDown(KeyCode.Alpha2)) SelectSlot(1);
         if (Input.GetKeyDown(KeyCode.Alpha3)) SelectSlot(2);

@@ -2107,7 +2107,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 40
+  m_ScrollSensitivity: 80
   m_Viewport: {fileID: 173120832}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 1900060044}
@@ -3923,6 +3923,10 @@ PrefabInstance:
       propertyPath: itemsToAddOnStart.Array.data[11]
       value: 
       objectReference: {fileID: 11400000, guid: 1a0dadc868bc2db4293102821ceddf06, type: 2}
+    - target: {fileID: 8679007075481991661, guid: ca6c32de4b83ef747a58da628ee471be, type: 3}
+      propertyPath: zielnikUI
+      value: 
+      objectReference: {fileID: 749643486}
     - target: {fileID: 8679007075481991661, guid: ca6c32de4b83ef747a58da628ee471be, type: 3}
       propertyPath: displayHotbar
       value: 

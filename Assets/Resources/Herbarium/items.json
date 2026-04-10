@@ -2,39 +2,93 @@
   "items": [
     {
       "id": 1,
-      "name": "Miecz ognia",
-      "description": "Legendarny miecz zadający obrażenia od ognia.",
-      "image": "Img/sample"
+      "name": "Pogorze (Cinis)",
+      "description": "Skamieniały budulec powstały z dawno obumarłego Pożarycznika. Wygląda jak srebrna lub szara kłoda; idealny materiał do rozbudowy bazy.",
+      "image": "Img/1"
     },
     {
       "id": 2,
-      "name": "Tarcza lodu",
-      "description": "Chroni przed atakami i spowalnia wrogów.",
-      "image": "Img/sample"
+      "name": "Żywnit (Resinta)",
+      "description": "Wyjątkowo klejąca, świecąca żółta żywica zbierana z grubych, bordowych drzew. Służy jako spoiwo i uszczelniacz przedmiotów.",
+      "image": "Img/2"
     },
-{
+    {
       "id": 3,
-      "name": "Tarcza lodu",
-      "description": "Chroni przed atakami i spowalnia wrogów.",
-      "image": "Img/sample"
+      "name": "Cyjant (Caerulenus)",
+      "description": "Ciemnoniebieski minerał energetyczny wydobywany ze szczelin skalnych. Po przetworzeniu służy jako ogniwo zasilające do nadajników.",
+      "image": "Img/3"
     },
-{
+    {
       "id": 4,
-      "name": "Tarcza lodu",
-      "description": "Chroni przed atakami i spowalnia wrogów.",
-      "image": "Img/sample"
+      "name": "Herbensja wielokwiatowa (Meladrangea grandiflorus)",
+      "description": "Roślina o brązowych łodygach zwieńczonych 'michami' z czerwonymi kwiatami. Jej liście zapewniają wzmocnienie (boost) prędkości.",
+      "image": "Img/4"
     },
-{
+    {
       "id": 5,
-      "name": "Tarcza lodu",
-      "description": "Chroni przed atakami i spowalnia wrogów.",
-      "image": "Img/sample"
+      "name": "Herbensja okazała (Meladrangea speciosa)",
+      "description": "Roślina o jednym dużym czerwonym kwiecie w pucharze. Kontakt z nią powoduje spowolnienie ruchów.",
+      "image": "Img/5"
     },
-{
+    {
       "id": 6,
-      "name": "Tarcza lodu",
-      "description": "Chroni przed atakami i spowalnia wrogów.",
-      "image": "Img/sample"
+      "name": "Tlenecznik błękitny (Netlenthes caerulea)",
+      "description": "Zdrewniała roślina o świecących niebieskich nasadach, wytwarzająca bąbelki tlenu. Kluczowe źródło dodatkowego powietrza.",
+      "image": "Img/6"
+    },
+    {
+      "id": 7,
+      "name": "Dwutlenecznik błękitny (Necarbenthes caerulea)",
+      "description": "Podstępna roślina o dziurawych liściach, która zamiast dawać tlen, zabiera go z otoczenia.",
+      "image": "Img/7"
+    },
+    {
+      "id": 8,
+      "name": "Dusiczka olbrzymia (Stradrosera giganteum)",
+      "description": "Wielka, niebieska roślina przypominająca balon z kolcami. Więzi ofiary i wysysa z nich zapasy tlenu.",
+      "image": "Img/8"
+    },
+    {
+      "id": 9,
+      "name": "Pajęromia jadowita (Arachnilys virosa)",
+      "description": "Czarno-niebieska roślina przypominająca pająka na cienkiej łodydze. W poczuciu zagrożenia emituje substancję drastycznie ograniczającą wizję.",
+      "image": "Img/9"
+    },
+    {
+      "id": 10,
+      "name": "Paprozja jadalna (Polyposia comosus)",
+      "description": "Rzadka paproć o fioletowych liściach i pomarańczowych owocach. Zjedzenie owocu czasowo zwiększa udźwig gracza.",
+      "image": "Img/10"
+    },
+    {
+      "id": 11,
+      "name": "Pożarycznik (Ignispodium)",
+      "description": "Skamieniała roślina wytwarzająca skrajnie łatwopalną, czerwoną żywicę. Często wywołuje spontaniczne mini-pożary.",
+      "image": "Img/11"
+    },
+    {
+      "id": 12,
+      "name": "Grzypłatek tlenowy (Fungupetalum oxygenium)",
+      "description": "Hybryda grzyba i kwiatu o pomarańczowych kapeluszach. Daje tlen gorszej jakości, jednocześnie spowalniając poruszanie się.",
+      "image": "Img/12"
+    },
+    {
+      "id": 13,
+      "name": "Szczawnik rusznicowy (Oxalnis sclopetumus)",
+      "description": "Fioletowa roślina z systemem kominów. Wystrzeliwuje ogniste nasiona, ale w zamian oferuje dodatkowy tlen i przyspieszenie.",
+      "image": "Img/13"
+    },
+    {
+      "id": 14,
+      "name": "Jancyr wyniosły (Crotolum elatior)",
+      "description": "Fioletowa roślina strzelająca kulkami spowalniającymi. Choć utrudnia ruch, dostarcza dużą ilość dodatkowego tlenu.",
+      "image": "Img/14"
+    },
+    {
+      "id": 15,
+      "name": "Teriaks lekarski (Theriacas somniferum)",
+      "description": "Roślina przypominająca makówkę, emitująca pomarańczowy pyłek. Uspokaja wrogą florę, zapobiegając jej atakom.",
+      "image": "Img/15"
     }
   ]
 }
