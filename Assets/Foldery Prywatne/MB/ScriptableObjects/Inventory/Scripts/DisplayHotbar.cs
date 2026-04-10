@@ -10,7 +10,7 @@ public class DisplayHotbar : MonoBehaviour
     public int X_SPACE = 100;
 
     private Dictionary<int, GameObject> displayed = new Dictionary<int, GameObject>();
-    private int selectedIndex = -1;
+    private int selectedIndex = 0; // Zmień na 0, żeby od początku coś było wybrane
 
     void OnEnable()
     {
@@ -26,34 +26,29 @@ public class DisplayHotbar : MonoBehaviour
 
     void Start()
     {
-        // Tworzymy sloty raz
-        for (int i = 0; i < 5; i++)
+        // WYCZYŚĆ RĘCZNIE DODANE OBIEKTY W EDYTORZE (jeśli jakieś są podpięte pod ten transform)
+        foreach (Transform child in transform)
         {
-            var slot = Inventory.Slots[i];
-            GameObject prefab = (slot != null && slot.item != null) ? slot.item.prefab : emptySlotPrefab;
-            GameObject ui = Instantiate(prefab, Vector3.zero, Quaternion.identity, transform);
-            displayed[i] = ui;
-
-            ui.GetComponent<RectTransform>().localPosition = new Vector3(X_START + i * X_SPACE, 0, 0);
-            ui.transform.localScale = (i == selectedIndex) ? Vector3.one * 1.12f : Vector3.one;
+            Destroy(child.gameObject);
         }
 
+        // Wywołaj tylko raz
         RefreshHotbar();
     }
 
     public void RefreshHotbar()
     {
+        // Czyścimy słownik i niszczymy stare obiekty
+        foreach (var item in displayed.Values)
+        {
+            Destroy(item);
+        }
+        displayed.Clear();
+
         for (int i = 0; i < 5; i++)
         {
             var slot = Inventory.Slots[i];
             GameObject ui;
-
-            // Usuń stary prefab, jeśli istnieje
-            if (displayed.ContainsKey(i))
-            {
-                Destroy(displayed[i]);
-                displayed.Remove(i);
-            }
 
             // Wstaw nowy slot (item lub pusty)
             if (slot != null && slot.item != null)
@@ -70,22 +65,27 @@ public class DisplayHotbar : MonoBehaviour
             }
 
             // Pozycja i podświetlenie
-            ui.GetComponent<RectTransform>().localPosition = new Vector3(X_START + i * X_SPACE, 0, 0);
+            RectTransform rt = ui.GetComponent<RectTransform>();
+            rt.localPosition = new Vector3(X_START + i * X_SPACE, 0, 0);
+
+            // Ustawienie skali na starcie
             ui.transform.localScale = (i == selectedIndex) ? Vector3.one * 1.12f : Vector3.one;
 
             displayed[i] = ui;
         }
     }
 
-
     public void SetSelectedIndex(int index)
     {
         selectedIndex = index;
 
-        // Odśwież tylko podświetlenie
+        // Odświeżamy skalę dla wszystkich wyświetlanych slotów
         foreach (var kvp in displayed)
         {
-            kvp.Value.transform.localScale = (kvp.Key == selectedIndex) ? Vector3.one * 1.12f : Vector3.one;
+            if (kvp.Value != null)
+            {
+                kvp.Value.transform.localScale = (kvp.Key == selectedIndex) ? Vector3.one * 1.12f : Vector3.one;
+            }
         }
     }
 }
