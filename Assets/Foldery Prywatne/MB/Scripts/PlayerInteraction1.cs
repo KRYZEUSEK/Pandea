@@ -137,10 +137,10 @@ public class PlayerInteraction1 : MonoBehaviour
         if (!droppedObj.TryGetComponent<Collider>(out Collider col))
             droppedObj.AddComponent<BoxCollider>();
 
-        if (!droppedObj.TryGetComponent<ItemPickup>(out ItemPickup pickup))
+        if (!droppedObj.TryGetComponent<Item>(out Item pickup))
         {
-            pickup = droppedObj.AddComponent<ItemPickup>();
-            pickup.itemData = slot.item;
+            pickup = droppedObj.AddComponent<Item>();
+            pickup.item = slot.item;
         }
 
         Debug.Log("Wyrzucono: " + slot.item.name);

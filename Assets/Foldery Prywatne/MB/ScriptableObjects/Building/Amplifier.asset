@@ -16,7 +16,7 @@ MonoBehaviour:
   finalPrefab: {fileID: 7918201101477978089, guid: 9980d6246fcbeeb479a789c9934d66dd, type: 3}
   previewPrefab: {fileID: 2172740063509837512, guid: fed8621614ad5bc44aaef17ea98fcfdc, type: 3}
   placementOffset: {x: 0, y: 0, z: 0}
-  maxSlopeDegrees: 20
+  maxSlopeDegrees: 100
   groundMask:
     serializedVersion: 2
     m_Bits: 64

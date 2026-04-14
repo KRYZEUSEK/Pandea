@@ -76,6 +76,11 @@ public class BuildingManager : MonoBehaviour
     private bool lastPreviewValid = false;
     private Bounds previewBounds;
     private bool previewBoundsCached = false;
+    public float maxBuildRadius = 5f;
+    [Header("Wizualizacja Zasięgu (W grze)")]
+    public LineRenderer radiusRenderer; // Referencja do rysownika linii
+    public int circleSegments = 50;     // Z ilu prostych odcinków składa się okrąg (im więcej, tym gładszy)
+    public float circleLineWidth = 0.05f;
 
     void Awake()
     {
@@ -137,8 +142,8 @@ public class BuildingManager : MonoBehaviour
             return;
         }
 
-        if (Input.GetKeyDown(KeyCode.Q)) currentRotation -= rotationStepDegrees;
-        if (Input.GetKeyDown(KeyCode.E)) currentRotation += rotationStepDegrees;
+        if (Input.GetKeyDown(KeyCode.Z)) currentRotation -= rotationStepDegrees;
+        if (Input.GetKeyDown(KeyCode.X)) currentRotation += rotationStepDegrees;
 
     }
     private bool HasRequiredTool()
@@ -276,6 +281,10 @@ public class BuildingManager : MonoBehaviour
 
         HandleBuildModeInput();
         UpdatePreview();
+        if (radiusRenderer != null && player != null)
+        {
+            radiusRenderer.transform.position = new Vector3(player.position.x, player.position.y + 0.1f, player.position.z);
+        }
     }
 
 
@@ -405,7 +414,11 @@ public class BuildingManager : MonoBehaviour
             Debug.LogWarning("groundMask = 0. Ustaw warstwę terenu (np. 'Terrain'/'Default') w BuildableData.");
             warnedGroundMask = true;
         }
-
+        if (radiusRenderer != null)
+        {
+            radiusRenderer.gameObject.SetActive(true);
+            DrawRadiusCircle(); // Rysujemy kształt
+        }
         Debug.Log($"Tryb budowy: {data.id}");
     }
 
@@ -420,6 +433,10 @@ public class BuildingManager : MonoBehaviour
 
         if (previewInstance != null) Destroy(previewInstance);
         previewInstance = null;
+        if (radiusRenderer != null)
+        {
+            radiusRenderer.gameObject.SetActive(false);
+        }
         Debug.Log("Wyłączono tryb budowy.");
     }
 
@@ -558,6 +575,20 @@ public class BuildingManager : MonoBehaviour
         finalPos = previewPos;
         finalRot = previewRot;
 
+        if (player != null)
+        {
+           
+            Vector3 playerPosXZ = new Vector3(player.position.x, 0, player.position.z);
+            Vector3 previewPosXZ = new Vector3(previewPos.x, 0, previewPos.z);
+
+            float distance = Vector3.Distance(playerPosXZ, previewPosXZ);
+
+            if (distance > maxBuildRadius)
+            {
+                return false; 
+            }
+        }
+
         Bounds b = GetObjectBounds(previewInstance);
         Vector3 center = b.center;
         Vector3 ex = b.extents;
@@ -577,13 +608,15 @@ public class BuildingManager : MonoBehaviour
         Vector3 avgNormal = Vector3.zero;
         float maxRayDown = 6f;
         LayerMask mask = SafeGroundMask(selectedBuildable.groundMask);
-
+        float currentMaxSlope = (selectedBuildable != null) ? selectedBuildable.maxSlopeDegrees : maxSlopeDegrees;
         foreach (var s in starts)
         {
             if (Physics.Raycast(s, Vector3.down, out RaycastHit hit, maxRayDown, mask, QueryTriggerInteraction.Ignore))
             {
                 float slope = Vector3.Angle(hit.normal, Vector3.up);
-                if (slope <= maxSlopeDegrees)
+
+                // ZMIANA: używamy currentMaxSlope zamiast maxSlopeDegrees
+                if (slope <= currentMaxSlope)
                 {
                     validHits++;
                     avgNormal += hit.normal;
@@ -599,7 +632,7 @@ public class BuildingManager : MonoBehaviour
             if (Physics.Raycast(cStart, Vector3.down, out RaycastHit cHit, maxRayDown, mask))
             {
                 float cSlope = Vector3.Angle(cHit.normal, Vector3.up);
-                if (cSlope <= maxSlopeDegrees + 5f) return true;
+                if (cSlope <= currentMaxSlope + 5f) return true;
             }
             return false;
         }
@@ -688,5 +721,26 @@ public class BuildingManager : MonoBehaviour
 
     private float NormalizeAngle(float a) => (a > 180f) ? a - 360f : a;
 
+    private void DrawRadiusCircle()
+    {
+        if (radiusRenderer == null) return;
+
+        radiusRenderer.useWorldSpace = false; // Rysujemy lokalnie, a przesuwamy cały obiekt
+        radiusRenderer.startWidth = circleLineWidth;
+        radiusRenderer.endWidth = circleLineWidth;
+        radiusRenderer.positionCount = circleSegments + 1; // +1, aby połączyć koniec z początkiem okręgu
+
+        float angle = 0f;
+        for (int i = 0; i < circleSegments + 1; i++)
+        {
+            float x = Mathf.Sin(Mathf.Deg2Rad * angle) * maxBuildRadius;
+            float z = Mathf.Cos(Mathf.Deg2Rad * angle) * maxBuildRadius;
+
+            // Ustawiamy punkty okręgu (Y=0, bo rysujemy płasko)
+            radiusRenderer.SetPosition(i, new Vector3(x, 0, z));
+
+            angle += (360f / circleSegments);
+        }
+    }
 
 }

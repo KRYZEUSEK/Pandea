@@ -89,9 +89,9 @@ public class PickupFlower : MonoBehaviour
             rb.AddForce(Vector3.up * 2f, ForceMode.Impulse);
 
             // Upewniamy siê, ¿e przedmiot ma skrypt do podnoszenia (ItemPickup)
-            if (!droppedItem.TryGetComponent<ItemPickup>(out ItemPickup pickup))
+            if (!droppedItem.TryGetComponent<Item>(out Item pickup))
             {
-                pickup = droppedItem.AddComponent<ItemPickup>();
+                pickup = droppedItem.AddComponent<Item>();
                 // Tutaj skrypt sam powinien pobraæ dane, jeœli masz to ustawione w prefabie
             }
         }

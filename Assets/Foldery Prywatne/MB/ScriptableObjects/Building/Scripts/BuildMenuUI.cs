@@ -22,7 +22,22 @@ public class BuildMenuUI : MonoBehaviour
 
     void OnEnable()
     {
-        Rebuild();
+        // Podpinamy siê pod event zmiany ekwipunku
+        if (inventory != null)
+        {
+            inventory.OnInventoryChanged += Rebuild;
+        }
+
+        Rebuild(); // Pierwsze zbudowanie menu po w³¹czeniu
+    }
+
+    void OnDisable()
+    {
+        // Odpinamy siê, gdy wy³¹czamy menu (bardzo wa¿ne dla optymalizacji!)
+        if (inventory != null)
+        {
+            inventory.OnInventoryChanged -= Rebuild;
+        }
     }
 
     public void Rebuild()
