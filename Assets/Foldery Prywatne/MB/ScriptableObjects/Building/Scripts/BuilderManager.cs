@@ -281,10 +281,7 @@ public class BuildingManager : MonoBehaviour
 
         HandleBuildModeInput();
         UpdatePreview();
-        if (radiusRenderer != null && player != null)
-        {
-            radiusRenderer.transform.position = new Vector3(player.position.x, player.position.y + 0.1f, player.position.z);
-        }
+        UpdateRadiusCircleToTerrain();
     }
 
 
@@ -417,7 +414,7 @@ public class BuildingManager : MonoBehaviour
         if (radiusRenderer != null)
         {
             radiusRenderer.gameObject.SetActive(true);
-            DrawRadiusCircle(); // Rysujemy kształt
+            UpdateRadiusCircleToTerrain(); // Rysuje od razu po wyciągnięciu młotka
         }
         Debug.Log($"Tryb budowy: {data.id}");
     }
@@ -721,24 +718,46 @@ public class BuildingManager : MonoBehaviour
 
     private float NormalizeAngle(float a) => (a > 180f) ? a - 360f : a;
 
-    private void DrawRadiusCircle()
+    private void UpdateRadiusCircleToTerrain()
     {
-        if (radiusRenderer == null) return;
+        if (radiusRenderer == null || player == null || !radiusRenderer.gameObject.activeSelf) return;
 
-        radiusRenderer.useWorldSpace = false; // Rysujemy lokalnie, a przesuwamy cały obiekt
+        // BARDZO WAŻNE: LineRenderer musi używać przestrzeni świata!
+        radiusRenderer.useWorldSpace = true;
         radiusRenderer.startWidth = circleLineWidth;
         radiusRenderer.endWidth = circleLineWidth;
-        radiusRenderer.positionCount = circleSegments + 1; // +1, aby połączyć koniec z początkiem okręgu
+        radiusRenderer.positionCount = circleSegments + 1;
+
+        // Szukamy odpowiedniej maski terenu (z aktualnego obiektu lub domyślnej)
+        LayerMask mask = (selectedBuildable != null && selectedBuildable.groundMask.value != 0)
+            ? selectedBuildable.groundMask
+            : ~0;
 
         float angle = 0f;
         for (int i = 0; i < circleSegments + 1; i++)
         {
+            // Obliczamy pozycję X i Z względem gracza
             float x = Mathf.Sin(Mathf.Deg2Rad * angle) * maxBuildRadius;
             float z = Mathf.Cos(Mathf.Deg2Rad * angle) * maxBuildRadius;
 
-            // Ustawiamy punkty okręgu (Y=0, bo rysujemy płasko)
-            radiusRenderer.SetPosition(i, new Vector3(x, 0, z));
+            // Punkt docelowy na płasko (do testów)
+            Vector3 pointPos = player.position + new Vector3(x, 0, z);
 
+            // Wypuszczamy Raycast z góry w dół (np. z wysokości 50m) w tym konkretnym punkcie
+            Vector3 rayOrigin = new Vector3(pointPos.x, player.position.y + verticalRayHeight, pointPos.z);
+
+            if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, verticalRayHeight * 2f, mask, QueryTriggerInteraction.Ignore))
+            {
+                // Jeśli trafimy w ziemię, ustawiamy wysokość punktu na wysokość ziemi + minimalny margines, by linia nie migotała
+                pointPos.y = hit.point.y + 0.05f;
+            }
+            else
+            {
+                // Fallback: jeśli ziemi tam nie ma (np. gracz patrzy w przepaść), trzymaj płasko na poziomie gracza
+                pointPos.y = player.position.y + 0.05f;
+            }
+
+            radiusRenderer.SetPosition(i, pointPos);
             angle += (360f / circleSegments);
         }
     }

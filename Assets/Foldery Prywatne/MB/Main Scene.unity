@@ -3999,6 +3999,10 @@ PrefabInstance:
       propertyPath: circleLineWidth
       value: 0.1
       objectReference: {fileID: 0}
+    - target: {fileID: 2787509137458071075, guid: ca6c32de4b83ef747a58da628ee471be, type: 3}
+      propertyPath: alignToGroundNormal
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3499168550602627326, guid: ca6c32de4b83ef747a58da628ee471be, type: 3}
       propertyPath: m_LocalPosition.x
       value: 9.878668
