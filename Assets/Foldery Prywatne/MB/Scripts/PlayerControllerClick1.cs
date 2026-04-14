@@ -18,6 +18,11 @@ public class PlayerControllerClick1 : MonoBehaviour
     [SerializeField] LayerMask clickableLayers;
     [SerializeField] float lookRotationSpeed = 8f;
 
+    // --- NOWE: Konfiguracja warstwy interakcji ---
+    [Header("Interaction")]
+    [Tooltip("Warstwa obiektów, w które można klikać (np. statki)")]
+    [SerializeField] LayerMask interactableLayers;
+
     [Header("Jumping & Pivot Fix (Head Pivot)")]
     [SerializeField] float heightFromPivotToFeet = 1.2f;
     [SerializeField] float jumpHeight = 2.5f;
@@ -57,7 +62,6 @@ public class PlayerControllerClick1 : MonoBehaviour
     {
         GroundCheck();
 
-        // Jeśli skaczemy, nie pozwalamy na logikę chodzenia/obracania do celu
         if (isJumpingInternal) return;
 
         if (isHoldingMove)
@@ -84,7 +88,8 @@ public class PlayerControllerClick1 : MonoBehaviour
         isGrounded = Physics.Raycast(rayStart, Vector3.down, groundCheckDistance, clickableLayers);
     }
 
-    void MoveToCursor(bool spawnEffect)
+    // ZMIANA: Zmieniłem nazwę 'spawnEffect' na 'isInitialClick' żeby było bardziej zrozumiale
+    void MoveToCursor(bool isInitialClick)
     {
         if (isJumpingInternal) return;
 
@@ -92,10 +97,28 @@ public class PlayerControllerClick1 : MonoBehaviour
             return;
 
         Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
-        if (Physics.Raycast(ray, out RaycastHit hit, 100, clickableLayers))
+        RaycastHit hit;
+
+        // --- NOWE: 1. Sprawdzanie Interakcji (Tylko przy pojedynczym kliknięciu myszą) ---
+        if (isInitialClick && Physics.Raycast(ray, out hit, 100, interactableLayers))
+        {
+            // Szukamy skryptu Interactable na trafionym obiekcie
+            Interactable interactableObject = hit.collider.GetComponent<Interactable>();
+
+            if (interactableObject != null)
+            {
+                // Odpalamy funkcję na statku i zatrzymujemy chodzenie!
+                interactableObject.TriggerInteraction();
+                StopMovement();
+                return; // Przerywamy kod, Panda nie idzie w stronę statku
+            }
+        }
+
+        // 2. Normalne poruszanie się po podłodze
+        if (Physics.Raycast(ray, out hit, 100, clickableLayers))
         {
             agent.SetDestination(hit.point);
-            if (spawnEffect && clickEffect != null)
+            if (isInitialClick && clickEffect != null)
             {
                 Instantiate(clickEffect, hit.point + Vector3.up * 0.1f, clickEffect.transform.rotation);
             }
@@ -121,11 +144,10 @@ public class PlayerControllerClick1 : MonoBehaviour
     {
         isJumpingInternal = true;
 
-        // --- POPRAWKA ANIMACJI ---
         animator.applyRootMotion = false;
-        animator.SetBool("isWalking", false); // Wymuszamy koniec animacji chodzenia
-        animator.SetBool("isJumping", true);  // Odpalamy logikę skoku
-        animator.Play(JUMP_START_STATE);      // Startujemy animację wybicia
+        animator.SetBool("isWalking", false);
+        animator.SetBool("isJumping", true);
+        animator.Play(JUMP_START_STATE);
 
         Vector3 savedDestination = agent.destination;
         Vector3 horizontalVelocity = agent.velocity;
@@ -162,9 +184,8 @@ public class PlayerControllerClick1 : MonoBehaviour
             yield return null;
         }
 
-        // --- LĄDOWANIE ---
         agent.enabled = true;
-        animator.SetBool("isJumping", false); // Pozwalamy przejść do Idle/Walk
+        animator.SetBool("isJumping", false);
 
         NavMeshHit navHit;
         if (NavMesh.SamplePosition(transform.position, out navHit, 3.0f, NavMesh.AllAreas))
@@ -194,7 +215,6 @@ public class PlayerControllerClick1 : MonoBehaviour
 
     void SetAnimations()
     {
-        // KLUCZOWA POPRAWKA: Jeśli skaczemy, nie dotykamy parametrów chodzenia
         if (isJumpingInternal) return;
 
         if (agent.enabled)

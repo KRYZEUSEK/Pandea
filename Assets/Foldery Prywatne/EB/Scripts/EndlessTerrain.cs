@@ -63,6 +63,28 @@ public class EndlessTerrain : MonoBehaviour
 
             storyElements[i].targetPosition = new Vector2(spawnX, spawnY);
             storyElements[i].isSpawned = false;
+            storyElements[i].isHeightAdjusted = false;
+
+            // ZMIANA: Przywrócono logikę dla "spawnImmediately" oraz dodano zmianę warstwy
+            if (storyElements[i].spawnImmediately)
+            {
+                Vector3 tempPos = new Vector3(spawnX, 0, spawnY);
+                GameObject spawnedGo = Instantiate(storyElements[i].prefab, tempPos, Quaternion.identity);
+                spawnedGo.transform.parent = transform;
+
+                storyElements[i].spawnedInstance = spawnedGo;
+                storyElements[i].isSpawned = true;
+
+                // Aplikujemy warstwę, jeśli została podana w Inspektorze
+                if (!string.IsNullOrEmpty(storyElements[i].layerName))
+                {
+                    int layerIndex = LayerMask.NameToLayer(storyElements[i].layerName);
+                    if (layerIndex != -1)
+                    {
+                        spawnedGo.layer = layerIndex;
+                    }
+                }
+            }
         }
     }
 
@@ -140,7 +162,6 @@ public class EndlessTerrain : MonoBehaviour
             this.parentTerrain = parentTerrain;
 
             position = coord * size;
-            // Bounds w 2D (X, Y) odpowiadają globalnym kordom X i Z
             bounds = new Bounds(position, Vector2.one * size);
             Vector3 positionV3 = new Vector3(position.x, 0, position.y);
 
@@ -259,7 +280,6 @@ public class EndlessTerrain : MonoBehaviour
             {
                 StoryElement el = parentTerrain.storyElements[i];
 
-                // ZMIANA: Sprawdzamy czy wysokość tego obiektu została już skorygowana na tym chunku
                 if (!el.isHeightAdjusted && bounds.Contains(new Vector3(el.targetPosition.x, el.targetPosition.y, 0)))
                 {
                     int gridX = Mathf.RoundToInt(el.targetPosition.x - (chunkWorldX - (width - 1) / 2f));
@@ -274,11 +294,11 @@ public class EndlessTerrain : MonoBehaviour
 
                     Vector3 correctPos = new Vector3(el.targetPosition.x, finalY, el.targetPosition.y);
 
-                    // ZMIANA: Jeśli obiekt był zespawnowany od razu, po prostu korygujemy jego pozycję
+                    // Jeśli obiekt był zespawnowany od razu, po prostu korygujemy jego pozycję
                     if (el.spawnImmediately && el.spawnedInstance != null)
                     {
                         el.spawnedInstance.transform.position = correctPos;
-                        el.spawnedInstance.layer = meshObject.layer;
+                        // Usunięto nadpisywanie warstwy na "Terrain" - dzięki temu zachowujemy ustawioną warstwę!
                     }
                     // W przeciwnym razie spawniemy go standardowo po dojściu na miejsce
                     else if (!el.isSpawned)
@@ -286,11 +306,21 @@ public class EndlessTerrain : MonoBehaviour
                         GameObject go = Object.Instantiate(el.prefab, correctPos, Quaternion.identity);
                         go.transform.parent = parentTerrain.transform;
 
+                        // ZMIANA: Przypisanie warstwy dla normalnego spawnowania
+                        if (!string.IsNullOrEmpty(el.layerName))
+                        {
+                            int layerIndex = LayerMask.NameToLayer(el.layerName);
+                            if (layerIndex != -1)
+                            {
+                                go.layer = layerIndex;
+                            }
+                        }
+
                         el.spawnedInstance = go;
                         el.isSpawned = true;
                     }
 
-                    el.isHeightAdjusted = true; // Zaznaczamy, że w tej sesji obiekt otrzymał już poprawną wysokość
+                    el.isHeightAdjusted = true;
                 }
             }
         }
@@ -312,8 +342,6 @@ public class EndlessTerrain : MonoBehaviour
             float chunkWorldX = position.x;
             float chunkWorldY = position.y;
 
-            // ZMIANA: Zwiększony 'step' (z 1 na 3) mocno rozrzedzi roślinność
-            // Nie będą już generować się na każdej kratce terenu, a będą bardziej porozrzucane.
             int step = 3;
 
             for (int y = 0; y < height; y += step)
@@ -348,7 +376,6 @@ public class EndlessTerrain : MonoBehaviour
 
                         Vector3 localPos = new Vector3(topLeftX + x, localY, topLeftZ - y);
 
-                        // Wzmocniony jitter zapewnia organiczne rozrzucenie (łamanie siatki)
                         float randomOffsetX = (float)prng.NextDouble() * step - (step / 2f);
                         float randomOffsetZ = (float)prng.NextDouble() * step - (step / 2f);
                         localPos.x += randomOffsetX;
@@ -442,6 +469,11 @@ public class EndlessTerrain : MonoBehaviour
     {
         public string name = "Cel Misji";
         public GameObject prefab;
+
+        // ZMIANA: Dodano pole na ustawienie warstwy
+        [Tooltip("Wpisz tutaj nazwę warstwy, np. 'Interactable'. Jeśli zostawisz puste, przypisze domyślną z prefabu.")]
+        public string layerName = "";
+
         public float minDistance = 50f;
         public float maxDistance = 150f;
 
