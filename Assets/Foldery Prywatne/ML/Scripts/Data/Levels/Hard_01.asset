@@ -1,0 +1,170 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb6dc58be54cf3e4f9856896c632f747, type: 3}
+  m_Name: Hard_01
+  m_EditorClassIdentifier: 
+  levelId: 11
+  width: 10
+  height: 5
+  attempts: 3
+  notes: 
+  tiles:
+  - shape: 5
+    rotation: 0
+    rotatable: 0
+  - shape: 3
+    rotation: 1
+    rotatable: 1
+  - shape: 1
+    rotation: 0
+    rotatable: 1
+  - shape: 3
+    rotation: 3
+    rotatable: 1
+  - shape: 1
+    rotation: 0
+    rotatable: 1
+  - shape: 1
+    rotation: 1
+    rotatable: 1
+  - shape: 2
+    rotation: 0
+    rotatable: 1
+  - shape: 3
+    rotation: 0
+    rotatable: 1
+  - shape: 1
+    rotation: 0
+    rotatable: 1
+  - shape: 0
+    rotation: 0
+    rotatable: 0
+  - shape: 0
+    rotation: 0
+    rotatable: 0
+  - shape: 1
+    rotation: 1
+    rotatable: 1
+  - shape: 1
+    rotation: 0
+    rotatable: 1
+  - shape: 2
+    rotation: 0
+    rotatable: 1
+  - shape: 2
+    rotation: 0
+    rotatable: 1
+  - shape: 3
+    rotation: 0
+    rotatable: 1
+  - shape: 4
+    rotation: 0
+    rotatable: 1
+  - shape: 1
+    rotation: 0
+    rotatable: 1
+  - shape: 1
+    rotation: 1
+    rotatable: 1
+  - shape: 0
+    rotation: 0
+    rotatable: 0
+  - shape: 0
+    rotation: 0
+    rotatable: 0
+  - shape: 2
+    rotation: 2
+    rotatable: 1
+  - shape: 3
+    rotation: 1
+    rotatable: 1
+  - shape: 2
+    rotation: 0
+    rotatable: 1
+  - shape: 2
+    rotation: 0
+    rotatable: 1
+  - shape: 1
+    rotation: 0
+    rotatable: 1
+  - shape: 1
+    rotation: 1
+    rotatable: 1
+  - shape: 3
+    rotation: 0
+    rotatable: 1
+  - shape: 1
+    rotation: 0
+    rotatable: 1
+  - shape: 0
+    rotation: 0
+    rotatable: 0
+  - shape: 0
+    rotation: 0
+    rotatable: 0
+  - shape: 4
+    rotation: 0
+    rotatable: 1
+  - shape: 2
+    rotation: 0
+    rotatable: 1
+  - shape: 2
+    rotation: 0
+    rotatable: 1
+  - shape: 2
+    rotation: 1
+    rotatable: 1
+  - shape: 3
+    rotation: 1
+    rotatable: 1
+  - shape: 2
+    rotation: 1
+    rotatable: 1
+  - shape: 1
+    rotation: 0
+    rotatable: 1
+  - shape: 3
+    rotation: 0
+    rotatable: 1
+  - shape: 0
+    rotation: 0
+    rotatable: 0
+  - shape: 0
+    rotation: 0
+    rotatable: 0
+  - shape: 2
+    rotation: 0
+    rotatable: 1
+  - shape: 1
+    rotation: 0
+    rotatable: 1
+  - shape: 3
+    rotation: 1
+    rotatable: 1
+  - shape: 2
+    rotation: 2
+    rotatable: 1
+  - shape: 1
+    rotation: 0
+    rotatable: 1
+  - shape: 1
+    rotation: 1
+    rotatable: 1
+  - shape: 1
+    rotation: 0
+    rotatable: 1
+  - shape: 3
+    rotation: 3
+    rotatable: 1
+  - shape: 6
+    rotation: 0
+    rotatable: 0
