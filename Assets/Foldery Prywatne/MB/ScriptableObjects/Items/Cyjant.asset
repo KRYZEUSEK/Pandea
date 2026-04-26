@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Cyjant
   m_EditorClassIdentifier: 
   id: Cyjant
-  prefab: {fileID: 8070561830811975432, guid: a0f798618182d414db0324f964932962, type: 3}
+  prefab: {fileID: 4876709304385857030, guid: ad0774ebbfd029142b16c59d2edc7fcb, type: 3}
   type: 2
   description: 
-  uiPrefab: {fileID: 5854781044544582452, guid: 030ec39f4aba4584d903e9581df01a08, type: 3}
+  uiPrefab: {fileID: 4876709304385857030, guid: ad0774ebbfd029142b16c59d2edc7fcb, type: 3}
   worldPrefab: {fileID: 8070561830811975432, guid: a0f798618182d414db0324f964932962, type: 3}
   handScale: {x: 1, y: 1, z: 1}
   handRotation: {x: 0, y: 0, z: 0}
