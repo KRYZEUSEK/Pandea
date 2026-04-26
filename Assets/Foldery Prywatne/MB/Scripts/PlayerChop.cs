@@ -1,4 +1,3 @@
-
 using UnityEngine;
 
 public class PlayerChop : MonoBehaviour
@@ -8,11 +7,15 @@ public class PlayerChop : MonoBehaviour
 
     [Header("Interakcja")]
     [SerializeField] private KeyCode chopKey = KeyCode.R;
-    [SerializeField] private float interactDistance = 2.5f;
-    [SerializeField] private LayerMask treeLayerMask; 
+    [SerializeField] private LayerMask treeLayerMask;
 
-    [Header("Raycast")]
-    [SerializeField] private float rayRadius = 0.2f; 
+    [Header("Hitbox œcinania")]
+    [Tooltip("Jak daleko przed graczem powstaje strefa uderzenia")]
+    [SerializeField] private float hitOffset = 0.5f;
+    [Tooltip("Wielkoœæ strefy uderzenia (promieñ kuli)")]
+    [SerializeField] private float hitRadius = 1.0f;
+    [Tooltip("Wysokoœæ, na której znajduje siê œrodek kuli (Daj blisko 0 dla ma³ych obiektów!)")]
+    [SerializeField] private float hitHeight = 0.2f;
 
     [Header("Cooldown")]
     [SerializeField] private float chopCooldown = 0.35f;
@@ -33,36 +36,37 @@ public class PlayerChop : MonoBehaviour
 
     private void TryChop()
     {
+        // 1. Sprawdzenie cooldownu
         if (Time.time - lastChopTime < chopCooldown) return;
         lastChopTime = Time.time;
 
-        if (hotbarSelector == null)
-        {
-            Debug.LogWarning("[PlayerChop] Brak referencji do HotbarSelector.");
-            return;
-        }
+        // 2. Sprawdzenie narzêdzia
+        if (hotbarSelector == null || !hotbarSelector.IsAxeEquipped()) return;
 
-        if (!hotbarSelector.IsAxeEquipped())
-        {
-            return;
-        }
+        // 3. Wyliczenie œrodka kuli z uwzglêdnieniem nowej wysokoœci (hitHeight)
+        Vector3 hitCenter = transform.position + transform.forward * hitOffset + Vector3.up * hitHeight;
 
-        Vector3 origin = transform.position + Vector3.up * 0.5f; 
-        Vector3 dir = transform.forward;
+        // 4. Zebranie obiektów
+        Collider[] hitColliders = Physics.OverlapSphere(hitCenter, hitRadius, treeLayerMask);
 
-        if (Physics.SphereCast(origin, rayRadius, dir, out RaycastHit hit, interactDistance, treeLayerMask, QueryTriggerInteraction.Ignore))
+        // 5. Sprawdzenie trafieñ
+        foreach (Collider col in hitColliders)
         {
-            if (hit.collider.CompareTag("Tree") || hit.collider.GetComponent<Tree>() != null)
+            Tree tree = col.GetComponentInParent<Tree>();
+
+            if (tree != null)
             {
-                Tree tree = hit.collider.GetComponent<Tree>();
-                if (tree != null)
-                {
-                    tree.Hit();
-                    return;
-                }
+                tree.Hit();
+                break; // Koñczymy po pierwszym trafieniu
             }
         }
     }
 
-    
+    // Rysowanie strefy uderzenia w edytorze
+    private void OnDrawGizmosSelected()
+    {
+        Vector3 hitCenter = transform.position + transform.forward * hitOffset + Vector3.up * hitHeight;
+        Gizmos.color = new Color(1f, 0f, 0f, 0.5f);
+        Gizmos.DrawWireSphere(hitCenter, hitRadius);
+    }
 }

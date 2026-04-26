@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 146724474331342746}
   - component: {fileID: 7477098429387389485}
   - component: {fileID: 3651372605664781617}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Mball.006
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 5973121445648614978}
   - component: {fileID: 8685951874006341732}
   - component: {fileID: 7389077511662213404}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Mball.011
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -177,7 +177,7 @@ GameObject:
   - component: {fileID: 909488990747058084}
   - component: {fileID: 8332290381752629142}
   - component: {fileID: 4941920738831838195}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Mball.007
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -260,7 +260,7 @@ GameObject:
   - component: {fileID: 3793799620785200875}
   - component: {fileID: 5419356279532130163}
   - component: {fileID: 5093013440837424133}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Mball.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -343,7 +343,7 @@ GameObject:
   - component: {fileID: 9190682675668638292}
   - component: {fileID: 2513937013368561987}
   - component: {fileID: 5532975116548518458}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Mball
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -427,7 +427,7 @@ GameObject:
   - component: {fileID: 8051270899462625391}
   - component: {fileID: 2520993234298894794}
   - component: {fileID: 5973808949723052549}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -532,7 +532,7 @@ GameObject:
   - component: {fileID: 1224259497035988578}
   - component: {fileID: 2937479388790258408}
   - component: {fileID: 3807181971105178178}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Mball.009
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -615,7 +615,7 @@ GameObject:
   - component: {fileID: 4503045246476043582}
   - component: {fileID: 6780410232593246468}
   - component: {fileID: 9163383457251710170}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Mball.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -698,7 +698,7 @@ GameObject:
   - component: {fileID: 6675823753689591790}
   - component: {fileID: 6164538044504701629}
   - component: {fileID: 5554196630466320699}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Mball.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -779,7 +779,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4401458834719634275}
-  m_Layer: 0
+  - component: {fileID: 8693430406673428988}
+  m_Layer: 8
   m_Name: "\u017Bywnit"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -796,7 +797,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.6, y: 0.6, z: 0.6}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2929956477755644281}
@@ -814,6 +815,23 @@ Transform:
   - {fileID: 5973121445648614978}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8693430406673428988
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6753458556755773154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e179fdadd31fc944ace39fbf6251b40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHits: 2
+  hitCooldown: 0.25
+  logPrefab: {fileID: 1596801275836014456, guid: 0527e53bd656a5742b2bbf38cc6c4b96, type: 3}
+  spawnOffset: {x: 0, y: 0.1, z: 0}
+  logsToSpawn: 1
 --- !u!1 &6781742541061832569
 GameObject:
   m_ObjectHideFlags: 0
@@ -825,7 +843,7 @@ GameObject:
   - component: {fileID: 8391360708255226404}
   - component: {fileID: 7431357943149775303}
   - component: {fileID: 8415014457142247319}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Mball.010
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -908,7 +926,7 @@ GameObject:
   - component: {fileID: 2006754406797194939}
   - component: {fileID: 570689964838220724}
   - component: {fileID: 532050077275552640}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Mball.008
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -991,7 +1009,7 @@ GameObject:
   - component: {fileID: 6592642791226451302}
   - component: {fileID: 7447513090839060599}
   - component: {fileID: 4246230839405976285}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Mball.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1074,7 +1092,7 @@ GameObject:
   - component: {fileID: 4650365172253912499}
   - component: {fileID: 1419168563299839717}
   - component: {fileID: 14143495334407599}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Mball.005
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2647589323258051583}
   - component: {fileID: 2496545465581428651}
   - component: {fileID: 8971143519456955724}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: "Kryszta\u0142"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95,7 +95,7 @@ GameObject:
   - component: {fileID: 622282402755224626}
   - component: {fileID: 3561328094720402165}
   - component: {fileID: 1190620590035491592}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: "Ska\u0142a"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -197,7 +197,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2165614657791407905}
-  m_Layer: 0
+  - component: {fileID: 4129454956427084995}
+  m_Layer: 8
   m_Name: Cyjant
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -214,10 +215,27 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -1.81, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 4, y: 4, z: 4}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2647589323258051583}
   - {fileID: 7512265873607041963}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4129454956427084995
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9200176215603640986}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e179fdadd31fc944ace39fbf6251b40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHits: 2
+  hitCooldown: 0.25
+  logPrefab: {fileID: 8070561830811975432, guid: a0f798618182d414db0324f964932962, type: 3}
+  spawnOffset: {x: 0, y: 0.1, z: 0}
+  logsToSpawn: 1

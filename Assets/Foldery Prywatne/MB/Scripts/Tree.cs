@@ -1,7 +1,6 @@
-
 using UnityEngine;
 
-[RequireComponent(typeof(Collider))]
+// 1. USUNIÊTO: [RequireComponent(typeof(Collider))] - rodzic nie musi mieæ collidera
 public class Tree : MonoBehaviour
 {
     [Header("Uderzenia")]
@@ -9,9 +8,9 @@ public class Tree : MonoBehaviour
     [SerializeField] private float hitCooldown = 0.25f;
 
     [Header("Spawn po œciêciu")]
-    [SerializeField] private GameObject logPrefab; 
+    [SerializeField] private GameObject logPrefab;
     [SerializeField] private Vector3 spawnOffset = new Vector3(0f, 0.1f, 0f);
-    [SerializeField] private int logsToSpawn = 1; 
+    [SerializeField] private int logsToSpawn = 1;
 
     private int currentHits = 0;
     private float lastHitTime = -999f;
@@ -19,16 +18,21 @@ public class Tree : MonoBehaviour
 
     private void Awake()
     {
-        col = GetComponent<Collider>();
+        // 2. ZMIENIONO: Szukamy Collidera w obiekcie g³ównym ORAZ we wszystkich jego dzieciach
+        col = GetComponentInChildren<Collider>();
+
+        if (col == null)
+        {
+            Debug.LogWarning($"[Tree] Nie znaleziono Collidera w dzieciach obiektu {name}!");
+        }
     }
 
     public void Hit()
     {
-        if (Time.time - lastHitTime < hitCooldown) return; 
+        if (Time.time - lastHitTime < hitCooldown) return;
         lastHitTime = Time.time;
 
         currentHits++;
-
 
         if (currentHits >= maxHits)
         {
@@ -60,6 +64,6 @@ public class Tree : MonoBehaviour
             Debug.LogWarning($"[Tree] Brak przypiêtego logPrefab na {name}");
         }
 
-        Destroy(gameObject);
+        Destroy(gameObject); // To zniszczy ca³y obiekt drzewa razem z dzieæmi
     }
 }
