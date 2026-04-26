@@ -18,5 +18,5 @@ MonoBehaviour:
   description: "Wzmacniacz sygna\u0142u potrzebny do znalezienia bazy. \n"
   uiPrefab: {fileID: 5935071896136878386, guid: fea58912c51f65b4190663b0d8bbdcff, type: 3}
   worldPrefab: {fileID: 2172740063509837512, guid: fed8621614ad5bc44aaef17ea98fcfdc, type: 3}
-  handScale: {x: 0.005, y: 0.005, z: 0.005}
+  handScale: {x: 0.02, y: 0.02, z: 0.02}
   handRotation: {x: 0, y: 0, z: 0}
