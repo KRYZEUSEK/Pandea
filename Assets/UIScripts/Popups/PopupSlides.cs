@@ -15,11 +15,11 @@ namespace UIScripts.Popups
         public AudioClip clip;
     }
 
-    // NOWE: Struktura wi¹¿¹ca slajd z unikalnym tekstem (ID)
+    // NOWE: Struktura wiÄ…Å¼Ä…ca slajd z unikalnym tekstem (ID)
     [System.Serializable]
     internal class SpecialSlide
     {
-        [Tooltip("Unikalne ID, po którym bêdziesz wywo³ywaæ ten slajd z kodu (np. 'SecretShip')")]
+        [Tooltip("Unikalne ID, po ktÃ³rym bÄ™dziesz wywoÅ‚ywaÄ‡ ten slajd z kodu (np. 'SecretShip')")]
         public string id;
         public Slide slideData;
     }
@@ -45,13 +45,13 @@ namespace UIScripts.Popups
         [SerializeField] private List<Slide> slides = new List<Slide>();
 
         // NOWE: Oddzielna lista w Inspektorze tylko na specjalne slajdy
-        [Tooltip("Slajdy poza g³ówn¹ sekwencj¹, wywo³ywane rêcznie przez kod.")]
+        [Tooltip("Slajdy poza gÅ‚Ã³wnÄ… sekwencjÄ…, wywoÅ‚ywane rÄ™cznie przez kod.")]
         [SerializeField] private List<SpecialSlide> specialSlides = new List<SpecialSlide>();
 
         private int currentSlideIndex = 0;
         private float timeSinceLastSlideChange = 0f;
 
-        // NOWE: Flaga blokuj¹ca zachowanie g³ównej sekwencji
+        // NOWE: Flaga blokujÄ…ca zachowanie gÅ‚Ã³wnej sekwencji
         private bool isShowingSpecialSlide = false;
 
         public static PopupSlides Instance;
@@ -61,7 +61,7 @@ namespace UIScripts.Popups
             Instance = this;
         }
 
-        // NOWE: Zunifikowana metoda odœwie¿ania UI. U¿ywana przez zwyk³e i specjalne slajdy.
+        // NOWE: Zunifikowana metoda odÅ›wieÅ¼ania UI. UÅ¼ywana przez zwykÅ‚e i specjalne slajdy.
         private void ApplySlideData(Slide slide)
         {
             if (popupAudioSource != null) popupAudioSource.Stop();
@@ -93,7 +93,7 @@ namespace UIScripts.Popups
             ApplySlideData(slides[index]);
         }
 
-        // NOWE: G³ówna funkcja do odpalania specjalnych slajdów (np. ze skryptu gracza lub Interactable)
+        // NOWE: GÅ‚Ã³wna funkcja do odpalania specjalnych slajdÃ³w (np. ze skryptu gracza lub Interactable)
         public void ShowSpecialSlide(string slideId)
         {
             SpecialSlide special = specialSlides.Find(s => s.id == slideId);
@@ -103,7 +103,7 @@ namespace UIScripts.Popups
                 isShowingSpecialSlide = true;
                 ApplySlideData(special.slideData);
 
-                // Jeœli Popup by³ zamkniêty, wywo³ujemy bazow¹ funkcjê Show() z Popup.cs
+                // JeÅ›li Popup byÅ‚ zamkniÄ™ty, wywoÅ‚ujemy bazowÄ… funkcjÄ™ Show() z Popup.cs
                 if (!isPopupActive)
                 {
                     base.Show();
@@ -117,7 +117,7 @@ namespace UIScripts.Popups
 
         public void ShowNextSlide()
         {
-            // Jeœli byliœmy w specjalnym slajdzie, klikniêcie powraca do normalnego slajdu (tego przed przerwaniem)
+            // JeÅ›li byliÅ›my w specjalnym slajdzie, klikniÄ™cie powraca do normalnego slajdu (tego przed przerwaniem)
             if (isShowingSpecialSlide)
             {
                 ShowSlide(currentSlideIndex);
@@ -150,7 +150,7 @@ namespace UIScripts.Popups
 
         override public void Show()
         {
-            // Jeœli okno otwiera siê naturalnie (nie wymuszono wczeœniej specjalnego slajdu)
+            // JeÅ›li okno otwiera siÄ™ naturalnie (nie wymuszono wczeÅ›niej specjalnego slajdu)
             if (!isShowingSpecialSlide)
             {
                 ShowSlide(0);
@@ -165,7 +165,7 @@ namespace UIScripts.Popups
 
         private void HandleTimer()
         {
-            // ZMIANA: Zatrzymujemy auto-prze³¹czanie, jeœli wyœwietla siê specjalny slajd
+            // ZMIANA: Zatrzymujemy auto-przeÅ‚Ä…czanie, jeÅ›li wyÅ›wietla siÄ™ specjalny slajd
             if (changeSlideAfterClick || isShowingSpecialSlide) { return; }
 
             timeSinceLastSlideChange += Time.unscaledDeltaTime;
