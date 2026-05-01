@@ -1,9 +1,14 @@
 fileFormatVersion: 2
-guid: f94808cb784e7d388ad450c903106f12
+guid: 213a39cfa1fd2344e9218041b12c43e4
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: "radar_materia\u0142"
+    second: {fileID: 2100000, guid: 2df88e787f6cc284f8d7d13f92b34349, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
