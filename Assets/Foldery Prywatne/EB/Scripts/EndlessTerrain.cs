@@ -342,18 +342,22 @@ public class EndlessTerrain : MonoBehaviour
             float topLeftX = (width - 1) / -2f;
             float topLeftZ = (height - 1) / 2f;
 
-            // FIX: position.GetHashCode() can be inconsistent. Use a deterministic hash based on coordinates.
             int chunkHash = Mathf.RoundToInt(position.x * 100f) + Mathf.RoundToInt(position.y);
             System.Random prng = new System.Random(mapGenerator.seed + chunkHash);
 
             float chunkWorldX = position.x;
             float chunkWorldY = position.y;
 
-            // FIX: Create an offset from the seed so Perlin Noise changes every game
             float seedOffsetX = mapGenerator.seed * 100f;
             float seedOffsetY = mapGenerator.seed * 100f;
 
-            int step = 3;
+            int step = 4;
+
+            // --- SAFE ZONE RADIUS ---
+            // You can adjust this value to make the clearing larger or smaller.
+            // A value of 20 means nothing will spawn within a 20-unit radius of (0,0).
+            float safeZoneRadius = 20f;
+            float sqrSafeZoneRadius = safeZoneRadius * safeZoneRadius;
 
             for (int y = 0; y < height; y += step)
             {
@@ -365,6 +369,20 @@ public class EndlessTerrain : MonoBehaviour
                     float globalX = (chunkWorldX + x) / MapGenerator.mapChunkSize;
                     float globalY = (chunkWorldY - y) / MapGenerator.mapChunkSize;
 
+                    // Calculate the world coordinates of this potential spawn point
+                    float pointWorldX = chunkWorldX + (topLeftX + x);
+                    float pointWorldZ = chunkWorldY - (topLeftZ - y); // Note: Y in heightmap is Z in world space
+
+                    // --- SAFE ZONE CHECK ---
+                    // Calculate squared distance from world center (0,0)
+                    float sqrDistanceToCenter = (pointWorldX * pointWorldX) + (pointWorldZ * pointWorldZ);
+
+                    if (sqrDistanceToCenter < sqrSafeZoneRadius)
+                    {
+                        // If the point is inside the safe zone, skip spawning anything here
+                        continue;
+                    }
+
                     for (int i = 0; i < spawnSettings.Length; i++)
                     {
                         PlantScriptable plant = spawnSettings[i];
@@ -373,7 +391,6 @@ public class EndlessTerrain : MonoBehaviour
                         if (currentHeight < plant.minHeight || currentHeight > plant.maxHeight) continue;
                         if (currentSlope > plant.maxSlope) continue;
 
-                        // FIX: Add the seed offsets to the Perlin coordinates
                         float noiseValue = Mathf.PerlinNoise(
                             (globalX + seedOffsetX) * plant.noiseScale + plant.noiseOffset.x,
                             (globalY + seedOffsetY) * plant.noiseScale + plant.noiseOffset.y
@@ -398,8 +415,6 @@ public class EndlessTerrain : MonoBehaviour
 
                         if (selectedPrefab != null)
                         {
-                            // NOTE: If you experience lag spikes when moving, this Instantiate call is the culprit.
-                            // Consider switching to an Object Pool in the future.
                             GameObject go = Object.Instantiate(selectedPrefab, objectsParent);
                             go.transform.localPosition = localPos;
                             go.transform.localRotation = Quaternion.Euler(0, (float)prng.Next(0, 360), 0);

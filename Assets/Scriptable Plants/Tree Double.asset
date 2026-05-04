@@ -17,7 +17,7 @@ MonoBehaviour:
   plantPicture: {fileID: 0}
   prefabs: []
   isInteractable: 0
-  density: 0.442
+  density: 0.1
   minHeight: 0
   maxHeight: 1
   maxSlope: 45

@@ -22,9 +22,9 @@ MonoBehaviour:
     Kwiat na szczycie ma na \u015Brodku komin z kt\xF3rego wydostaje si\u0119 dym."
   plantPicture: {fileID: 0}
   prefabs:
-  - {fileID: 6932848455891458479, guid: e22b18905f8bb6940a565f70afa3b8d0, type: 3}
+  - {fileID: 6320887540197128546, guid: d2833477999378b4d80fb49dee4cc1e2, type: 3}
   isInteractable: 0
-  density: 0.239
+  density: 0.1
   minHeight: 0
   maxHeight: 0.503
   maxSlope: 45
