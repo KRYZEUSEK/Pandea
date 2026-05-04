@@ -161,6 +161,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   puzzleObjectName: PuzzleRoot
+  interactionTextName: InteractionText
 --- !u!65 &4976817641386707319
 BoxCollider:
   m_ObjectHideFlags: 0
