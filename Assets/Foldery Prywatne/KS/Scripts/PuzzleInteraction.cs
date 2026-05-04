@@ -7,6 +7,11 @@ public class PuzzleInteraction : MonoBehaviour
     public string puzzleObjectName = "PuzzleRoot";
     private GameObject puzzleObject;
 
+    [Header("Ustawienia Tekstu Interakcji")]
+    [Tooltip("Nazwa obiektu z tekstem (np. 'Wciœnij F, aby u³o¿yæ').")]
+    public string interactionTextName = "InteractionText";
+    private GameObject interactionTextObject;
+
     [Header("Referencje do Gracza (Pobierane automatycznie)")]
     private NavMeshAgent playerAgent;
     private PlayerControllerClick1 playerController;
@@ -19,6 +24,7 @@ public class PuzzleInteraction : MonoBehaviour
     private void Start()
     {
         FindPuzzleUI();
+        FindInteractionText();
     }
 
     private void FindPuzzleUI()
@@ -35,6 +41,21 @@ public class PuzzleInteraction : MonoBehaviour
         Debug.LogError("<color=red>PuzzleInteraction B£¥D:</color> Nie znaleziono na scenie obiektu: " + puzzleObjectName);
     }
 
+    private void FindInteractionText()
+    {
+        GameObject[] allObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+        foreach (GameObject obj in allObjects)
+        {
+            if (obj.name == interactionTextName && obj.scene.name != null)
+            {
+                interactionTextObject = obj;
+                interactionTextObject.SetActive(false); // Upewniamy siê, ¿e na start jest wy³¹czony
+                return;
+            }
+        }
+        Debug.LogWarning("<color=yellow>PuzzleInteraction OSTRZE¯ENIE:</color> Nie znaleziono obiektu tekstu: " + interactionTextName);
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
@@ -42,6 +63,12 @@ public class PuzzleInteraction : MonoBehaviour
             isPlayerInRange = true;
             if (playerAgent == null) playerAgent = other.GetComponent<NavMeshAgent>();
             if (playerController == null) playerController = other.GetComponent<PlayerControllerClick1>();
+
+            // W³¹czamy tekst interakcji, jeœli zagadka nie jest w³aœnie rozwi¹zywana
+            if (interactionTextObject != null && !isPuzzleActive)
+            {
+                interactionTextObject.SetActive(true);
+            }
         }
     }
 
@@ -50,6 +77,12 @@ public class PuzzleInteraction : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = false;
+
+            // Wy³¹czamy tekst, gdy gracz odejdzie
+            if (interactionTextObject != null)
+            {
+                interactionTextObject.SetActive(false);
+            }
         }
     }
 
@@ -70,11 +103,19 @@ public class PuzzleInteraction : MonoBehaviour
     public void OpenPuzzle()
     {
         if (puzzleObject == null) FindPuzzleUI();
+        // Sprawdzamy tekst, w razie gdyby umkn¹³
+        if (interactionTextObject == null) FindInteractionText();
 
         if (puzzleObject != null)
         {
             isPuzzleActive = true;
             puzzleObject.SetActive(true);
+
+            // Wy³¹czamy tekst interakcji po w³¹czeniu zagadki
+            if (interactionTextObject != null)
+            {
+                interactionTextObject.SetActive(false);
+            }
 
             // Blokowanie gracza
             if (playerAgent != null)
@@ -101,6 +142,12 @@ public class PuzzleInteraction : MonoBehaviour
         isPuzzleActive = false;
         if (puzzleObject != null) puzzleObject.SetActive(false);
 
+        // Jeœli gracz anulowa³ zagadkê, ale dalej stoi w Triggerze - ponownie poka¿ tekst
+        if (interactionTextObject != null && isPlayerInRange)
+        {
+            interactionTextObject.SetActive(true);
+        }
+
         RestorePlayerMovement();
     }
 
@@ -113,6 +160,9 @@ public class PuzzleInteraction : MonoBehaviour
 
         isPuzzleActive = false;
         if (puzzleObject != null) puzzleObject.SetActive(false);
+
+        // Zabezpieczenie: trwale wy³¹czamy tekst interakcji
+        if (interactionTextObject != null) interactionTextObject.SetActive(false);
 
         // 1. Odblokuj gracza
         RestorePlayerMovement();

@@ -24,10 +24,10 @@ MonoBehaviour:
   prefabs:
   - {fileID: 6320887540197128546, guid: d2833477999378b4d80fb49dee4cc1e2, type: 3}
   isInteractable: 1
-  density: 0.1
+  density: 0.01
   minHeight: 0
   maxHeight: 1
-  maxSlope: 45
+  maxSlope: 5
   noiseScale: 10
   noiseThreshold: 0.4
   noiseOffset: {x: 0, y: 0}

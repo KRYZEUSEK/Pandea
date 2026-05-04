@@ -22,7 +22,7 @@ MonoBehaviour:
   prefabs:
   - {fileID: 7310819246955563193, guid: f41821bdf6c463942987482766c5ec1b, type: 3}
   isInteractable: 1
-  density: 0.1
+  density: 0.25
   minHeight: 0
   maxHeight: 1
   maxSlope: 45

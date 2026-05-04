@@ -26,6 +26,6 @@ MonoBehaviour:
   noiseScale: 10
   noiseThreshold: 0.4
   noiseOffset: {x: 0, y: 0}
-  minScale: 0.8
-  maxScale: 1.2
+  minScale: 0.02
+  maxScale: 0.04
   isGroundCover: 0

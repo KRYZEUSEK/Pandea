@@ -9,7 +9,7 @@ public class StartManager : MonoBehaviour
     public float czasRozjasniania = 2.0f;
 
     [Header("Referencje UI")]
-    [Tooltip("Przeci¹gnij tutaj swój czarny obrazek z Canvasa")]
+    [Tooltip("Przeci¹gnij tutaj swój czarny obrazek z Canvasa (np. EndFade)")]
     public Image faderImage;
 
     private void Start()
@@ -28,19 +28,23 @@ public class StartManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("StartManager: Zapomnia³eœ przypisaæ Fader Image!");
+            Debug.LogWarning("<color=red>[StartManager]</color> Zapomnia³eœ przypisaæ Fader Image w Inspektorze!");
         }
     }
 
     private IEnumerator RozjasniajEkran()
     {
+        Debug.Log("<color=yellow>[StartManager]</color> Rozpoczynam rozjaœnianie ekranu!");
+
         float currentTime = 0f;
         Color color = faderImage.color;
 
         // Pêtla dzia³aj¹ca dok³adnie przez wyznaczon¹ liczbê sekund
         while (currentTime < czasRozjasniania)
         {
-            currentTime += Time.deltaTime;
+            // BARDZO WA¯NE: unscaledDeltaTime ignoruje pauzê (Time.timeScale = 0)
+            currentTime += Time.unscaledDeltaTime;
+
             float progress = currentTime / czasRozjasniania;
 
             // Zmniejszamy Alfê p³ynnie od 1 (czarny) do 0 (przezroczysty)
@@ -50,12 +54,13 @@ public class StartManager : MonoBehaviour
             yield return null; // Czekamy na nastêpn¹ klatkê
         }
 
+        Debug.Log("<color=green>[StartManager]</color> Rozjaœnianie zakoñczone. Wy³¹czam czarny ekran.");
+
         // Upewniamy siê, ¿e na sam koniec obraz jest w 100% niewidoczny
         color.a = 0f;
         faderImage.color = color;
 
-        // BARDZO WA¯NE: Wy³¹czamy ca³y obiekt obrazka, 
-        // ¿eby "niewidzialna œciana" nie zablokowa³a chodzenia myszk¹!
+        // Wy³¹czamy ca³y obiekt obrazka, ¿eby "niewidzialna œciana" nie zablokowa³a chodzenia myszk¹!
         faderImage.gameObject.SetActive(false);
     }
 }

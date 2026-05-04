@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2119540499854377967}
   m_Layer: 0
   m_Name: Radar
-  m_TagString: Objective1
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -99,7 +99,7 @@ GameObject:
   - component: {fileID: 4976817641386707319}
   m_Layer: 0
   m_Name: Zagadek (1)
-  m_TagString: Untagged
+  m_TagString: Objective1
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

@@ -19,7 +19,7 @@ MonoBehaviour:
     \u0142odygi czujesz zapach dzi\u0119ki, kt\xF3remu czujesz przyp\u0142yw si\u0142. "
   plantPicture: {fileID: 0}
   prefabs:
-  - {fileID: 2003509766817447365, guid: 67a809b8074e9db48835b601699fcfae, type: 3}
+  - {fileID: 5997670343180642860, guid: 466caa62c4da69b4eaa80fff8cebaf23, type: 3}
   isInteractable: 1
   density: 0.1
   minHeight: 0
