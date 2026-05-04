@@ -1,19 +1,16 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.AI; 
+using UnityEngine.AI;
 
 public class BuildingManager : MonoBehaviour
 {
-
-
     [Header("UI")]
     [SerializeField]
     private GameObject buildMenuPanel;
 
-       [Header("Katalog budowli")]
+    [Header("Katalog budowli")]
     public BuildCatalog catalog;
     public int SelectedIndex { get; private set; } = -1;
 
@@ -28,7 +25,6 @@ public class BuildingManager : MonoBehaviour
     [Header("Ekwipunek / materiały")]
     public InventoryObject inventory;
 
-
     [Header("Podgląd / sterowanie")]
     public float maxPlacementDistance = 30f;
     public float rotationStepDegrees = 15f;
@@ -36,9 +32,9 @@ public class BuildingManager : MonoBehaviour
 
     [Header("Warstwy celowania (pod kursorem)")]
     [Tooltip("Warstwy, które traktujemy jako 'powierzchnie do budowy' przy wyborze XZ pod kursorem.")]
-    public LayerMask placementMask; 
+    public LayerMask placementMask;
     [Tooltip("Warstwy, które ray spod kursora MA ignorować (gracz, click-blocker, preview itd.).")]
-    public LayerMask ignoreRayLayers; 
+    public LayerMask ignoreRayLayers;
 
     [Header("Walidacja miejsca")]
     public float maxSlopeDegrees = 30f;
@@ -85,6 +81,44 @@ public class BuildingManager : MonoBehaviour
     void Awake()
     {
         input = new CustomActions();
+
+        // --- ZMIANY: Automatyczne pobieranie referencji dla Prefabu (zamiast z Inspektora) ---
+
+        // 1. Kamera
+        if (playerCamera == null)
+            playerCamera = Camera.main;
+
+        // 2. Gracz (zakładamy, że ten skrypt jest na obiekcie gracza)
+        if (player == null)
+            player = this.transform;
+
+        // 3. Hotbar Selector (jest na tym samym obiekcie, więc używamy GetComponent)
+        if (hotbar == null)
+            hotbar = GetComponent<HotbarSelector>();
+
+        // 4. Ekwipunek (szuka obiektu na scenie, wliczając ukryte/wyłączone)
+        if (inventory == null)
+            inventory = FindFirstObjectByType<InventoryObject>(FindObjectsInactive.Include);
+
+        // 5. Panel Build Menu (często jest ukryty na start, więc GameObject.Find zawiedzie. Szukamy po wszystkich Canvasach)
+        if (buildMenuPanel == null)
+        {
+            Canvas[] canvases = FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (Canvas c in canvases)
+            {
+                Transform[] children = c.GetComponentsInChildren<Transform>(true);
+                foreach (Transform child in children)
+                {
+                    if (child.name == "BuilderMenu") // Upewnij się, że obiekt UI w Hierarchii nazywa się dokładnie tak
+                    {
+                        buildMenuPanel = child.gameObject;
+                        break;
+                    }
+                }
+                if (buildMenuPanel != null) break;
+            }
+        }
+        // ----------------------------------------------------------------------------------
     }
 
     void OnEnable()
@@ -117,11 +151,13 @@ public class BuildingManager : MonoBehaviour
 
         HandleCatalogCycling();
     }
+
     private void OnPlacePerformed(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
     {
         if (IsPointerOverUI()) return;
         TryPlaceFinalFromPreview();
     }
+
     private void HandleCatalogCycling()
     {
         if (Input.GetKeyDown(KeyCode.LeftBracket)) CycleBuildable(-1);
@@ -134,6 +170,7 @@ public class BuildingManager : MonoBehaviour
             else if (s < 0f) CycleBuildable(+1);
         }
     }
+
     private void HandleBuildModeInput()
     {
         if (!HasRequiredTool())
@@ -146,6 +183,7 @@ public class BuildingManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.X)) currentRotation += rotationStepDegrees;
 
     }
+
     private bool HasRequiredTool()
     {
         return hotbar != null && hotbar.IsWrenchEquipped();
@@ -156,6 +194,7 @@ public class BuildingManager : MonoBehaviour
         return EventSystem.current != null &&
                EventSystem.current.IsPointerOverGameObject();
     }
+
     private void UpdatePreview()
     {
         EnsureCamera();
@@ -166,6 +205,7 @@ public class BuildingManager : MonoBehaviour
 
         ValidateAndColorPreview();
     }
+
     private bool TryUpdatePreviewPosition()
     {
         if (playerCamera == null || previewInstance == null || selectedBuildable == null)
@@ -194,6 +234,7 @@ public class BuildingManager : MonoBehaviour
         if (playerCamera == null)
             playerCamera = Camera.main;
     }
+
     private void EnsurePreviewInstance()
     {
         if (previewInstance != null) return;
@@ -201,6 +242,7 @@ public class BuildingManager : MonoBehaviour
 
         previewInstance = Instantiate(selectedBuildable.previewPrefab);
     }
+
     private bool TrySettlePreview(Vector3 xz)
     {
         if (previewInstance == null || selectedBuildable == null)
@@ -240,6 +282,7 @@ public class BuildingManager : MonoBehaviour
         pos.x = Mathf.Round(pos.x / gridCellSize) * gridCellSize;
         pos.z = Mathf.Round(pos.z / gridCellSize) * gridCellSize;
     }
+
     private void ValidateAndColorPreview()
     {
         bool valid = ValidatePlacement(
@@ -251,6 +294,7 @@ public class BuildingManager : MonoBehaviour
         if (valid != lastPreviewValid)
             SetPreviewValid(valid);
     }
+
     private void OnHotbarSelectedIndexChanged(int newIndex)
     {
         // Jeżeli zmienił się slot i nie mamy w ręce wrench → wyłącz tryb
@@ -271,7 +315,6 @@ public class BuildingManager : MonoBehaviour
         }
     }
 
-
     void Update()
     {
         HandleGlobalInput();
@@ -284,10 +327,6 @@ public class BuildingManager : MonoBehaviour
         UpdateRadiusCircleToTerrain();
     }
 
-
-
-
-
     public void SelectBuildable(BuildableData data)
     {
         selectedBuildable = data;
@@ -297,7 +336,6 @@ public class BuildingManager : MonoBehaviour
         if (buildMode)
             RefreshPreviewInstance();
     }
-
 
     private void RefreshPreviewInstance()
     {
@@ -317,9 +355,6 @@ public class BuildingManager : MonoBehaviour
             int previewLayer = LayerMask.NameToLayer("Preview");
             if (previewLayer >= 0) SetLayerRecursively(previewInstance, previewLayer);
 
-            // Wyzeruj obrót Y tylko jeśli chcesz (możesz zachować currentRotation)
-            // currentRotation = 0f; // jeśli wolisz reset
-
             // Zresetuj kolor walidacji na neutralny/valid
             SetPreviewValid(true);
         }
@@ -333,7 +368,6 @@ public class BuildingManager : MonoBehaviour
         var renderers = previewInstance.GetComponentsInChildren<Renderer>(true);
         foreach (var r in renderers)
         {
-            // Uwaga: Renderer.materials tworzy kopie materiałów runtime (OK dla podglądu)
             var mats = r.materials;
             for (int i = 0; i < mats.Length; i++)
             {
@@ -358,8 +392,6 @@ public class BuildingManager : MonoBehaviour
             t.gameObject.layer = layer;
     }
 
-
-
     public void SelectBuildableIndex(int index)
     {
         if (catalog == null || catalog.entries == null || catalog.entries.Count == 0) return;
@@ -376,7 +408,6 @@ public class BuildingManager : MonoBehaviour
         SelectedIndex = (SelectedIndex + direction + catalog.entries.Count) % catalog.entries.Count;
         SelectBuildable(catalog.entries[SelectedIndex]);
     }
-
 
     // ===== TRYB BUDOWY =====
     public void TryEnterBuildMode(BuildableData data)
@@ -491,8 +522,6 @@ public class BuildingManager : MonoBehaviour
         bool consumed = inventory.ConsumeItems(selectedBuildable.costs);
         if (!consumed)
         {
-            // Nie powinno się zdarzyć, bo wcześniej HasItems zwróciło true,
-            // ale warto zabezpieczyć:
             Debug.LogError("Zużycie przedmiotów nie powiodło się.");
             return;
         }
@@ -500,10 +529,6 @@ public class BuildingManager : MonoBehaviour
     }
 
     // ===== CELOWANIE POD KURSOREM (FILTRY) =====
-    /// <summary>
-    /// Używa RaycastAll, sortuje po dystansie i wybiera najbliższe trafienie,
-    /// którego warstwa jest w placementMask i NIE jest w ignoreRayLayers.
-    /// </summary>
     private bool TryGetTargetXZFiltered(Ray ray, LayerMask placement, LayerMask ignore, out Vector3 xz)
     {
         xz = default;
@@ -531,10 +556,6 @@ public class BuildingManager : MonoBehaviour
         return false;
     }
 
-    /// <summary>
-    /// Fallbacky: najpierw przecięcie z poziomą płaszczyzną (na wysokości gracza),
-    /// a jeśli brak – punkt przed graczem.
-    /// </summary>
     private bool TryFallbackXZ(Ray ray, out Vector3 xz)
     {
         // Pozioma płaszczyzna na wysokości gracza
@@ -574,7 +595,7 @@ public class BuildingManager : MonoBehaviour
 
         if (player != null)
         {
-           
+
             Vector3 playerPosXZ = new Vector3(player.position.x, 0, player.position.z);
             Vector3 previewPosXZ = new Vector3(previewPos.x, 0, previewPos.z);
 
@@ -582,7 +603,7 @@ public class BuildingManager : MonoBehaviour
 
             if (distance > maxBuildRadius)
             {
-                return false; 
+                return false;
             }
         }
 
@@ -761,5 +782,4 @@ public class BuildingManager : MonoBehaviour
             angle += (360f / circleSegments);
         }
     }
-
 }

@@ -1,4 +1,3 @@
-
 using System;
 using UnityEngine;
 
@@ -9,6 +8,46 @@ public class HotbarSelector : MonoBehaviour
     public GameObject zielnikUI;
     public int CurrentIndex { get; private set; } = 0;
     public event Action<int> OnSelectedIndexChanged;
+
+    void Awake()
+    {
+        // --- ZMIANY: Automatyczne pobieranie referencji dla Prefabu ---
+
+        // 1. Szukamy ekwipunku na scenie
+        if (inventory == null)
+            inventory = FindFirstObjectByType<InventoryObject>(FindObjectsInactive.Include);
+
+        // 2. Szukamy skryptu DisplayHotbar na scenie (zapewne jest przypiêty do jakiegoœ panelu UI)
+        if (displayHotbar == null)
+            displayHotbar = FindFirstObjectByType<DisplayHotbar>(FindObjectsInactive.Include);
+
+        // 3. Szukamy panelu Zielnika (szukamy po wszystkich Canvasach, ¿eby znaleŸæ nawet wy³¹czony obiekt)
+        if (zielnikUI == null)
+        {
+            Canvas[] canvases = FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (Canvas c in canvases)
+            {
+                Transform[] children = c.GetComponentsInChildren<Transform>(true);
+                foreach (Transform child in children)
+                {
+                    // Wzoruj¹c siê na Twoim screenie z poprzedniego pytania, obiekt nazywa³ siê "Herbarium"
+                    if (child.name == "Herbarium")
+                    {
+                        zielnikUI = child.gameObject;
+                        break;
+                    }
+                }
+                if (zielnikUI != null) break;
+            }
+        }
+        // --------------------------------------------------------------
+    }
+
+    void Start()
+    {
+        SelectSlot(0);
+    }
+
     void Update()
     {
         if (zielnikUI != null && zielnikUI.activeInHierarchy) return;
@@ -23,23 +62,22 @@ public class HotbarSelector : MonoBehaviour
         else if (scroll < 0f) SelectSlot((CurrentIndex + 1) % 5);
     }
 
-    void Start()
-    {
-        SelectSlot(0);
-    }
     public void SelectSlot(int index)
     {
         CurrentIndex = Mathf.Clamp(index, 0, 4);
 
         // Bezpieczne sprawdzenie
-        var slot = inventory.Slots[CurrentIndex];
-        if (slot == null || slot.item == null)
+        if (inventory != null && inventory.Slots != null && CurrentIndex < inventory.Slots.Length)
         {
-            Debug.Log($"Wybrano pusty slot {CurrentIndex}");
-        }
-        else
-        {
-            Debug.Log($"Wybrano slot {CurrentIndex}: {slot.item.name}");
+            var slot = inventory.Slots[CurrentIndex];
+            if (slot == null || slot.item == null)
+            {
+                Debug.Log($"Wybrano pusty slot {CurrentIndex}");
+            }
+            else
+            {
+                Debug.Log($"Wybrano slot {CurrentIndex}: {slot.item.name}");
+            }
         }
 
         // Podœwietlenie w UI (zawsze dzia³a, nawet dla pustych slotów)
@@ -48,8 +86,6 @@ public class HotbarSelector : MonoBehaviour
 
         OnSelectedIndexChanged?.Invoke(CurrentIndex);
     }
-
-
 
     public bool IsWrenchEquipped()
     {
@@ -73,7 +109,4 @@ public class HotbarSelector : MonoBehaviour
         // U Ciebie: public string id w ItemObject
         return slot.item.id == id;
     }
-
-
-
 }
