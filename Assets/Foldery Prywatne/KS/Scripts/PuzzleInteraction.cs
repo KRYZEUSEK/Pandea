@@ -3,15 +3,41 @@ using UnityEngine.AI;
 
 public class PuzzleInteraction : MonoBehaviour
 {
-    [Header("Ustawienia UI")]
-    public GameObject puzzleObject;
+    [Header("Ustawienia UI (Wpisz DOK£ADN¥ nazwê obiektu na scenie)")]
+    public string puzzleObjectName = "PuzzleRoot";
+    private GameObject puzzleObject;
 
-    [Header("Referencje do Gracza")]
-    public NavMeshAgent playerAgent;
-    public PlayerControllerClick1 playerController; // Przeci¹gnij tutaj skrypt kontrolera gracza
+    [Header("Referencje do Gracza (Pobierane automatycznie)")]
+    private NavMeshAgent playerAgent;
+    private PlayerControllerClick1 playerController;
 
     private bool isPlayerInRange = false;
     private bool isPuzzleActive = false;
+
+    private void Start()
+    {
+        // Szukamy obiektu UI zaraz po uruchomieniu gry
+        FindPuzzleUI();
+    }
+
+    private void FindPuzzleUI()
+    {
+        // Resources.FindObjectsOfTypeAll znajdzie obiekty, które s¹ wy³¹czone (SetActive(false))
+        GameObject[] allObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+
+        foreach (GameObject obj in allObjects)
+        {
+            // Sprawdzamy nazwê i upewniamy siê, ¿e obiekt nale¿y do sceny (nie jest prefabem w oknie Project)
+            if (obj.name == puzzleObjectName && obj.scene.name != null)
+            {
+                puzzleObject = obj;
+                Debug.Log("<color=green>PuzzleInteraction:</color> Znaleziono i podpiêto obiekt: " + obj.name);
+                return;
+            }
+        }
+
+        Debug.LogError("<color=red>PuzzleInteraction B£¥D:</color> Nie znaleziono na scenie obiektu o nazwie: " + puzzleObjectName);
+    }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -19,7 +45,7 @@ public class PuzzleInteraction : MonoBehaviour
         {
             isPlayerInRange = true;
 
-            // Automatyczne pobieranie referencji, jeœli nie s¹ przypisane w inspektorze
+            // Pobieramy komponenty z gracza, który wszed³ w Trigger
             if (playerAgent == null) playerAgent = other.GetComponent<NavMeshAgent>();
             if (playerController == null) playerController = other.GetComponent<PlayerControllerClick1>();
         }
@@ -35,12 +61,12 @@ public class PuzzleInteraction : MonoBehaviour
 
     void Update()
     {
-        // 1. Otwieranie na F
+        // 1. Otwieranie na klawisz F
         if (isPlayerInRange && !isPuzzleActive && Input.GetKeyDown(KeyCode.F))
         {
             OpenPuzzle();
         }
-        // 2. Zamykanie na Escape
+        // 2. Zamykanie na klawisz Escape
         else if (isPuzzleActive && Input.GetKeyDown(KeyCode.Escape))
         {
             ClosePuzzle();
@@ -49,21 +75,30 @@ public class PuzzleInteraction : MonoBehaviour
 
     public void OpenPuzzle()
     {
-        isPuzzleActive = true;
-        if (puzzleObject != null) puzzleObject.SetActive(true);
+        // Jeœli obiekt UI nie zosta³ znaleziony w Start(), spróbuj ponownie
+        if (puzzleObject == null) FindPuzzleUI();
 
-        // BLOKOWANIE RUCHU I SKOKU
-        // Wy³¹czamy agenta, ¿eby przesta³ wyznaczaæ trasê
-        if (playerAgent != null)
+        if (puzzleObject != null)
         {
-            playerAgent.isStopped = true;
-            playerAgent.enabled = false;
-        }
+            isPuzzleActive = true;
+            puzzleObject.SetActive(true);
 
-        // Wy³¹czamy skrypt kontrolera, co dziêki Twojemu OnDisable() wy³¹cza Input System (skok/ruch)
-        if (playerController != null)
-        {
-            playerController.enabled = false;
+            // BLOKOWANIE RUCHU
+            if (playerAgent != null)
+            {
+                playerAgent.isStopped = true;
+                playerAgent.enabled = false;
+            }
+
+            // BLOKOWANIE KONTROLERA (Inputu)
+            if (playerController != null)
+            {
+                playerController.enabled = false;
+            }
+
+            // Opcjonalnie: Odblokuj kursor myszy, jeœli Twoja gra go ukrywa
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
     }
 
@@ -72,16 +107,21 @@ public class PuzzleInteraction : MonoBehaviour
         isPuzzleActive = false;
         if (puzzleObject != null) puzzleObject.SetActive(false);
 
-        // ODBLOKOWANIE RUCHU I SKOKU
+        // ODBLOKOWANIE RUCHU
         if (playerAgent != null)
         {
             playerAgent.enabled = true;
             playerAgent.isStopped = false;
         }
 
+        // ODBLOKOWANIE KONTROLERA
         if (playerController != null)
         {
             playerController.enabled = true;
         }
+
+        // Opcjonalnie: Ponowne zablokowanie kursora, jeœli jest to wymagane przez Twój kontroler
+        // Cursor.lockState = CursorLockMode.Locked;
+        // Cursor.visible = false;
     }
 }
