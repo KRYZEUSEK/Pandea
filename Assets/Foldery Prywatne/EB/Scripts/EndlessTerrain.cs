@@ -333,7 +333,7 @@ public class EndlessTerrain : MonoBehaviour
             float seedOffsetX = mapGenerator.seed * 100f;
             float seedOffsetY = mapGenerator.seed * 100f;
 
-            int step = 8; // Zwiększony krok dla lepszej wydajności
+            int step = 5; // Zwiększony krok dla lepszej wydajności
 
             float safeZoneRadius = 20f;
             float sqrSafeZoneRadius = safeZoneRadius * safeZoneRadius;
