@@ -9,6 +9,10 @@ public class PlayerBurnStatus : MonoBehaviour
     [SerializeField] private ParticleSystem fireVFX;
 
     [Header("Post Processing v2 (Pulsowanie)")]
+    [Tooltip("Nazwa obiektu na scenie, który ma podpiêty efekt palenia.")]
+    public string postProcessVolumeName = "BurningPostProcess";
+
+    [HideInInspector] // Ukrywamy, bo skrypt sam go znajdzie
     public PostProcessVolume postProcessVolume;
 
     [Tooltip("Kolor winiety (np. ostry ró¿/czerwieñ).")]
@@ -34,9 +38,23 @@ public class PlayerBurnStatus : MonoBehaviour
 
     void Start()
     {
+        // 1. Szukamy obiektu na scenie po konkretnej nazwie
         if (postProcessVolume == null)
-            postProcessVolume = FindObjectOfType<PostProcessVolume>();
+        {
+            GameObject ppObject = GameObject.Find(postProcessVolumeName);
 
+            if (ppObject != null)
+            {
+                postProcessVolume = ppObject.GetComponent<PostProcessVolume>();
+            }
+            else
+            {
+                Debug.LogWarning($"[PlayerBurnStatus] Nie znaleziono obiektu o nazwie '{postProcessVolumeName}' na scenie!");
+                return; // Przerywamy, ¿eby nie wyrzuca³o b³êdów poni¿ej
+            }
+        }
+
+        // 2. Próbujemy pobraæ ustawienia winiety
         if (postProcessVolume != null && postProcessVolume.profile.TryGetSettings(out _vignette))
         {
             _vignette.enabled.Override(true);
@@ -48,7 +66,7 @@ public class PlayerBurnStatus : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("Brak efektu Vignette w profilu Post Process!");
+            Debug.LogWarning("[PlayerBurnStatus] Znaleziono PostProcessVolume, ale brakuje w nim efektu Vignette!");
         }
     }
 

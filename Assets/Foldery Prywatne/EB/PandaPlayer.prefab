@@ -5388,7 +5388,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 943f939f8847b2441b219637bb37030e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  burnTimeMultiplier: 5
+  burnTimeMultiplier: 2
   fireVFX: {fileID: 6519683471046002452}
   postProcessVolume: {fileID: 0}
   burnColor: {r: 1, g: 0.7, b: 0.8, a: 1}
