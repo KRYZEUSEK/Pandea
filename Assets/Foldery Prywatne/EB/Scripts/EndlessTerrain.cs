@@ -21,6 +21,7 @@ public class EndlessTerrain : MonoBehaviour
     public PlantScriptable[] spawnableObjects;
 
     [Header("Story & Base Elements")]
+    [Tooltip("Dodaj tutaj unikalne obiekty (np. bazę główną), które mają zespawnować się tylko raz w określonym dystansie.")]
     public StoryElement[] storyElements;
 
     public static Vector2 viewerPosition;
@@ -40,7 +41,9 @@ public class EndlessTerrain : MonoBehaviour
         chunkSize = MapGenerator.mapChunkSize - 1;
         chunksVisibleInViewDst = Mathf.RoundToInt(maxViewDst / chunkSize);
 
+        // Losowanie i kalkulowanie ukrytych lokacji dla obiektów fabularnych
         CalculateStoryElementPositions();
+
         UpdateVisibleChunks();
     }
 
@@ -50,9 +53,11 @@ public class EndlessTerrain : MonoBehaviour
 
         for (int i = 0; i < storyElements.Length; i++)
         {
+            // Losujemy kąt (0-360 stopni) i odległość w zadanym przedziale
             float angle = (float)(prng.NextDouble() * Mathf.PI * 2);
             float distance = Mathf.Lerp(storyElements[i].minDistance, storyElements[i].maxDistance, (float)prng.NextDouble());
 
+            // Obliczamy wektor 2D (X, Z w świecie gry)
             float spawnX = Mathf.Cos(angle) * distance;
             float spawnY = Mathf.Sin(angle) * distance;
 
@@ -60,6 +65,7 @@ public class EndlessTerrain : MonoBehaviour
             storyElements[i].isSpawned = false;
             storyElements[i].isHeightAdjusted = false;
 
+            // ZMIANA: Przywrócono logikę dla "spawnImmediately" oraz dodano zmianę warstwy
             if (storyElements[i].spawnImmediately)
             {
                 Vector3 tempPos = new Vector3(spawnX, 0, spawnY);
@@ -69,6 +75,7 @@ public class EndlessTerrain : MonoBehaviour
                 storyElements[i].spawnedInstance = spawnedGo;
                 storyElements[i].isSpawned = true;
 
+                // Aplikujemy warstwę, jeśli została podana w Inspektorze
                 if (!string.IsNullOrEmpty(storyElements[i].layerName))
                 {
                     int layerIndex = LayerMask.NameToLayer(storyElements[i].layerName);
@@ -83,8 +90,11 @@ public class EndlessTerrain : MonoBehaviour
 
     void Update()
     {
-        if (viewer == null) return;
 
+        if (viewer == null)
+        {
+            return;
+        }
         viewerPosition = new Vector2(viewer.position.x, viewer.position.z) / scale;
 
         if ((viewerPositionOld - viewerPosition).sqrMagnitude > sqrViewerMoveThresholdForChunkUpdate)
@@ -120,6 +130,7 @@ public class EndlessTerrain : MonoBehaviour
                 }
                 else
                 {
+                    // Przekazujemy referencję do 'this' (EndlessTerrain), aby Chunk miał dostęp do fabuły
                     terrainChunkDictionary.Add(viewedChunkCoord, new TerrainChunk(viewedChunkCoord, chunkSize, detailLevels, transform, mapMaterial, layerIndex, spawnableObjects, this));
                 }
             }
@@ -236,8 +247,8 @@ public class EndlessTerrain : MonoBehaviour
 
                                 if (!objectsSpawned)
                                 {
-                                    SpawnStoryElements();
-                                    SpawnObjects();
+                                    SpawnStoryElements(); // Najpierw sprawdzamy elementy bazy/fabuły
+                                    SpawnObjects();       // Potem rośliny
                                 }
 
                                 objectsParent.gameObject.SetActive(true);
@@ -288,19 +299,26 @@ public class EndlessTerrain : MonoBehaviour
 
                     Vector3 correctPos = new Vector3(el.targetPosition.x, finalY, el.targetPosition.y);
 
+                    // Jeśli obiekt był zespawnowany od razu, po prostu korygujemy jego pozycję
                     if (el.spawnImmediately && el.spawnedInstance != null)
                     {
                         el.spawnedInstance.transform.position = correctPos;
+                        // Usunięto nadpisywanie warstwy na "Terrain" - dzięki temu zachowujemy ustawioną warstwę!
                     }
+                    // W przeciwnym razie spawniemy go standardowo po dojściu na miejsce
                     else if (!el.isSpawned)
                     {
                         GameObject go = Object.Instantiate(el.prefab, correctPos, Quaternion.identity);
                         go.transform.parent = parentTerrain.transform;
 
+                        // ZMIANA: Przypisanie warstwy dla normalnego spawnowania
                         if (!string.IsNullOrEmpty(el.layerName))
                         {
                             int layerIndex = LayerMask.NameToLayer(el.layerName);
-                            if (layerIndex != -1) go.layer = layerIndex;
+                            if (layerIndex != -1)
+                            {
+                                go.layer = layerIndex;
+                            }
                         }
 
                         el.spawnedInstance = go;
@@ -333,8 +351,11 @@ public class EndlessTerrain : MonoBehaviour
             float seedOffsetX = mapGenerator.seed * 100f;
             float seedOffsetY = mapGenerator.seed * 100f;
 
-            int step = 5; // Zwiększony krok dla lepszej wydajności
+            int step = 4;
 
+            // --- SAFE ZONE RADIUS ---
+            // You can adjust this value to make the clearing larger or smaller.
+            // A value of 20 means nothing will spawn within a 20-unit radius of (0,0).
             float safeZoneRadius = 20f;
             float sqrSafeZoneRadius = safeZoneRadius * safeZoneRadius;
 
@@ -345,29 +366,28 @@ public class EndlessTerrain : MonoBehaviour
                     float currentHeight = mapData.heightMap[x, y];
                     float currentSlope = CalculateSlope(x, y, width, height, mapData.heightMap);
 
-                    // NEW: Pobieramy wektor nachylenia terenu
-                    Vector3 groundNormal = CalculateNormal(x, y, width, height, mapData.heightMap);
-
                     float globalX = (chunkWorldX + x) / MapGenerator.mapChunkSize;
                     float globalY = (chunkWorldY - y) / MapGenerator.mapChunkSize;
 
+                    // Calculate the world coordinates of this potential spawn point
                     float pointWorldX = chunkWorldX + (topLeftX + x);
-                    float pointWorldZ = chunkWorldY - (topLeftZ - y);
+                    float pointWorldZ = chunkWorldY - (topLeftZ - y); // Note: Y in heightmap is Z in world space
+
+                    // --- SAFE ZONE CHECK ---
+                    // Calculate squared distance from world center (0,0)
                     float sqrDistanceToCenter = (pointWorldX * pointWorldX) + (pointWorldZ * pointWorldZ);
 
-                    if (sqrDistanceToCenter < sqrSafeZoneRadius) continue;
-
-                    bool obstacleSpawned = false;
+                    if (sqrDistanceToCenter < sqrSafeZoneRadius)
+                    {
+                        // If the point is inside the safe zone, skip spawning anything here
+                        continue;
+                    }
 
                     for (int i = 0; i < spawnSettings.Length; i++)
                     {
                         PlantScriptable plant = spawnSettings[i];
 
                         if (plant == null || plant.prefabs == null || plant.prefabs.Length == 0) continue;
-
-                        // Smart spawning: Tylko jeden duży obiekt na kratkę, ale trawa może się nakładać
-                        if (!plant.isGroundCover && obstacleSpawned) continue;
-
                         if (currentHeight < plant.minHeight || currentHeight > plant.maxHeight) continue;
                         if (currentSlope > plant.maxSlope) continue;
 
@@ -377,17 +397,11 @@ public class EndlessTerrain : MonoBehaviour
                         );
 
                         if (noiseValue < plant.noiseThreshold) continue;
-
-                        // Rzadsze spawnowanie obiektów interaktywnych
-                        float finalSpawnChance = plant.isInteractable ? (plant.density * 0.05f) : plant.density;
-                        if (prng.NextDouble() > finalSpawnChance) continue;
+                        if (prng.NextDouble() > plant.density) continue;
 
                         float heightMultiplier = mapGenerator.meshHeightMultiplier;
                         AnimationCurve heightCurve = new AnimationCurve(mapGenerator.meshHeightCurve.keys);
                         float localY = heightCurve.Evaluate(currentHeight) * heightMultiplier;
-
-                        // Lekkie zagłębienie trawy, żeby nie latała w powietrzu
-                        if (plant.isGroundCover) localY -= 0.15f;
 
                         Vector3 localPos = new Vector3(topLeftX + x, localY, topLeftZ - y);
 
@@ -403,11 +417,7 @@ public class EndlessTerrain : MonoBehaviour
                         {
                             GameObject go = Object.Instantiate(selectedPrefab, objectsParent);
                             go.transform.localPosition = localPos;
-
-                            // Obrót dopasowany do zbocza góry + losowy obrót wokół własnej osi
-                            Quaternion slopeRotation = Quaternion.FromToRotation(Vector3.up, groundNormal);
-                            Quaternion randomSpin = Quaternion.Euler(0, (float)prng.Next(0, 360), 0);
-                            go.transform.localRotation = slopeRotation * randomSpin;
+                            go.transform.localRotation = Quaternion.Euler(0, (float)prng.Next(0, 360), 0);
 
                             float randomScale = Mathf.Lerp(plant.minScale, plant.maxScale, (float)prng.NextDouble());
                             go.transform.localScale = Vector3.one * randomScale;
@@ -416,11 +426,9 @@ public class EndlessTerrain : MonoBehaviour
                             else go.isStatic = true;
                         }
 
-                        if (!plant.isGroundCover)
-                        {
-                            obstacleSpawned = true;
-                        }
+                        goto NextGridPoint;
                     }
+                NextGridPoint:;
                 }
             }
         }
@@ -436,19 +444,6 @@ public class EndlessTerrain : MonoBehaviour
             float dZ = Mathf.Abs(hD - hU);
 
             return Mathf.Max(dX, dZ) * 100f;
-        }
-
-        Vector3 CalculateNormal(int x, int y, int width, int height, float[,] heightMap)
-        {
-            float hL = heightMap[Mathf.Clamp(x - 1, 0, width - 1), y];
-            float hR = heightMap[Mathf.Clamp(x + 1, 0, width - 1), y];
-            float hD = heightMap[x, Mathf.Clamp(y - 1, 0, height - 1)];
-            float hU = heightMap[x, Mathf.Clamp(y + 1, 0, height - 1)];
-
-            float dX = hL - hR;
-            float dZ = hD - hU;
-
-            return new Vector3(dX, 2f / MapGenerator.mapChunkSize, dZ).normalized;
         }
 
         public void SetVisible(bool visible)
@@ -503,9 +498,15 @@ public class EndlessTerrain : MonoBehaviour
     {
         public string name = "Cel Misji";
         public GameObject prefab;
+
+        // ZMIANA: Dodano pole na ustawienie warstwy
+        [Tooltip("Wpisz tutaj nazwę warstwy, np. 'Interactable'. Jeśli zostawisz puste, przypisze domyślną z prefabu.")]
         public string layerName = "";
+
         public float minDistance = 50f;
         public float maxDistance = 150f;
+
+        [Tooltip("Zaznacz to, jeśli obiekt ma istnieć na scenie od razu po odpaleniu gry (np. do systemu questów). Zostanie przyciągnięty do ziemi, gdy gracz się do niego zbliży.")]
         public bool spawnImmediately = false;
 
         [HideInInspector] public Vector2 targetPosition;
