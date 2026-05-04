@@ -6,10 +6,11 @@ using UnityEngine.AI;
 public class MovementAlterPlant : BasePlant
 {
     [Header("Wartoœæ zmiany Prêdkoœci Ruchu")]
-    public float alterMovementValue = 1.5f; // O ile zwiêkszyæ prêdkoœæ
+    [Tooltip("O ile zwiêkszyæ prêdkoœæ (np. 1.5)")]
+    public float alterMovementValue = 1.5f;
 
-    [Header("Po jakim czasie wartoœæ ruchu ma wróciæ do podstawowej?")]
-    public float duration = 3f; // Czas trwania efektu w sekundach
+    [Header("Czas trwania efektu")]
+    public float duration = 3f;
 
     // Nadpisujemy metodê z BasePlant
     protected override void OnPlayerEnter(GameObject player)
@@ -23,14 +24,16 @@ public class MovementAlterPlant : BasePlant
             // Uruchamiamy procedurê zmiany prêdkoœci
             StartCoroutine(RestoreMovement(agent));
 
-            // --- POPRAWKA: Szukamy WSZYSTKICH Rendererów w obiekcie i jego dzieciach ---
+            // --- DEAKTYWACJA WIZUALNA I FIZYCZNA ROŒLINY ---
+
+            // Szukamy WSZYSTKICH Rendererów, aby roœlina zniknê³a
             Renderer[] renderers = GetComponentsInChildren<Renderer>();
             foreach (Renderer r in renderers)
             {
                 r.enabled = false;
             }
 
-            // --- POPRAWKA: Wy³¹czamy wszystkie Collidery, ¿eby nie wdepn¹æ drugi raz ---
+            // Wy³¹czamy wszystkie Collidery, ¿eby nie aktywowaæ tej samej roœliny ponownie
             Collider[] colliders = GetComponentsInChildren<Collider>();
             foreach (Collider c in colliders)
             {
@@ -41,23 +44,25 @@ public class MovementAlterPlant : BasePlant
 
     IEnumerator RestoreMovement(NavMeshAgent agent)
     {
-        // 1. Zapamiêtujemy aktualn¹ (oryginaln¹) prêdkoœæ
-        float originalSpeed = agent.speed;
-
-        // 2. Modyfikujemy prêdkoœæ (dodajemy wartoœæ)
+        // 1. Zwiêkszamy prêdkoœæ o zadan¹ wartoœæ
         agent.speed += alterMovementValue;
 
-        // 3. Czekamy 3 sekundy (zgodnie z proœb¹)
+        // 2. Czekamy przez czas okreœlony w zmiennej duration
         yield return new WaitForSeconds(duration);
 
-        // 4. Sprawdzamy czy agent nadal istnieje (zabezpieczenie, gdyby gracz zgin¹³/znikn¹³ w miêdzyczasie)
+        // 3. Sprawdzamy, czy agent nadal istnieje (zabezpieczenie przed b³êdami NullReference)
         if (agent != null)
         {
-            // Przywracamy zapamiêtan¹ oryginaln¹ prêdkoœæ
-            agent.speed = originalSpeed;
+            // KLUCZOWA POPRAWKA:
+            // Odejmujemy dok³adnie tyle, ile dodaliœmy. 
+            // Dziêki temu nawet jeœli gracz podniós³ 5 roœlin, ka¿da z nich 
+            // "odda" swoj¹ porcjê prêdkoœci po up³ywie swojego czasu.
+            agent.speed -= alterMovementValue;
         }
 
-        // 5. Dopiero po odzyskaniu prêdkoœci ca³kowicie usuwamy obiekt z gry
-        this.gameObject.SetActive(false);
+        // 4. Ca³kowicie usuwamy/dezaktywujemy obiekt roœliny z hierarchii
+        // Jeœli korzystasz z Object Poolingu, SetActive(false) jest OK.
+        // Jeœli to obiekty jednorazowe, mo¿esz u¿yæ Destroy(gameObject).
+        Destroy(gameObject);
     }
 }
