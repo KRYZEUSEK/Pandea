@@ -27,3 +27,4 @@ MonoBehaviour:
   noiseOffset: {x: 0, y: 0}
   minScale: 10
   maxScale: 10
+  isGroundCover: 0

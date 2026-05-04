@@ -35,4 +35,6 @@ public class PlantScriptable : ScriptableObject
     [Header("Skalowanie")]
     public float minScale = 0.8f;
     public float maxScale = 1.2f;
+
+    public bool isGroundCover = false;
 }
