@@ -24,10 +24,11 @@ public class PuzzleGridManager : MonoBehaviour
     [SerializeField] private float spacing = 0f;
 
     [Header("Interaction Fix")]
-    [Tooltip("Przeciągnij tutaj obiekt konsoli, który ma skrypt PuzzleInteraction")]
-    [SerializeField] private PuzzleInteraction puzzleInteractionScript;
     [Tooltip("Opcjonalnie: obiekt do wyłączenia (jeśli inny niż ten skrypt)")]
     [SerializeField] private GameObject objectToDisable;
+
+    // Usunąłem [SerializeField], skrypt znajdzie się sam w locie
+    private PuzzleInteraction puzzleInteractionScript;
 
     private PuzzleTileView[,] spawnedTiles;
     private bool[,] poweredTiles;
@@ -89,14 +90,22 @@ public class PuzzleGridManager : MonoBehaviour
 
     private void FinishAndUnlock()
     {
+        // 1. DYNAMICZNE WYSZUKIWANIE (Rozwiązuje problem z Prefabem)
+        // Jeśli nie mamy referencji, szukamy jej na żywo na scenie
+        if (puzzleInteractionScript == null)
+        {
+            puzzleInteractionScript = FindObjectOfType<PuzzleInteraction>();
+        }
+
         if (puzzleInteractionScript != null)
         {
-            // TO JEST KLUCZOWE: Wywołujemy ClosePuzzle w tamtym skrypcie, 
-            // który włączy z powrotem Agenta i Kontroler gracza.
-            puzzleInteractionScript.ClosePuzzle();
+            // 2. KLUCZOWA ZMIANA: Wywołujemy CompletePuzzle zamiast ClosePuzzle!
+            // CompletePuzzle() zdejmie tag z konsoli i wymusi włączenie Agenta gracza
+            puzzleInteractionScript.CompletePuzzle();
         }
         else
         {
+            Debug.LogWarning("PuzzleGridManager: Nie znaleziono skryptu PuzzleInteraction na scenie!");
             // Failsafe: Jeśli nie przypisano skryptu, chociaż wyłączamy UI
             ClosePuzzle();
         }

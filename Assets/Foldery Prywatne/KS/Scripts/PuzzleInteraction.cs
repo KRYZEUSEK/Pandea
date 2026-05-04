@@ -13,28 +13,22 @@ public class PuzzleInteraction : MonoBehaviour
 
     private bool isPlayerInRange = false;
 
-    // Statyczna flaga - u¿yj jej w skrypcie Pauzy:
-    // if (PuzzleInteraction.isPuzzleActive) return;
+    // Statyczna flaga - u¿yj jej w skrypcie Pauzy i chodzenia
     public static bool isPuzzleActive = false;
 
     private void Start()
     {
-        // Szukamy obiektu UI zaraz po uruchomieniu gry
         FindPuzzleUI();
     }
 
     private void FindPuzzleUI()
     {
-        // Resources.FindObjectsOfTypeAll znajdzie obiekty nawet wy³¹czone (SetActive(false))
         GameObject[] allObjects = Resources.FindObjectsOfTypeAll<GameObject>();
-
         foreach (GameObject obj in allObjects)
         {
-            // Sprawdzamy nazwê i upewniamy siê, ¿e obiekt nale¿y do sceny (nie jest prefabem w Assets)
             if (obj.name == puzzleObjectName && obj.scene.name != null)
             {
                 puzzleObject = obj;
-                Debug.Log("<color=green>PuzzleInteraction:</color> Znaleziono i podpiêto UI: " + obj.name);
                 return;
             }
         }
@@ -46,8 +40,6 @@ public class PuzzleInteraction : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = true;
-
-            // Pobieramy komponenty z gracza
             if (playerAgent == null) playerAgent = other.GetComponent<NavMeshAgent>();
             if (playerController == null) playerController = other.GetComponent<PlayerControllerClick1>();
         }
@@ -68,7 +60,7 @@ public class PuzzleInteraction : MonoBehaviour
         {
             OpenPuzzle();
         }
-        // 2. Zamykanie na klawisz Escape (obs³uguje tylko zagadkê)
+        // 2. Anulowanie/Zamykanie na klawisz Escape
         else if (isPuzzleActive && Input.GetKeyDown(KeyCode.Escape))
         {
             ClosePuzzle();
@@ -96,50 +88,34 @@ public class PuzzleInteraction : MonoBehaviour
                 playerController.enabled = false;
             }
 
-            // Odblokowanie kursora do rozwi¹zywania zagadki
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
     }
 
+    /// <summary>
+    /// Zwyk³e wyjœcie z zagadki (np. klawiszem ESC lub przyciskiem "WyjdŸ")
+    /// </summary>
     public void ClosePuzzle()
     {
         isPuzzleActive = false;
         if (puzzleObject != null) puzzleObject.SetActive(false);
 
-        // MECHANIZM RATUNKOWY: Jeœli referencje zniknê³y, szukamy gracza ponownie po Tagu
-        if (playerAgent == null || playerController == null)
-        {
-            GameObject player = GameObject.FindWithTag("Player");
-            if (player != null)
-            {
-                if (playerAgent == null) playerAgent = player.GetComponent<NavMeshAgent>();
-                if (playerController == null) playerController = player.GetComponent<PlayerControllerClick1>();
-            }
-        }
-
-        // Odblokowanie ruchu
-        if (playerAgent != null)
-        {
-            playerAgent.enabled = true; // Najpierw komponent
-            playerAgent.isStopped = false; // Potem agent
-        }
-
-        if (playerController != null)
-        {
-            playerController.enabled = true;
-        }
+        RestorePlayerMovement();
     }
 
     /// <summary>
-    /// Wywo³aj tê metodê, gdy gracz rozwi¹¿e zagadkê!
+    /// Wywo³ywane przez PuzzleGridManager po pomyœlnym u³o¿eniu!
     /// </summary>
     public void CompletePuzzle()
     {
-        Debug.Log("<color=cyan>PuzzleInteraction:</color> Zagadka rozwi¹zana!");
+        Debug.Log("<color=cyan>[PuzzleInteraction]</color> Zagadka rozwi¹zana! Trwale odblokowujê gracza...");
 
-        // 1. Przywróæ ruch gracza
-        ClosePuzzle();
+        isPuzzleActive = false;
+        if (puzzleObject != null) puzzleObject.SetActive(false);
+
+        // 1. Odblokuj gracza
+        RestorePlayerMovement();
 
         // 2. Zmieñ tag obiektu Triggera na Untagged (domyœlny brak tagu)
         this.gameObject.tag = "Untagged";
@@ -149,5 +125,48 @@ public class PuzzleInteraction : MonoBehaviour
         if (c != null) c.enabled = false;
 
         this.enabled = false;
+    }
+
+    /// <summary>
+    /// OPCJA ATOMOWA: Znajduje prawdziwego gracza na scenie i si³owo w³¹cza mu komponenty
+    /// </summary>
+    private void RestorePlayerMovement()
+    {
+        GameObject realPlayer = GameObject.FindGameObjectWithTag("Player");
+
+        if (realPlayer != null)
+        {
+            NavMeshAgent realAgent = realPlayer.GetComponent<NavMeshAgent>();
+            PlayerControllerClick1 realController = realPlayer.GetComponent<PlayerControllerClick1>();
+
+            // W³¹czamy NavMeshAgent
+            if (realAgent != null)
+            {
+                // Przyci¹gamy do NavMesha, by unikn¹æ b³êdów
+                NavMeshHit hit;
+                if (NavMesh.SamplePosition(realPlayer.transform.position, out hit, 3.0f, NavMesh.AllAreas))
+                {
+                    realPlayer.transform.position = hit.position;
+                }
+
+                realAgent.enabled = true;
+                realAgent.isStopped = false;
+
+                if (realAgent.isOnNavMesh)
+                {
+                    realAgent.ResetPath();
+                }
+            }
+
+            // W³¹czamy PlayerController
+            if (realController != null)
+            {
+                realController.enabled = true;
+            }
+        }
+        else
+        {
+            Debug.LogError("<color=red>[B£¥D]</color> Skrypt próbowa³ przywróciæ ruch, ale nie znalaz³ gracza z tagiem 'Player' na scenie!");
+        }
     }
 }
