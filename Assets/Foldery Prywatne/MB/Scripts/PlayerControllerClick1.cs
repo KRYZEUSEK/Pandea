@@ -18,7 +18,6 @@ public class PlayerControllerClick1 : MonoBehaviour
     [SerializeField] LayerMask clickableLayers;
     [SerializeField] float lookRotationSpeed = 8f;
 
-    // --- NOWE: Konfiguracja warstwy interakcji ---
     [Header("Interaction")]
     [Tooltip("Warstwa obiektów, w które można klikać (np. statki)")]
     [SerializeField] LayerMask interactableLayers;
@@ -88,7 +87,6 @@ public class PlayerControllerClick1 : MonoBehaviour
         isGrounded = Physics.Raycast(rayStart, Vector3.down, groundCheckDistance, clickableLayers);
     }
 
-    // ZMIANA: Zmieniłem nazwę 'spawnEffect' na 'isInitialClick' żeby było bardziej zrozumiale
     void MoveToCursor(bool isInitialClick)
     {
         if (isJumpingInternal) return;
@@ -99,22 +97,20 @@ public class PlayerControllerClick1 : MonoBehaviour
         Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
         RaycastHit hit;
 
-        // --- NOWE: 1. Sprawdzanie Interakcji (Tylko przy pojedynczym kliknięciu myszą) ---
+        // 1. Sprawdzanie Interakcji (Tylko przy pojedynczym kliknięciu)
         if (isInitialClick && Physics.Raycast(ray, out hit, 100, interactableLayers))
         {
-            // Szukamy skryptu Interactable na trafionym obiekcie
             Interactable interactableObject = hit.collider.GetComponent<Interactable>();
 
             if (interactableObject != null)
             {
-                // Odpalamy funkcję na statku i zatrzymujemy chodzenie!
                 interactableObject.TriggerInteraction();
                 StopMovement();
-                return; // Przerywamy kod, Panda nie idzie w stronę statku
+                return;
             }
         }
 
-        // 2. Normalne poruszanie się po podłodze
+        // 2. Normalne poruszanie się
         if (Physics.Raycast(ray, out hit, 100, clickableLayers))
         {
             agent.SetDestination(hit.point);
@@ -137,7 +133,11 @@ public class PlayerControllerClick1 : MonoBehaviour
     {
         if (isJumpingInternal || !agent.enabled) return;
         isHoldingMove = false;
-        agent.ResetPath();
+
+        if (agent.isOnNavMesh)
+        {
+            agent.ResetPath();
+        }
     }
 
     private IEnumerator JumpArc()
@@ -149,6 +149,7 @@ public class PlayerControllerClick1 : MonoBehaviour
         animator.SetBool("isJumping", true);
         animator.Play(JUMP_START_STATE);
 
+        Vector3 startPosition = transform.position; // Zapamiętujemy punkt startu
         Vector3 savedDestination = agent.destination;
         Vector3 horizontalVelocity = agent.velocity;
 
@@ -163,40 +164,67 @@ public class PlayerControllerClick1 : MonoBehaviour
 
         yield return null;
 
-        while (true)
-        {
-            float deltaTime = Time.deltaTime;
-            verticalVelocity += gravity * deltaTime;
+        float elapsed = 0;
 
-            Vector3 moveVector = (horizontalVelocity + Vector3.up * verticalVelocity) * deltaTime;
+        // Zabezpieczenie czasowe, żeby pętla nie trwała w nieskończoność
+        while (elapsed < jumpDuration * 2.5f)
+        {
+            elapsed += Time.deltaTime;
+            verticalVelocity += gravity * Time.deltaTime;
+
+            Vector3 moveVector = (horizontalVelocity + Vector3.up * verticalVelocity) * Time.deltaTime;
             transform.position += moveVector;
 
+            // Sprawdzanie lądowania tylko podczas opadania
             if (verticalVelocity < 0)
             {
                 Vector3 feetPosition = transform.position - (Vector3.up * heightFromPivotToFeet);
-                if (Physics.Raycast(feetPosition + Vector3.up * 0.2f, Vector3.down, out RaycastHit hitGround, 0.4f, clickableLayers))
+
+                // SphereCast zamiast Raycasta - działa jak fizyczna stopa o promieniu 0.2f, patrzy 0.8f w dół
+                if (Physics.SphereCast(feetPosition + Vector3.up * 0.5f, 0.2f, Vector3.down, out RaycastHit hitGround, 0.8f, clickableLayers))
                 {
                     transform.position = hitGround.point + (Vector3.up * heightFromPivotToFeet);
                     break;
                 }
             }
 
+            // MECHANIZM RATUNKOWY: Jeśli postać spadła za bardzo (poza mapę)
+            if (transform.position.y < startPosition.y - 10f)
+            {
+                Debug.LogWarning("Gracz wypadł poza mapę. Cofa na pozycję startową.");
+                transform.position = startPosition;
+                break;
+            }
+
             yield return null;
         }
 
-        agent.enabled = true;
         animator.SetBool("isJumping", false);
 
+        // PRZYCIĄGANIE DO NAVMESHA PRZED WŁĄCZENIEM AGENTA
         NavMeshHit navHit;
-        if (NavMesh.SamplePosition(transform.position, out navHit, 3.0f, NavMesh.AllAreas))
+        if (NavMesh.SamplePosition(transform.position, out navHit, 5.0f, NavMesh.AllAreas))
         {
-            agent.Warp(navHit.position);
+            // Znaleziono NavMesh w promieniu 5 metrów, przyciągamy gracza
+            transform.position = navHit.position;
+            agent.enabled = true;
+        }
+        else
+        {
+            // Nie znaleziono podłogi (np. wylądował na dachu, który nie ma NavMesha). Cofa na start.
+            transform.position = startPosition;
+            agent.enabled = true;
         }
 
-        agent.ResetPath();
-
-        if (savedDestination != Vector3.zero)
-            agent.SetDestination(savedDestination);
+        // Dopiero gdy agent jest bezpiecznie włączony i na NavMeshu, możemy resetować trasę
+        if (agent.isOnNavMesh)
+        {
+            agent.ResetPath();
+            if (savedDestination != Vector3.zero)
+            {
+                agent.SetDestination(savedDestination);
+            }
+        }
 
         isJumpingInternal = false;
     }
