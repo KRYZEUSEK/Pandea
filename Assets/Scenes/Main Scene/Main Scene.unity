@@ -4665,6 +4665,7 @@ MonoBehaviour:
   mapMaterial: {fileID: 2100000, guid: b0872f84cf3c7441d893168677410c73, type: 2}
   terrainLayerName: Terrain
   spawnableObjects:
+  - {fileID: 11400000, guid: dd99e965cb68a4941bdf33b4e7c547f6, type: 2}
   - {fileID: 11400000, guid: 5c169f18013557447912aacafae7b6df, type: 2}
   - {fileID: 11400000, guid: 78e79add70ec8d142aeb8b5b8313efdd, type: 2}
   - {fileID: 11400000, guid: bca853f68cef3f34180d7ea1dc8ae13e, type: 2}
@@ -4674,7 +4675,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: cef3491e50c26a647a6fc5cc94d2adac, type: 2}
   - {fileID: 11400000, guid: 7ecbb2b975606974581a9ac488933ced, type: 2}
   - {fileID: 11400000, guid: f1ed6dfd3c3d15e4294b99ff9969047b, type: 2}
-  - {fileID: 11400000, guid: dd99e965cb68a4941bdf33b4e7c547f6, type: 2}
   - {fileID: 11400000, guid: e7c8abe8be9ce3243a056aa5032ca32e, type: 2}
   - {fileID: 11400000, guid: 94dd587290258a74d9cadd13a23eceef, type: 2}
   - {fileID: 11400000, guid: 3654d61766ba9ee45b096e0cf6c0b34b, type: 2}

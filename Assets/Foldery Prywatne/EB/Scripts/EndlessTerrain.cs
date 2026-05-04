@@ -351,7 +351,7 @@ public class EndlessTerrain : MonoBehaviour
             float seedOffsetX = mapGenerator.seed * 100f;
             float seedOffsetY = mapGenerator.seed * 100f;
 
-            int step = 4;
+            int step = 5;
 
             // --- SAFE ZONE RADIUS ---
             // You can adjust this value to make the clearing larger or smaller.

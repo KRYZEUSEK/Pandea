@@ -20,7 +20,7 @@ MonoBehaviour:
   isInteractable: 1
   density: 0.1
   minHeight: 0
-  maxHeight: 0
+  maxHeight: 1
   maxSlope: 45
   noiseScale: 10
   noiseThreshold: 0.4
