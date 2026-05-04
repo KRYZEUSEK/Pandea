@@ -90,6 +90,11 @@ public class EndlessTerrain : MonoBehaviour
 
     void Update()
     {
+
+        if (viewer == null)
+        {
+            return;
+        }
         viewerPosition = new Vector2(viewer.position.x, viewer.position.z) / scale;
 
         if ((viewerPositionOld - viewerPosition).sqrMagnitude > sqrViewerMoveThresholdForChunkUpdate)
@@ -337,10 +342,16 @@ public class EndlessTerrain : MonoBehaviour
             float topLeftX = (width - 1) / -2f;
             float topLeftZ = (height - 1) / 2f;
 
-            System.Random prng = new System.Random(mapGenerator.seed + position.GetHashCode());
+            // FIX: position.GetHashCode() can be inconsistent. Use a deterministic hash based on coordinates.
+            int chunkHash = Mathf.RoundToInt(position.x * 100f) + Mathf.RoundToInt(position.y);
+            System.Random prng = new System.Random(mapGenerator.seed + chunkHash);
 
             float chunkWorldX = position.x;
             float chunkWorldY = position.y;
+
+            // FIX: Create an offset from the seed so Perlin Noise changes every game
+            float seedOffsetX = mapGenerator.seed * 100f;
+            float seedOffsetY = mapGenerator.seed * 100f;
 
             int step = 3;
 
@@ -362,9 +373,10 @@ public class EndlessTerrain : MonoBehaviour
                         if (currentHeight < plant.minHeight || currentHeight > plant.maxHeight) continue;
                         if (currentSlope > plant.maxSlope) continue;
 
+                        // FIX: Add the seed offsets to the Perlin coordinates
                         float noiseValue = Mathf.PerlinNoise(
-                            globalX * plant.noiseScale + plant.noiseOffset.x,
-                            globalY * plant.noiseScale + plant.noiseOffset.y
+                            (globalX + seedOffsetX) * plant.noiseScale + plant.noiseOffset.x,
+                            (globalY + seedOffsetY) * plant.noiseScale + plant.noiseOffset.y
                         );
 
                         if (noiseValue < plant.noiseThreshold) continue;
@@ -386,6 +398,8 @@ public class EndlessTerrain : MonoBehaviour
 
                         if (selectedPrefab != null)
                         {
+                            // NOTE: If you experience lag spikes when moving, this Instantiate call is the culprit.
+                            // Consider switching to an Object Pool in the future.
                             GameObject go = Object.Instantiate(selectedPrefab, objectsParent);
                             go.transform.localPosition = localPos;
                             go.transform.localRotation = Quaternion.Euler(0, (float)prng.Next(0, 360), 0);

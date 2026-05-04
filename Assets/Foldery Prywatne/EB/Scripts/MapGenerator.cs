@@ -48,7 +48,12 @@ public class MapGenerator : MonoBehaviour {
 	Queue<MapThreadInfo<MapData>> mapDataThreadInfoQueue = new Queue<MapThreadInfo<MapData>>();
 	Queue<MapThreadInfo<MeshData>> meshDataThreadInfoQueue = new Queue<MapThreadInfo<MeshData>>();
 
-	public void DrawMapInEditor() {
+    void Awake()
+    {
+        // Randomizes the seed dynamically when the game starts
+        seed = UnityEngine.Random.Range(0, 100000);
+    }
+    public void DrawMapInEditor() {
 		MapData mapData = GenerateMapData (Vector2.zero);
 
 		MapDisplay display = FindObjectOfType<MapDisplay> ();
@@ -69,7 +74,25 @@ public class MapGenerator : MonoBehaviour {
 		new Thread (threadStart).Start ();
 	}
 
-	void MapDataThread(Vector2 centre, Action<MapData> callback) {
+    public Vector3 GetPlayerSpawnPosition()
+    {
+        // 1. Synchronously generate the base data for the chunk at world center (0,0)
+        MapData centerChunkData = GenerateMapData(Vector2.zero);
+
+        // 2. Find the exact middle index of this chunk
+        int centerIndex = mapChunkSize / 2;
+
+        // 3. Get the raw noise height at the center (value between 0 and 1)
+        float rawHeight = centerChunkData.heightMap[centerIndex, centerIndex];
+
+        // 4. Apply your terrain height multiplier and animation curve just like the MeshGenerator does
+        float finalY = meshHeightCurve.Evaluate(rawHeight) * meshHeightMultiplier;
+
+        // 5. Return the position (X=0, Y=finalY + small offset so they don't clip into the ground, Z=0)
+        return new Vector3(0, finalY + 2f, 0);
+    }
+
+    void MapDataThread(Vector2 centre, Action<MapData> callback) {
 		MapData mapData = GenerateMapData (centre);
 		lock (mapDataThreadInfoQueue) {
 			mapDataThreadInfoQueue.Enqueue (new MapThreadInfo<MapData> (callback, mapData));
