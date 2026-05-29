@@ -507,12 +507,11 @@ MonoBehaviour:
   sections:
   - name: First
     steps:
-    - text: "W Ziemskim roku 2073 na planet\u0119 Ziemia przylecia\u0142a asteroida."
+    - text: "W roku 2073 na nasz\u0105 planet\u0119 przylecia\u0142a asteroida."
       pauseBeforeSeconds: 0
       newLineBefore: 0
     - text: "Nie by\u0142a ona jak inne, szare g\u0142azy, kt\xF3re wylecia\u0142y
-        z lokalnych pas\xF3w asteroid i niefortunnie obra\u0142y kurs na nasz\u0105
-        planet\u0119. "
+        z lokalnych pas\xF3w asteroid."
       pauseBeforeSeconds: 1
       newLineBefore: 1
     holdAfterTypedSeconds: 1
@@ -528,24 +527,22 @@ MonoBehaviour:
   - name: Third
     steps:
     - text: "Pierwsze oznaki niezwyk\u0142o\u015Bci tego meteorytu zaobserwowali\u015Bmy
-        gdy, pomimo niewielkich rozmiar\xF3w, ska\u0142a ta nie spali\u0142a si\u0119
-        w ci\u0105gu kilku pierwszych minut od kontaktu z naszym powietrzem."
+        niemal natychmiast."
       pauseBeforeSeconds: 0
       newLineBefore: 0
     holdAfterTypedSeconds: 1
   - name: Fourth
     steps:
-    - text: "Proces ablacji nast\u0119powa\u0142, ba nawet bardziej ni\u017C u innych
-        obiekt\xF3w wchodz\u0105cych w nasz\u0105 atmosfer\u0119. "
+    - text: "Spalanie by\u0142o znacznie wi\u0119ksze ni\u017C u innych obiekt\xF3w. "
       pauseBeforeSeconds: 0
       newLineBefore: 0
-    - text: "Mimo to obiekt wcale nie mala\u0142."
+    - text: "Mimo to asteroida nie mala\u0142a."
       pauseBeforeSeconds: 0
       newLineBefore: 1
     holdAfterTypedSeconds: 1
   - name: Fifth
     steps:
-    - text: "Ostatecznie rozbi\u0142 si\u0119 na obrze\u017Cach Montrealu."
+    - text: "Rozbi\u0142a si\u0119 na obrze\u017Cach Montrealu."
       pauseBeforeSeconds: 0
       newLineBefore: 0
     - text: Lokalni pasjonaci astronomii szybko odszukali krater.
@@ -555,56 +552,21 @@ MonoBehaviour:
   - name: Sixth
     steps:
     - text: "To co w nim zastali od kilku miesi\u0119cy spe\u0142za sen z powiek
-        mnie i 290 innym naukowcom z parku badawczego Reasearch Triangle Park."
+        mnie i innym naukowcom z parku badawczego Reasearch Triangle Park."
       pauseBeforeSeconds: 0
       newLineBefore: 0
-    holdAfterTypedSeconds: 1
-  - name: Seventh
-    steps:
-    - text: "Przedmiotem naszych bada\u0144 jest ma\u0142a oko\u0142o p\xF3\u0142
-        metrowa Ailurus fulgens potocznie zwana jako"
-      pauseBeforeSeconds: 0
-      newLineBefore: 0
-    - text: Pandka ruda.
-      pauseBeforeSeconds: 1.5
-      newLineBefore: 1
     holdAfterTypedSeconds: 1
   - name: Eighth
-    steps:
-    - text: "Jest to 3 letni samiec wa\u017C\u0105cy 5 kilogram\xF3w, o standardowym
-        dla jego gatunku ubarwieniu."
-      pauseBeforeSeconds: 0
-      newLineBefore: 0
-    - text: "Jedyn\u0105 cech\u0105, kt\xF3ra odr\xF3\u017Cnia go od innych osobnik\xF3w
-        swojego gatunku jest ci\u0105g\u0142y stan zap\u0142onu w jakim si\u0119
-        znajduje."
-      pauseBeforeSeconds: 0
-      newLineBefore: 1
+    steps: []
     holdAfterTypedSeconds: 1
   - name: Nineth
-    steps:
-    - text: "Pr\xF3bowali\u015Bmy wszystkiego - gaszenie ciecz\u0105 \u015Brodkami
-        ga\u015Bniczymi, dwutlenkiem w\u0119gla, nawet pr\xF3\u017Cnia nic nie pomog\u0142a!"
-      pauseBeforeSeconds: 0
-      newLineBefore: 0
+    steps: []
     holdAfterTypedSeconds: 1
   - name: Tenth
-    steps:
-    - text: "Ca\u0142y czas wyszukujemy i testujemy nowe mieszanki, pierwiastki i
-        \u015Brodki chemiczne - narazie kompletnie bezskutecznie."
-      pauseBeforeSeconds: 0
-      newLineBefore: 0
+    steps: []
     holdAfterTypedSeconds: 1
   - name: Eleventh
-    steps:
-    - text: "Okaz utrzymywany jest w \u015Bpi\u0105czce a mimo tego ci\u0105gle udaje
-        mu si\u0119 utrzymywa\u0107 p\u0142omienie."
-      pauseBeforeSeconds: 0
-      newLineBefore: 0
-    - text: "Mimo i\u017C na razie nie wykaza\u0142 destrukcyjnych tendencji lepiej
-        mie\u0107 si\u0119 na baczno\u015Bci."
-      pauseBeforeSeconds: 1.5
-      newLineBefore: 1
+    steps: []
     holdAfterTypedSeconds: 1
   typeSecondsPerChar: 0.05
   fadeInSeconds: 0.15
