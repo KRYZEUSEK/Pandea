@@ -16,7 +16,7 @@ MonoBehaviour:
   prefab: {fileID: 8392096246315305885, guid: 5d926dbfbc0bc854694a1c7dc5c6f491, type: 3}
   type: 0
   description: Material.
-  uiPrefab: {fileID: 8392096246315305885, guid: 5d926dbfbc0bc854694a1c7dc5c6f491, type: 3}
+  uiPrefab: {fileID: 8392096246315305885, guid: 1a591a49f4994c349a9279ad330aa446, type: 3}
   worldPrefab: {fileID: 1596801275836014456, guid: 0527e53bd656a5742b2bbf38cc6c4b96, type: 3}
   handScale: {x: 0.001, y: 0.001, z: 0.001}
   handRotation: {x: 0, y: 0, z: 0}
