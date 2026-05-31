@@ -18,5 +18,5 @@ MonoBehaviour:
   description: 
   uiPrefab: {fileID: 5935071896136878386, guid: 33a14c7b576d664419d4f2ff73daf23d, type: 3}
   worldPrefab: {fileID: 4326328530748525030, guid: 1e811b4bc724fb84a99cc80818e9a13a, type: 3}
-  handScale: {x: 0.005, y: 0.005, z: 0.005}
-  handRotation: {x: 0, y: 0, z: 0}
+  handScale: {x: 1, y: 1, z: 1}
+  handRotation: {x: -90, y: 0, z: 0}
