@@ -1,39 +1,45 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class MovementAlterPlant : BasePlant
 {
-    [Header("Wartoœæ zmiany Prêdkoœci Ruchu")]
-    [Tooltip("O ile zwiêkszyæ prêdkoœæ (np. 1.5)")]
+    [Header("Wartosc zmiany Predkosci Ruchu")]
+    [Tooltip("O ile zwiekszyc predkosc (np. 1.5)")]
     public float alterMovementValue = 1.5f;
 
     [Header("Czas trwania efektu")]
     public float duration = 3f;
 
-    // Nadpisujemy metodê z BasePlant
+    private bool hasBeenActivated = false;
+
+    // Nadpisujemy metode z BasePlant
     protected override void OnPlayerEnter(GameObject player)
     {
-        // Próbujemy pobraæ NavMeshAgenta z obiektu, który wszed³ w roœlinê
+        if (hasBeenActivated) return;
+
+        // Probujemy pobrac NavMeshAgenta z obiektu, ktory wszedl w rosline
         NavMeshAgent agent = player.GetComponent<NavMeshAgent>();
 
         // Sprawdzamy, czy gracz faktycznie ma NavMeshAgenta
         if (agent != null)
         {
-            // Uruchamiamy procedurê zmiany prêdkoœci
+            hasBeenActivated = true;
+
+            // Uruchamiamy procedure zmiany predkosci
             StartCoroutine(RestoreMovement(agent));
 
-            // --- DEAKTYWACJA WIZUALNA I FIZYCZNA ROŒLINY ---
+            // --- DEAKTYWACJA WIZUALNA I FIZYCZNA ROSLINY ---
 
-            // Szukamy WSZYSTKICH Rendererów, aby roœlina zniknê³a
+            // Szukamy WSZYSTKICH Rendererow, aby roslina zniknela
             Renderer[] renderers = GetComponentsInChildren<Renderer>();
             foreach (Renderer r in renderers)
             {
                 r.enabled = false;
             }
 
-            // Wy³¹czamy wszystkie Collidery, ¿eby nie aktywowaæ tej samej roœliny ponownie
+            // Wylaczamy wszystkie Collidery, zeby nie aktywowac tej samej rosliny ponownie
             Collider[] colliders = GetComponentsInChildren<Collider>();
             foreach (Collider c in colliders)
             {
@@ -44,25 +50,25 @@ public class MovementAlterPlant : BasePlant
 
     IEnumerator RestoreMovement(NavMeshAgent agent)
     {
-        // 1. Zwiêkszamy prêdkoœæ o zadan¹ wartoœæ
+        // 1. Zwiekszamy predkosc o zadana wartosc
         agent.speed += alterMovementValue;
 
-        // 2. Czekamy przez czas okreœlony w zmiennej duration
+        // 2. Czekamy przez czas okreslony w zmiennej duration
         yield return new WaitForSeconds(duration);
 
-        // 3. Sprawdzamy, czy agent nadal istnieje (zabezpieczenie przed b³êdami NullReference)
+        // 3. Sprawdzamy, czy agent nadal istnieje (zabezpieczenie przed bledami NullReference)
         if (agent != null)
         {
             // KLUCZOWA POPRAWKA:
-            // Odejmujemy dok³adnie tyle, ile dodaliœmy. 
-            // Dziêki temu nawet jeœli gracz podniós³ 5 roœlin, ka¿da z nich 
-            // "odda" swoj¹ porcjê prêdkoœci po up³ywie swojego czasu.
+            // Odejmujemy dokladnie tyle, ile dodalismy. 
+            // Dzieki temu nawet jesli gracz podniosl 5 roslin, kazda z nich 
+            // "odda" swoja porcje predkosci po uplywie swojego czasu.
             agent.speed -= alterMovementValue;
         }
 
-        // 4. Ca³kowicie usuwamy/dezaktywujemy obiekt roœliny z hierarchii
-        // Jeœli korzystasz z Object Poolingu, SetActive(false) jest OK.
-        // Jeœli to obiekty jednorazowe, mo¿esz u¿yæ Destroy(gameObject).
+        // 4. Calkowicie usuwamy/dezaktywujemy obiekt rosliny z hierarchii
+        // Jesli korzystasz z Object Poolingu, SetActive(false) is OK.
+        // Jesli to obiekty jednorazowe, mozesz uzyc Destroy(gameObject).
         Destroy(gameObject);
     }
 }

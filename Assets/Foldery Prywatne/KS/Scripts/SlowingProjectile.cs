@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -10,7 +10,7 @@ public class SlowingProjectile : MonoBehaviour
     public float maxLifetime = 4.0f;
 
     [Header("Efekt Spowolnienia")]
-    [Tooltip("O ile zostanie zredukowana prêdkoœæ (np. 2.0).")]
+    [Tooltip("O ile zostanie zredukowana predkosc (np. 2.0).")]
     public float slowAmount = 2.0f;
     [Tooltip("Na ile sekund gracz zostanie spowolniony.")]
     public float slowDuration = 3.0f;
@@ -34,14 +34,14 @@ public class SlowingProjectile : MonoBehaviour
             if (agent != null)
             {
                 // Uruchamiamy Coroutine na obiekcie gracza (lub przez managera), 
-                // aby efekt trwa³ nawet po zniszczeniu pocisku.
-                // Najbezpieczniej odpaliæ to przez MonoBehavior gracza lub pomocnika:
+                // aby efekt trwal nawet po zniszczeniu pocisku.
+                // Najbezpieczniej odpalic to przez MonoBehavior gracza lub pomocnika:
                 SlowEffectHelper helper = agent.GetComponent<SlowEffectHelper>();
                 if (helper == null) helper = agent.gameObject.AddComponent<SlowEffectHelper>();
 
                 helper.ApplySlow(agent, slowAmount, slowDuration);
 
-                Debug.Log($"Pocisk trafi³! Gracz spowolniony o {slowAmount} na {slowDuration}s.");
+                Debug.Log($"Pocisk trafil! Gracz spowolniony o {slowAmount} na {slowDuration}s.");
             }
             else
             {
@@ -57,33 +57,40 @@ public class SlowingProjectile : MonoBehaviour
     }
 }
 
-// Prosty skrypt pomocniczy, który zarz¹dza czasem trwania spowolnienia
+// Prosty skrypt pomocniczy, ktory zarzadza czasem trwania spowolnienia
 public class SlowEffectHelper : MonoBehaviour
 {
     private Coroutine slowCoroutine;
-    private float originalSpeed;
-    private bool isSlowed = false;
+    private float appliedSlow = 0f;
 
     public void ApplySlow(NavMeshAgent agent, float amount, float duration)
     {
-        if (slowCoroutine != null) StopCoroutine(slowCoroutine);
+        if (slowCoroutine != null)
+        {
+            StopCoroutine(slowCoroutine);
+            // Restore previous slow before calculating the new one to avoid compounding slows
+            if (agent != null)
+            {
+                agent.speed += appliedSlow;
+            }
+            appliedSlow = 0f;
+        }
         slowCoroutine = StartCoroutine(SlowRoutine(agent, amount, duration));
     }
 
     private IEnumerator SlowRoutine(NavMeshAgent agent, float amount, float duration)
     {
-        if (!isSlowed)
-        {
-            originalSpeed = agent.speed;
-            isSlowed = true;
-        }
-
-        agent.speed = Mathf.Max(0.5f, originalSpeed - amount); // Zwalniamy, ale nie do zera
+        // Safe slow amount: do not reduce speed below 0.5
+        appliedSlow = Mathf.Min(amount, agent.speed - 0.5f);
+        agent.speed -= appliedSlow;
 
         yield return new WaitForSeconds(duration);
 
-        agent.speed = originalSpeed;
-        isSlowed = false;
+        if (agent != null)
+        {
+            agent.speed += appliedSlow;
+        }
+        appliedSlow = 0f;
+        slowCoroutine = null;
     }
 }
-
