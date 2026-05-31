@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Axe
   m_EditorClassIdentifier: 
   id: axe
-  prefab: {fileID: 5935071896136878386, guid: 05f6c839584f3a84895ac31236706128, type: 3}
+  prefab: {fileID: 5935071896136878386, guid: 33a14c7b576d664419d4f2ff73daf23d, type: 3}
   type: 2
   description: 
   uiPrefab: {fileID: 5935071896136878386, guid: 33a14c7b576d664419d4f2ff73daf23d, type: 3}

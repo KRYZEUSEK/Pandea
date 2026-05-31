@@ -10,10 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c74e18e0132bda14ab0a2365aeb2e7f0, type: 3}
-  m_Name: AxeCrafting
+  m_Name: AmplifierCrafting
   m_EditorClassIdentifier: 
-  resultItem: {fileID: 11400000, guid: 94a7291a2e56b364ea802af2ad1f3d25, type: 2}
+  resultItem: {fileID: 11400000, guid: 6194454eb190ce64b8aec4cba69eb1a7, type: 2}
   resultAmount: 1
   costs:
-  - item: {fileID: 11400000, guid: 1a0dadc868bc2db4293102821ceddf06, type: 2}
+  - item: {fileID: 11400000, guid: e1a4208dbc7307345b461d1f54e9c8bb, type: 2}
     amount: 1
+  - item: {fileID: 11400000, guid: 310eb837797a869489be4e1acaf8c0c5, type: 2}
+    amount: 4

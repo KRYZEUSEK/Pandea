@@ -5466,7 +5466,7 @@ MonoBehaviour:
   hotbar: {fileID: 8665864873130504698}
   playerCamera: {fileID: 0}
   player: {fileID: 188695683379076193}
-  selectedBuildable: {fileID: 11400000, guid: 3d42f1b3792b8854eb71fc8f92c5cca2, type: 2}
+  selectedBuildable: {fileID: 11400000, guid: a5061ad20ad7cd24f9aaf49a36348d68, type: 2}
   inventory: {fileID: 11400000, guid: 25d6dc41a3bf0cf4491b5fd8ca131fb6, type: 2}
   maxPlacementDistance: 15
   rotationStepDegrees: 15
@@ -5594,6 +5594,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1a0dadc868bc2db4293102821ceddf06, type: 2}
   - {fileID: 11400000, guid: 6194454eb190ce64b8aec4cba69eb1a7, type: 2}
   - {fileID: 11400000, guid: 6194454eb190ce64b8aec4cba69eb1a7, type: 2}
+  - {fileID: 11400000, guid: e1a4208dbc7307345b461d1f54e9c8bb, type: 2}
 --- !u!114 &2015770628157539960
 MonoBehaviour:
   m_ObjectHideFlags: 0

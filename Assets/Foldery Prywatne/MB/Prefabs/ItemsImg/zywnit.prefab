@@ -90,7 +90,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7717084990983463046, guid: e980fc400109b844ca9aa36ef2dbde1a, type: 3}
       propertyPath: m_Name
-      value: PlantImage Variant NOWY
+      value: zywnit
       objectReference: {fileID: 0}
     - target: {fileID: 8758091088957384660, guid: e980fc400109b844ca9aa36ef2dbde1a, type: 3}
       propertyPath: m_Sprite

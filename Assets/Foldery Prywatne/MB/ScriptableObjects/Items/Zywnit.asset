@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Zywnit
   m_EditorClassIdentifier: 
   id: Zywnit
-  prefab: {fileID: 8392096246315305885, guid: 5d926dbfbc0bc854694a1c7dc5c6f491, type: 3}
+  prefab: {fileID: 8392096246315305885, guid: 1a591a49f4994c349a9279ad330aa446, type: 3}
   type: 0
   description: Material.
   uiPrefab: {fileID: 8392096246315305885, guid: 1a591a49f4994c349a9279ad330aa446, type: 3}

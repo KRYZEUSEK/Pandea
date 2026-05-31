@@ -21,7 +21,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   costs:
-  - item: {fileID: 11400000, guid: 1a0dadc868bc2db4293102821ceddf06, type: 2}
+  - item: {fileID: 11400000, guid: e1a4208dbc7307345b461d1f54e9c8bb, type: 2}
     amount: 2
   - item: {fileID: 11400000, guid: 310eb837797a869489be4e1acaf8c0c5, type: 2}
+    amount: 2
+  - item: {fileID: 11400000, guid: 1a0dadc868bc2db4293102821ceddf06, type: 2}
     amount: 2

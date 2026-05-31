@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -4359,6 +4359,7 @@ MonoBehaviour:
   recipes:
   - {fileID: 11400000, guid: 1b7e29d8abf8383419227486ff4e9251, type: 2}
   - {fileID: 11400000, guid: de928497e5821aa46aa61360b86acfbd, type: 2}
+  - {fileID: 11400000, guid: 7c48a9bf0cb6a8d4a9a357dbe7820a67, type: 2}
   craftingItemPrefab: {fileID: 1730682532303460234, guid: 424c29c2f34f9e647950fb5da61c8d45, type: 3}
   contentParent: {fileID: 416043454}
   craftingSystem: {fileID: 1448269439}
