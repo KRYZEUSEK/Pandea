@@ -1,10 +1,13 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.AI;
 
 public class HeldAmplifierDeployer : MonoBehaviour
 {
+    // --- GLOBALNA FLAGA MUTEXU DLA ZAGADEK ---
+    public static bool IsAnyCalibrating { get; private set; } = false;
+
     [Header("Ustawienia Interakcji (3 Etapy)")]
     public KeyCode deployKey = KeyCode.F;
     public int requiredStages = 3;
@@ -12,12 +15,12 @@ public class HeldAmplifierDeployer : MonoBehaviour
     public float speedMultiplierPerStage = 1.25f;
     public float sweetSpotWidth = 0.15f;
 
-    [Header("Ustawienia Ruchomej Strefy (Fina³)")]
+    [Header("Ustawienia Ruchomej Strefy (Final)")]
     public float sweetSpotMoveSpeed = 0.8f;
 
-    [Header("Kara za b³¹d")]
+    [Header("Kara za blad")]
     public float timePenalty = 10f;
-    [Tooltip("Czas blokady po b³êdzie (sekundy)")]
+    [Tooltip("Czas blokady po bledzie (sekundy)")]
     public float failCooldown = 2.0f;
     public GameObject explosionEffectPrefab;
 
@@ -26,12 +29,12 @@ public class HeldAmplifierDeployer : MonoBehaviour
     public string pointerName = "Pointer";
     public string sweetSpotName = "SweetSpot";
 
-    [Header("Ustawienia Bezpieczeñstwa / Spawnu")]
+    [Header("Ustawienia Bezpieczenstwa / Spawnu")]
     public string requiredParentName = "ToolHoldPoint";
     public GameObject amplifierPrefab;
     public float wysokoscSpawnuOffset = -1.0f;
 
-    [Header("Ustawienia Zasiêgu")]
+    [Header("Ustawienia Zasiegu")]
     public string shipTag = "Ship";
     public float minDistanceFromShip = 20f;
     public string warningUIName = "TooCloseToBaseText";
@@ -68,7 +71,7 @@ public class HeldAmplifierDeployer : MonoBehaviour
         {
             playerAgent = transform.root.GetComponentInChildren<NavMeshAgent>();
         }
-        // Upewniamy siê, ¿e po wyci¹gniêciu przedmiotu stan kalibracji jest czysty
+        // Upewniamy sie, ze po wyciagnieciu przedmiotu stan kalibracji jest czysty
         ResetCalibrationVariables();
     }
 
@@ -84,6 +87,7 @@ public class HeldAmplifierDeployer : MonoBehaviour
         pointerValue = 0f;
         pointerMovingForward = true;
         currentStage = 1;
+        IsAnyCalibrating = false;
     }
 
     void Update()
@@ -104,10 +108,11 @@ public class HeldAmplifierDeployer : MonoBehaviour
             }
         }
 
-        // Sprawdzamy czy blokada czasowa ju¿ minê³a
+        // Sprawdzamy czy blokada czasowa juz minela
         bool isOnCooldown = Time.time < cooldownEndTime;
 
-        if (Input.GetKeyDown(deployKey) && !isOnCooldown)
+        // NIE pozwalamy na uzycie wzmacniacza, gdy aktywna jest jakas zagadka lub pudelko
+        if (Input.GetKeyDown(deployKey) && !isOnCooldown && !PuzzleInteraction.isPuzzleActive && !skrypt_pudelka.isAnyPudelkoActive)
         {
             HandleAction();
         }
@@ -119,7 +124,7 @@ public class HeldAmplifierDeployer : MonoBehaviour
 
         if (calibrationUIContainer == null || pointerRect == null || sweetSpotRect == null)
         {
-            Debug.LogWarning("Brak elementów UI Kalibracji na scenie! Rozk³adanie anulowane.");
+            Debug.LogWarning("Brak elementow UI Kalibracji na scenie! Rozkladanie anulowane.");
             return;
         }
 
@@ -140,9 +145,10 @@ public class HeldAmplifierDeployer : MonoBehaviour
     {
         ResetCalibrationVariables();
         isCalibrating = true;
+        IsAnyCalibrating = true;
         currentPointerSpeed = baseCalibrationSpeed;
 
-        // --- POPRAWKA 2: Blokujemy ruch raz, na samym pocz¹tku ---
+        // --- POPRAWKA 2: Blokujemy ruch raz, na samym poczatku ---
         if (playerAgent != null && playerAgent.isOnNavMesh)
         {
             playerAgent.isStopped = true;
@@ -250,7 +256,7 @@ public class HeldAmplifierDeployer : MonoBehaviour
 
         // Zapisujemy w czasie rzeczywistym, kiedy minie blokada
         cooldownEndTime = Time.time + failCooldown;
-        Debug.Log("<color=orange>Wzmacniacz zablokowany - trwa restart systemów po spiêciu...</color>");
+        Debug.Log("<color=orange>Wzmacniacz zablokowany - trwa restart systemow po spieciu...</color>");
 
         if (TimeManager.Instance) TimeManager.Instance.ModifyTime(-timePenalty);
         if (explosionEffectPrefab) Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
@@ -259,12 +265,13 @@ public class HeldAmplifierDeployer : MonoBehaviour
     void StopCalibration()
     {
         ResetCalibrationVariables();
+        IsAnyCalibrating = false;
         if (calibrationUIContainer != null) calibrationUIContainer.SetActive(false);
 
         // --- POPRAWKA 2: Bezpieczne odblokowanie ruchu ---
         if (playerAgent != null && playerAgent.isOnNavMesh)
         {
-            playerAgent.ResetPath(); // Najpierw czyœcimy kolejkê klikniêæ gracza z czasu minigry!
+            playerAgent.ResetPath(); // Najpierw czyscimy kolejke klikniec gracza z czasu minigry!
             playerAgent.isStopped = false; // Potem go uwalniamy
         }
     }
