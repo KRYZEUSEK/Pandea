@@ -507,66 +507,60 @@ MonoBehaviour:
   sections:
   - name: First
     steps:
-    - text: "W roku 2073 na nasz\u0105 planet\u0119 przylecia\u0142a asteroida."
+    - text: "Przedmiotem naszych bada\u0144 jest ma\u0142a oko\u0142o p\xF3\u0142
+        metrowa Ailurus fulgens potocznie zwana jako pandka ruda."
       pauseBeforeSeconds: 0
       newLineBefore: 0
-    - text: "Nie by\u0142a ona jak inne, szare g\u0142azy, kt\xF3re wylecia\u0142y
-        z lokalnych pas\xF3w asteroid."
+    - text: "Jest to 3 letni samiec wa\u017C\u0105cy 5 kilogram\xF3w, o standardowym
+        dla jego rasy ubarwieniu"
       pauseBeforeSeconds: 1
       newLineBefore: 1
     holdAfterTypedSeconds: 1
   - name: Second
     steps:
-    - text: "O nie ta asteroida mia\u0142a zmieni\u0107 kurs naszej historii."
+    - text: "Jedyn\u0105 cech\u0105, kt\xF3ra odr\xF3\u017Cnia go od innych osobnik\xF3w
+        spojego gatunku jest ponad przeci\u0119tna inteligencja"
       pauseBeforeSeconds: 0
       newLineBefore: 0
-    - text: "Ona jedyna mog\u0142a nas ocali\u0107."
+    - text: "Jej IQ zmierzono na poziomie 371 punkt\xF3w"
       pauseBeforeSeconds: 1
       newLineBefore: 1
     holdAfterTypedSeconds: 1
   - name: Third
     steps:
-    - text: "Pierwsze oznaki niezwyk\u0142o\u015Bci tego meteorytu zaobserwowali\u015Bmy
-        niemal natychmiast."
+    - text: "Po opublikowaniu rezultat\xF3w badania internet zacz\u0105\u0142 wrze\u0107,
+        a rz\u0105d zleci\u0142 kolejny etap operacji"
       pauseBeforeSeconds: 0
       newLineBefore: 0
+    - text: Klonowanie
+      pauseBeforeSeconds: 0
+      newLineBefore: 1
     holdAfterTypedSeconds: 1
   - name: Fourth
     steps:
-    - text: "Spalanie by\u0142o znacznie wi\u0119ksze ni\u017C u innych obiekt\xF3w. "
+    - text: "Procesy replikacji DNA okaza\u0142y si\u0119 sukcesem"
       pauseBeforeSeconds: 0
       newLineBefore: 0
-    - text: "Mimo to asteroida nie mala\u0142a."
+    - text: "Wczoraj \u015Bredni poziom inteligencji nowych osobnik\xF3w zmierzono
+        na poziomie 259 punkt\xF3w"
       pauseBeforeSeconds: 0
       newLineBefore: 1
     holdAfterTypedSeconds: 1
   - name: Fifth
     steps:
-    - text: "Rozbi\u0142a si\u0119 na obrze\u017Cach Montrealu."
+    - text: "Mimo szybkiego rozwoju nie stworzy\u0142y hierarchii - dochodz\u0105
+        do rozwi\u0105za\u0144 wsp\xF3lnie"
       pauseBeforeSeconds: 0
       newLineBefore: 0
-    - text: Lokalni pasjonaci astronomii szybko odszukali krater.
+    - text: "Nie rz\u0105dz\u0105 nimi negatywne emocje"
       pauseBeforeSeconds: 0
       newLineBefore: 1
     holdAfterTypedSeconds: 1
   - name: Sixth
     steps:
-    - text: "To co w nim zastali od kilku miesi\u0119cy spe\u0142za sen z powiek
-        mnie i innym naukowcom z parku badawczego Reasearch Triangle Park."
+    - text: "W przeciwie\u0144stwie do ludzi"
       pauseBeforeSeconds: 0
       newLineBefore: 0
-    holdAfterTypedSeconds: 1
-  - name: Eighth
-    steps: []
-    holdAfterTypedSeconds: 1
-  - name: Nineth
-    steps: []
-    holdAfterTypedSeconds: 1
-  - name: Tenth
-    steps: []
-    holdAfterTypedSeconds: 1
-  - name: Eleventh
-    steps: []
     holdAfterTypedSeconds: 1
   typeSecondsPerChar: 0.05
   fadeInSeconds: 0.15

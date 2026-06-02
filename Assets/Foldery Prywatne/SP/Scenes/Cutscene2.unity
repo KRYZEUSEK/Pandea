@@ -507,66 +507,69 @@ MonoBehaviour:
   sections:
   - name: First
     steps:
-    - text: "W roku 2073 na nasz\u0105 planet\u0119 przylecia\u0142a asteroida."
+    - text: To koniec
       pauseBeforeSeconds: 0
       newLineBefore: 0
-    - text: "Nie by\u0142a ona jak inne, szare g\u0142azy, kt\xF3re wylecia\u0142y
-        z lokalnych pas\xF3w asteroid."
+    - text: "Nasza ignorancja zgubi\u0142a nas wszystkich"
       pauseBeforeSeconds: 1
       newLineBefore: 1
     holdAfterTypedSeconds: 1
   - name: Second
     steps:
-    - text: "O nie ta asteroida mia\u0142a zmieni\u0107 kurs naszej historii."
+    - text: "W wyniku braku porozumienia pomi\u0119dzy USA, a Rosj\u0105 w sprawie
+        pandek wybuch\u0142a wojna"
       pauseBeforeSeconds: 0
       newLineBefore: 0
-    - text: "Ona jedyna mog\u0142a nas ocali\u0107."
+    - text: "III Wojna \u015Awiatowa"
       pauseBeforeSeconds: 1
       newLineBefore: 1
     holdAfterTypedSeconds: 1
   - name: Third
     steps:
-    - text: "Pierwsze oznaki niezwyk\u0142o\u015Bci tego meteorytu zaobserwowali\u015Bmy
-        niemal natychmiast."
+    - text: "To one okaza\u0142y si\u0119 zapalnikiem, kt\xF3ry wreszcie zachwia\u0142
+        tym kruchym balansem"
       pauseBeforeSeconds: 0
       newLineBefore: 0
     holdAfterTypedSeconds: 1
   - name: Fourth
     steps:
-    - text: "Spalanie by\u0142o znacznie wi\u0119ksze ni\u017C u innych obiekt\xF3w. "
+    - text: "U\u017Cyli ka\u017Cdego sposobu, \u017Ceby nas wyeliminowa\u0107, nawet
+        bomb nuklearnych"
       pauseBeforeSeconds: 0
       newLineBefore: 0
-    - text: "Mimo to asteroida nie mala\u0142a."
+    - text: "cudem uda\u0142o nam si\u0119 przetrwa\u0107"
       pauseBeforeSeconds: 0
       newLineBefore: 1
     holdAfterTypedSeconds: 1
   - name: Fifth
     steps:
-    - text: "Rozbi\u0142a si\u0119 na obrze\u017Cach Montrealu."
+    - text: "Z planety nic nie zosta\u0142o, atmosfera zosta\u0142a zniszczona, nasz
+        \u015Bwiat pogr\u0105\u017Cy\u0142 si\u0119 w wiecznej zimie"
       pauseBeforeSeconds: 0
       newLineBefore: 0
-    - text: Lokalni pasjonaci astronomii szybko odszukali krater.
+    holdAfterTypedSeconds: 1
+  - name: Sixth
+    steps:
+    - text: "To ju\u017C koniec naszej historii, ale nie ich "
+      pauseBeforeSeconds: 0
+      newLineBefore: 0
+    - text: "Wierz\u0119, \u017Ce nie pope\u0142ni\u0105 tych samych b\u0142\u0119d\xF3w
+        co ludzie"
       pauseBeforeSeconds: 0
       newLineBefore: 1
     holdAfterTypedSeconds: 1
   - name: Sixth
     steps:
-    - text: "To co w nim zastali od kilku miesi\u0119cy spe\u0142za sen z powiek
-        mnie i innym naukowcom z parku badawczego Reasearch Triangle Park."
+    - text: "Wie\u017C\u0119, \u017Ce to w\u0142a\u015Bnie one powinny lecie\u0107
+        w nieznane rakiet\u0105, kt\xF3r\u0105 razem zbudowali\u015Bmy"
       pauseBeforeSeconds: 0
       newLineBefore: 0
-    holdAfterTypedSeconds: 1
-  - name: Eighth
-    steps: []
-    holdAfterTypedSeconds: 1
-  - name: Nineth
-    steps: []
-    holdAfterTypedSeconds: 1
-  - name: Tenth
-    steps: []
-    holdAfterTypedSeconds: 1
-  - name: Eleventh
-    steps: []
+    - text: "Wie\u017C\u0119, \u017Ce przetrwaj\u0105"
+      pauseBeforeSeconds: 0
+      newLineBefore: 0
+    - text: "Wie\u017C\u0119 w nie, bo to moje najdro\u017Csze dzieci"
+      pauseBeforeSeconds: 0
+      newLineBefore: 1
     holdAfterTypedSeconds: 1
   typeSecondsPerChar: 0.05
   fadeInSeconds: 0.15

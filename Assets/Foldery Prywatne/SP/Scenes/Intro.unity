@@ -556,18 +556,6 @@ MonoBehaviour:
       pauseBeforeSeconds: 0
       newLineBefore: 0
     holdAfterTypedSeconds: 1
-  - name: Eighth
-    steps: []
-    holdAfterTypedSeconds: 1
-  - name: Nineth
-    steps: []
-    holdAfterTypedSeconds: 1
-  - name: Tenth
-    steps: []
-    holdAfterTypedSeconds: 1
-  - name: Eleventh
-    steps: []
-    holdAfterTypedSeconds: 1
   typeSecondsPerChar: 0.05
   fadeInSeconds: 0.15
   fadeOutSeconds: 0.6
