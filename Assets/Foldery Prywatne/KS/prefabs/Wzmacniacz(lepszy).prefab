@@ -266,10 +266,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deployKey: 102
   requiredStages: 3
-  baseCalibrationSpeed: 1.2
+  baseCalibrationSpeed: 0.8
   speedMultiplierPerStage: 1
   sweetSpotWidth: 0.2
-  sweetSpotMoveSpeed: 0.8
+  sweetSpotMoveSpeed: 0.6
   timePenalty: 5
   failCooldown: 3
   explosionEffectPrefab: {fileID: 3503826174107351529, guid: 76bda197c746f154b9f71323e3f1d054, type: 3}

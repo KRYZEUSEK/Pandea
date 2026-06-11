@@ -162,6 +162,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   puzzleObjectName: PuzzleRoot
   interactionTextName: InteractionText
+  cutsceneCanvasName: Cutscene1
 --- !u!65 &4976817641386707319
 BoxCollider:
   m_ObjectHideFlags: 0

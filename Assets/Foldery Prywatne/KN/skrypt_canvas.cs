@@ -28,6 +28,31 @@ public class skrypt_canvas : MonoBehaviour
     // Mapowanie pozycji: [0] = Lewy, [1] = Srodkowy, [2] = Prawy
     private int[] visualToLogical = { 0, 1, 2 };
 
+    private GameObject FindGameObjectEvenInactive(string goName)
+    {
+        if (string.IsNullOrEmpty(goName)) return null;
+
+        UnityEngine.SceneManagement.Scene activeScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+        if (activeScene.isLoaded)
+        {
+            GameObject[] rootObjects = activeScene.GetRootGameObjects();
+            foreach (GameObject rootObj in rootObjects)
+            {
+                if (rootObj.name == goName) return rootObj;
+
+                Transform[] allChildren = rootObj.GetComponentsInChildren<Transform>(true);
+                foreach (Transform child in allChildren)
+                {
+                    if (child.name == goName)
+                    {
+                        return child.gameObject;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     private void Awake()
     {
         InitializeVisualMapping();
@@ -88,16 +113,32 @@ public class skrypt_canvas : MonoBehaviour
             Debug.Log("Kod poprawny! Gra toczy sie dalej.");
             
             string targetScene = "";
+            string cutsceneName = "";
 
             // Usuwamy tag z pudelka (zmieniamy na Untagged) i odczytujemy scene do wczytania z tego konkretnego pudelka
             if (skrypt_pudelka.activePudelko != null)
             {
                 skrypt_pudelka.activePudelko.gameObject.tag = "Untagged";
                 targetScene = skrypt_pudelka.activePudelko.sceneToLoad;
+                cutsceneName = skrypt_pudelka.activePudelko.cutsceneCanvasName;
             }
 
+            GameObject cutsceneGo = FindGameObjectEvenInactive(cutsceneName);
+
+            // Jeśli przypisano lokalną cutscenkę nakładkową
+            if (cutsceneGo != null)
+            {
+                if (skrypt_pudelka.activePudelko != null)
+                {
+                    skrypt_pudelka.activePudelko.PrepareForCutscene();
+                }
+
+                cutsceneGo.SetActive(true);
+                gameObject.SetActive(false); // Zamykamy Canvas kodu, skrypt_pudelka nie odblokuje ruchu dzięki PrepareForCutscene()
+                Debug.Log("[skrypt_canvas] Odpalanie lokalnej cutscenki (overlay): " + cutsceneName);
+            }
             // Jesli pudelko ma zdefiniowana scene do wczytania, wczytujemy ja z efektem fade-out
-            if (!string.IsNullOrEmpty(targetScene))
+            else if (!string.IsNullOrEmpty(targetScene))
             {
                 sceneToLoad = targetScene;
                 StartCoroutine(FadeAndLoadScene());

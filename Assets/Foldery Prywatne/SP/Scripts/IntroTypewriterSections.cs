@@ -1,12 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 using System;
-
 using TMPro;
-
 using UnityEngine.SceneManagement;
+using UnityEngine.Events;
+using UnityEngine.AI;
 
 namespace MyGame.Intro
 {
@@ -18,10 +17,10 @@ namespace MyGame.Intro
             [TextArea(1, 6)]
             public string text;
 
-            [Tooltip("Odczekaj tyle sekund przed t� porcj�.")]
+            [Tooltip("Odczekaj tyle sekund przed tą porcją.")]
             public float pauseBeforeSeconds;
 
-            [Tooltip("Dodaj nowa linijk� przed sekcj�.")]
+            [Tooltip("Dodaj nowa linijkę przed sekcją.")]
             public bool newLineBefore;
         }
 
@@ -62,7 +61,16 @@ namespace MyGame.Intro
         [Header("Flow")]
         [SerializeField] private string nextSceneName;
 
+        [Header("In-Scene Overlay Settings")]
+        public bool deactivateOnComplete = true;
+        [Tooltip("Obiekt do wyłączenia po zakończeniu. Jeśli pozostawisz puste, wyłączy się ten, na którym jest skrypt.")]
+        public GameObject objectToDeactivate;
+        public bool pauseTimeDuringCutscene = true;
+        public bool restorePlayerMovementOnComplete = true;
+        public UnityEvent onComplete;
+
         private Coroutine routine;
+        private float savedTimeScale = 1f;
 
         private void Reset()
         {
@@ -81,6 +89,12 @@ namespace MyGame.Intro
 
         private void OnEnable()
         {
+            if (pauseTimeDuringCutscene)
+            {
+                savedTimeScale = Time.timeScale;
+                Time.timeScale = 0f;
+                Debug.Log("[IntroTypewriterSections] Pauzowanie czasu gry na czas cutscenki.");
+            }
             routine = StartCoroutine(Play());
         }
 
@@ -88,6 +102,12 @@ namespace MyGame.Intro
         {
             if (routine != null) StopCoroutine(routine);
             routine = null;
+
+            if (pauseTimeDuringCutscene)
+            {
+                Time.timeScale = savedTimeScale;
+                Debug.Log("[IntroTypewriterSections] Przywrócenie pierwotnego czasu gry: " + savedTimeScale);
+            }
         }
 
         private IEnumerator Play()
@@ -137,7 +157,62 @@ namespace MyGame.Intro
             }
 
             if (!string.IsNullOrWhiteSpace(nextSceneName))
+            {
                 SceneManager.LoadScene(nextSceneName);
+            }
+            else
+            {
+                if (restorePlayerMovementOnComplete)
+                {
+                    RestorePlayerMovement();
+                }
+
+                onComplete?.Invoke();
+
+                if (deactivateOnComplete)
+                {
+                    GameObject targetDeactivate = (objectToDeactivate != null) ? objectToDeactivate : gameObject;
+                    targetDeactivate.SetActive(false);
+                }
+            }
+        }
+
+        private void RestorePlayerMovement()
+        {
+            GameObject realPlayer = GameObject.FindGameObjectWithTag("Player");
+
+            if (realPlayer != null)
+            {
+                NavMeshAgent realAgent = realPlayer.GetComponent<NavMeshAgent>();
+                PlayerControllerClick1 realController = realPlayer.GetComponent<PlayerControllerClick1>();
+
+                if (realAgent != null)
+                {
+                    NavMeshHit hit;
+                    if (NavMesh.SamplePosition(realPlayer.transform.position, out hit, 3.0f, NavMesh.AllAreas))
+                    {
+                        realPlayer.transform.position = hit.position;
+                    }
+
+                    realAgent.enabled = true;
+                    realAgent.isStopped = false;
+
+                    if (realAgent.isOnNavMesh)
+                    {
+                        realAgent.ResetPath();
+                    }
+                }
+
+                if (realController != null)
+                {
+                    realController.enabled = true;
+                }
+                
+                Debug.Log("[IntroTypewriterSections] Ruch gracza został odblokowany po cutscence.");
+            }
+
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
 
         private IEnumerator TypeAppend(string textToAppend)

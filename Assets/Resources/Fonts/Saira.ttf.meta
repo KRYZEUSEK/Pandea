@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: a8a15b788b4d8954fbb447da801fd6f5
+guid: d31b9ab8f7e32d840ab40bf7a30f8deb
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Plasmawave
+  - Saira
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0

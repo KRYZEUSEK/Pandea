@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -20,12 +20,20 @@ public class skrypt_pudelka : MonoBehaviour
     [Header("Ustawienia Sceny Lore")]
     [Tooltip("Nazwa sceny lore/cutscenki do wczytania po rozwiazaniu tej konkretnej skrzynki. Pozostaw puste, aby wylaczyc wczytywanie sceny.")]
     public string sceneToLoad = "";
+    [Tooltip("Dokladna nazwa obiektu Canvasu cutscenki na scenie do odpalenia w tej samej scenie.")]
+    public string cutsceneCanvasName = "";
 
     [Header("Referencje do Gracza (Pobierane automatycznie)")]
     private NavMeshAgent playerAgent;
     private PlayerControllerClick1 playerController;
 
     private bool isPlayerNear = false;
+    private bool isTransitioningToCutscene = false;
+
+    public void PrepareForCutscene()
+    {
+        isTransitioningToCutscene = true;
+    }
 
     private void Start()
     {
@@ -133,6 +141,7 @@ public class skrypt_pudelka : MonoBehaviour
         puzzleCanvas.SetActive(true);
         isAnyPudelkoActive = true;
         activePudelko = this;
+        isTransitioningToCutscene = false; // Resetujemy przy otwarciu
         
         // Blokowanie poruszania sie gracza
         if (playerAgent != null)
@@ -156,8 +165,11 @@ public class skrypt_pudelka : MonoBehaviour
         if (puzzleCanvas != null) puzzleCanvas.SetActive(false);
         isAnyPudelkoActive = false;
 
-        // Odblokowujemy ruch gracza
-        RestorePlayerMovement();
+        // Odblokowujemy ruch gracza tylko jesli nie przechodzimy do cutscenki
+        if (!isTransitioningToCutscene)
+        {
+            RestorePlayerMovement();
+        }
 
         if (activePudelko == this)
         {

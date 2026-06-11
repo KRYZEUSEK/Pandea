@@ -8,27 +8,27 @@ public class AmplifierTracker : MonoBehaviour
 
     [Header("Ustawienia Detekcji")]
     public float detectionRange = 100f;
-    [Tooltip("D³ugoœæ laserowego wskaŸnika.")]
+    [Tooltip("Dï¿½ugoï¿½ï¿½ laserowego wskaï¿½nika.")]
     public float pointerLength = 5f;
 
-    [Header("Czas Dzia³ania")]
-    [Tooltip("Przez ile sekund wzmacniacz ma wskazywaæ cel.")]
+    [Header("Czas Dziaï¿½ania")]
+    [Tooltip("Przez ile sekund wzmacniacz ma wskazywaï¿½ cel.")]
     public float activeDuration = 5f;
 
-    [Header("Wygl¹d Linii")]
-    [Tooltip("Gruboœæ linii na pocz¹tku (przy wzmacniaczu).")]
-    public float startWidth = 0.5f; // ZWIÊKSZONO DOMYŒLN¥ WARTOŒÆ
-    [Tooltip("Gruboœæ linii na koñcu (na grocie wskaŸnika).")]
+    [Header("Wyglï¿½d Linii")]
+    [Tooltip("Gruboï¿½ï¿½ linii na poczï¿½tku (przy wzmacniaczu).")]
+    public float startWidth = 0.5f; // ZWIï¿½KSZONO DOMYï¿½LNï¿½ WARTOï¿½ï¿½
+    [Tooltip("Gruboï¿½ï¿½ linii na koï¿½cu (na grocie wskaï¿½nika).")]
     public float endWidth = 0.0f;
-    [Tooltip("Wysokoœæ, z której wylatuje laser (wzglêdem œrodka obiektu).")]
+    [Tooltip("Wysokoï¿½ï¿½, z ktï¿½rej wylatuje laser (wzglï¿½dem ï¿½rodka obiektu).")]
     public float heightOffset = 1.0f; // NOWA ZMIENNA (zamiast sztywnego 0.5f)
 
     [Header("Efekt Migania (Stroboskop)")]
-    [Tooltip("Szybkoœæ pulsowania linii.")]
+    [Tooltip("Szybkoï¿½ï¿½ pulsowania linii.")]
     public float blinkSpeed = 8f;
-    [Tooltip("G³ówny kolor lasera (mo¿esz w³¹czyæ tu opcjê HDR w edytorze)")]
+    [Tooltip("Gï¿½ï¿½wny kolor lasera (moï¿½esz wï¿½ï¿½czyï¿½ tu opcjï¿½ HDR w edytorze)")]
     public Color lineColor = Color.red;
-    [Tooltip("Jak mocno linia ma œwieciæ w szczytowym momencie b³ysku?")]
+    [Tooltip("Jak mocno linia ma ï¿½wieciï¿½ w szczytowym momencie bï¿½ysku?")]
     public float maxGlowIntensity = 4f;
 
     private float currentActiveTime = 0f;
@@ -42,9 +42,19 @@ public class AmplifierTracker : MonoBehaviour
         lineRenderer.enabled = false;
         lineRenderer.positionCount = 2;
 
-        // Ustawienie gruboœci pobrane ze zmiennych publicznych
+        // Ustawienie gruboci pobrane ze zmiennych publicznych
         lineRenderer.startWidth = startWidth;
         lineRenderer.endWidth = endWidth;
+    }
+
+    void Start()
+    {
+        // JeÅ›li wzmacniacz jest stawiany bezpoÅ›rednio na scenie (np. przez system budowania na B),
+        // nikt nie wywoÅ‚uje na nim bezpoÅ›rednio metody Deploy(). Dlatego odpalamy go automatycznie.
+        if (!isDeployed)
+        {
+            Deploy();
+        }
     }
 
     public void Deploy()
@@ -59,12 +69,12 @@ public class AmplifierTracker : MonoBehaviour
     {
         if (!isDeployed) return;
 
-        // --- DODATEK: Aktualizacja gruboœci w czasie rzeczywistym ---
-        // Przydatne, jeœli zmieniasz wartoœci w Inspektorze podczas gry
+        // --- DODATEK: Aktualizacja gruboï¿½ci w czasie rzeczywistym ---
+        // Przydatne, jeï¿½li zmieniasz wartoï¿½ci w Inspektorze podczas gry
         lineRenderer.startWidth = startWidth;
         lineRenderer.endWidth = endWidth;
 
-        // 1. Odliczanie czasu dzia³ania (np. 5 sekund)
+        // 1. Odliczanie czasu dziaï¿½ania (np. 5 sekund)
         currentActiveTime += Time.deltaTime;
         if (currentActiveTime >= activeDuration)
         {
@@ -72,7 +82,7 @@ public class AmplifierTracker : MonoBehaviour
             return;
         }
 
-        // 2. Szukanie celu, jeœli go zgubiliœmy
+        // 2. Szukanie celu, jeï¿½li go zgubiliï¿½my
         if (currentTarget == null)
         {
             FindNearestTarget();
@@ -95,9 +105,9 @@ public class AmplifierTracker : MonoBehaviour
         isDeployed = false;
         lineRenderer.enabled = false;
 
-        Debug.Log("<color=orange>Wzmacniacz wy³¹czy³ siê po czasie.</color>");
+        Debug.Log("<color=orange>Wzmacniacz wyï¿½ï¿½czyï¿½ siï¿½ po czasie.</color>");
 
-        // Jeœli wzmacniacz ma po wszystkim znikn¹æ, odkomentuj poni¿sz¹ liniê:
+        // Jeï¿½li wzmacniacz ma po wszystkim zniknï¿½ï¿½, odkomentuj poniï¿½szï¿½ liniï¿½:
         // Destroy(gameObject); 
     }
 
@@ -120,11 +130,11 @@ public class AmplifierTracker : MonoBehaviour
 
     void DrawPointer()
     {
-        // Kierunek do celu (z p³ask¹ osi¹ Y, ¿eby linia nie ucieka³a w ziemiê/niebo)
+        // Kierunek do celu (z pï¿½askï¿½ osiï¿½ Y, ï¿½eby linia nie uciekaï¿½a w ziemiï¿½/niebo)
         Vector3 direction = (currentTarget.position - transform.position).normalized;
         direction.y = 0;
 
-        // Punkt pocz¹tkowy podniesiony o nasz nowy offset z Inspektora
+        // Punkt poczï¿½tkowy podniesiony o nasz nowy offset z Inspektora
         Vector3 startPos = transform.position + Vector3.up * heightOffset;
         Vector3 endPos = startPos + (direction * pointerLength);
 
@@ -134,21 +144,21 @@ public class AmplifierTracker : MonoBehaviour
 
     void BlinkEffect()
     {
-        // 1. Podstawa: p³ynny sinus od 0 do 1
+        // 1. Podstawa: pï¿½ynny sinus od 0 do 1
         float sineWave = (Mathf.Sin(Time.time * blinkSpeed) + 1f) / 2f;
 
-        // 2. MAGIA: Potêgujemy wynik. B³ysk jest bardzo krótki i "agresywny".
+        // 2. MAGIA: Potï¿½gujemy wynik. Bï¿½ysk jest bardzo krï¿½tki i "agresywny".
         float sharpBlink = Mathf.Pow(sineWave, 4f);
 
-        // 3. Mno¿ymy nasz bazowy kolor przez intensywnoœæ (tworzymy mocny kolor HDR)
+        // 3. Mnoï¿½ymy nasz bazowy kolor przez intensywnoï¿½ï¿½ (tworzymy mocny kolor HDR)
         Color glowingColor = lineColor * (sharpBlink * maxGlowIntensity);
 
-        // Ustawiamy przezroczystoœæ (Alpha), która te¿ mocno pulsuje
+        // Ustawiamy przezroczystoï¿½ï¿½ (Alpha), ktï¿½ra teï¿½ mocno pulsuje
         glowingColor.a = sharpBlink;
 
         lineRenderer.startColor = glowingColor;
 
-        // Koñcówka lasera zawsze g³adko zanika (Alpha = 0), ale dziedziczy blask
+        // Koï¿½cï¿½wka lasera zawsze gï¿½adko zanika (Alpha = 0), ale dziedziczy blask
         Color currentEndColor = lineColor * (sharpBlink * maxGlowIntensity);
         currentEndColor.a = 0f;
         lineRenderer.endColor = currentEndColor;

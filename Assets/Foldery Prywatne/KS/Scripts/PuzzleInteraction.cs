@@ -3,12 +3,12 @@ using UnityEngine.AI;
 
 public class PuzzleInteraction : MonoBehaviour
 {
-    [Header("Ustawienia UI (Wpisz DOK£ADN¥ nazwê obiektu na scenie)")]
+    [Header("Ustawienia UI (Wpisz DOKï¿½ADNï¿½ nazwï¿½ obiektu na scenie)")]
     public string puzzleObjectName = "PuzzleRoot";
     private GameObject puzzleObject;
 
     [Header("Ustawienia Tekstu Interakcji")]
-    [Tooltip("Nazwa obiektu z tekstem (np. 'Wciœnij F, aby u³o¿yæ').")]
+    [Tooltip("Nazwa obiektu z tekstem (np. 'Wciï¿½nij F, aby uï¿½oï¿½yï¿½').")]
     public string interactionTextName = "InteractionText";
     private GameObject interactionTextObject;
 
@@ -18,8 +18,37 @@ public class PuzzleInteraction : MonoBehaviour
 
     private bool isPlayerInRange = false;
 
-    // Statyczna flaga - u¿yj jej w skrypcie Pauzy i chodzenia
+    // Statyczna flaga - uyj jej w skrypcie Pauzy i chodzenia
     public static bool isPuzzleActive = false;
+
+    [Header("Opcjonalna Cutscenka (In-Scene Overlay)")]
+    [Tooltip("DokÅ‚adna nazwa obiektu Canvasu cutscenki na scenie.")]
+    public string cutsceneCanvasName;
+
+    private GameObject FindGameObjectEvenInactive(string goName)
+    {
+        if (string.IsNullOrEmpty(goName)) return null;
+
+        UnityEngine.SceneManagement.Scene activeScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+        if (activeScene.isLoaded)
+        {
+            GameObject[] rootObjects = activeScene.GetRootGameObjects();
+            foreach (GameObject rootObj in rootObjects)
+            {
+                if (rootObj.name == goName) return rootObj;
+
+                Transform[] allChildren = rootObj.GetComponentsInChildren<Transform>(true);
+                foreach (Transform child in allChildren)
+                {
+                    if (child.name == goName)
+                    {
+                        return child.gameObject;
+                    }
+                }
+            }
+        }
+        return null;
+    }
 
     private void Start()
     {
@@ -38,7 +67,7 @@ public class PuzzleInteraction : MonoBehaviour
                 return;
             }
         }
-        Debug.LogError("<color=red>PuzzleInteraction B£¥D:</color> Nie znaleziono na scenie obiektu: " + puzzleObjectName);
+        Debug.LogError("<color=red>PuzzleInteraction BD:</color> Nie znaleziono na scenie obiektu: " + puzzleObjectName);
     }
 
     private void FindInteractionText()
@@ -49,11 +78,11 @@ public class PuzzleInteraction : MonoBehaviour
             if (obj.name == interactionTextName && obj.scene.name != null)
             {
                 interactionTextObject = obj;
-                interactionTextObject.SetActive(false); // Upewniamy siê, ¿e na start jest wy³¹czony
+                interactionTextObject.SetActive(false); // Upewniamy si, e na start jest wyczony
                 return;
             }
         }
-        Debug.LogWarning("<color=yellow>PuzzleInteraction OSTRZE¯ENIE:</color> Nie znaleziono obiektu tekstu: " + interactionTextName);
+        Debug.LogWarning("<color=yellow>PuzzleInteraction OSTRZEENIE:</color> Nie znaleziono obiektu tekstu: " + interactionTextName);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -64,7 +93,7 @@ public class PuzzleInteraction : MonoBehaviour
             if (playerAgent == null) playerAgent = other.GetComponent<NavMeshAgent>();
             if (playerController == null) playerController = other.GetComponent<PlayerControllerClick1>();
 
-            // W³¹czamy tekst interakcji, jeœli zagadka nie jest w³aœnie rozwi¹zywana
+            // Wczamy tekst interakcji, jeli zagadka nie jest wanie rozwizywana
             if (interactionTextObject != null && !isPuzzleActive)
             {
                 interactionTextObject.SetActive(true);
@@ -78,7 +107,7 @@ public class PuzzleInteraction : MonoBehaviour
         {
             isPlayerInRange = false;
 
-            // Wy³¹czamy tekst, gdy gracz odejdzie
+            // Wyczamy tekst, gdy gracz odejdzie
             if (interactionTextObject != null)
             {
                 interactionTextObject.SetActive(false);
@@ -103,7 +132,7 @@ public class PuzzleInteraction : MonoBehaviour
     public void OpenPuzzle()
     {
         if (puzzleObject == null) FindPuzzleUI();
-        // Sprawdzamy tekst, w razie gdyby umkn¹³
+        // Sprawdzamy tekst, w razie gdyby umkn
         if (interactionTextObject == null) FindInteractionText();
 
         if (puzzleObject != null)
@@ -111,7 +140,7 @@ public class PuzzleInteraction : MonoBehaviour
             isPuzzleActive = true;
             puzzleObject.SetActive(true);
 
-            // Wy³¹czamy tekst interakcji po w³¹czeniu zagadki
+            // Wyczamy tekst interakcji po wczeniu zagadki
             if (interactionTextObject != null)
             {
                 interactionTextObject.SetActive(false);
@@ -135,14 +164,14 @@ public class PuzzleInteraction : MonoBehaviour
     }
 
     /// <summary>
-    /// Zwyk³e wyjœcie z zagadki (np. klawiszem ESC lub przyciskiem "WyjdŸ")
+    /// Zwyke wyjcie z zagadki (np. klawiszem ESC lub przyciskiem "Wyjd")
     /// </summary>
     public void ClosePuzzle()
     {
         isPuzzleActive = false;
         if (puzzleObject != null) puzzleObject.SetActive(false);
 
-        // Jeœli gracz anulowa³ zagadkê, ale dalej stoi w Triggerze - ponownie poka¿ tekst
+        // Jeli gracz anulowa zagadk, ale dalej stoi w Triggerze - ponownie poka tekst
         if (interactionTextObject != null && isPlayerInRange)
         {
             interactionTextObject.SetActive(true);
@@ -152,25 +181,34 @@ public class PuzzleInteraction : MonoBehaviour
     }
 
     /// <summary>
-    /// Wywo³ywane przez PuzzleGridManager po pomyœlnym u³o¿eniu!
+    /// Wywoywane przez PuzzleGridManager po pomylnym uoeniu!
     /// </summary>
     public void CompletePuzzle()
     {
-        Debug.Log("<color=cyan>[PuzzleInteraction]</color> Zagadka rozwi¹zana! Trwale odblokowujê gracza...");
+        Debug.Log("<color=cyan>[PuzzleInteraction]</color> Zagadka rozwizana!");
 
         isPuzzleActive = false;
         if (puzzleObject != null) puzzleObject.SetActive(false);
 
-        // Zabezpieczenie: trwale wy³¹czamy tekst interakcji
+        // Zabezpieczenie: trwale wyczamy tekst interakcji
         if (interactionTextObject != null) interactionTextObject.SetActive(false);
 
-        // 1. Odblokuj gracza
-        RestorePlayerMovement();
+        // 1. Odblokuj gracza lub wÅ‚Ä…cz cutscenkÄ™
+        GameObject cutsceneGo = FindGameObjectEvenInactive(cutsceneCanvasName);
+        if (cutsceneGo != null)
+        {
+            cutsceneGo.SetActive(true);
+            Debug.Log("<color=cyan>[PuzzleInteraction]</color> Uruchamianie cutscenki nakÅ‚adkowej o nazwie: " + cutsceneCanvasName);
+        }
+        else
+        {
+            RestorePlayerMovement();
+        }
 
-        // 2. Zmieñ tag obiektu Triggera na Untagged (domyœlny brak tagu)
+        // 2. Zmie tag obiektu Triggera na Untagged (domylny brak tagu)
         this.gameObject.tag = "Untagged";
 
-        // 3. Wy³¹cz skrypt i Collider, aby nie da³o siê go u¿yæ ponownie
+        // 3. Wycz skrypt i Collider, aby nie dao si go uy ponownie
         Collider c = GetComponent<Collider>();
         if (c != null) c.enabled = false;
 
@@ -178,7 +216,7 @@ public class PuzzleInteraction : MonoBehaviour
     }
 
     /// <summary>
-    /// OPCJA ATOMOWA: Znajduje prawdziwego gracza na scenie i si³owo w³¹cza mu komponenty
+    /// OPCJA ATOMOWA: Znajduje prawdziwego gracza na scenie i siowo wcza mu komponenty
     /// </summary>
     private void RestorePlayerMovement()
     {
@@ -189,10 +227,10 @@ public class PuzzleInteraction : MonoBehaviour
             NavMeshAgent realAgent = realPlayer.GetComponent<NavMeshAgent>();
             PlayerControllerClick1 realController = realPlayer.GetComponent<PlayerControllerClick1>();
 
-            // W³¹czamy NavMeshAgent
+            // Wï¿½ï¿½czamy NavMeshAgent
             if (realAgent != null)
             {
-                // Przyci¹gamy do NavMesha, by unikn¹æ b³êdów
+                // Przyciï¿½gamy do NavMesha, by uniknï¿½ï¿½ bï¿½ï¿½dï¿½w
                 NavMeshHit hit;
                 if (NavMesh.SamplePosition(realPlayer.transform.position, out hit, 3.0f, NavMesh.AllAreas))
                 {
@@ -208,7 +246,7 @@ public class PuzzleInteraction : MonoBehaviour
                 }
             }
 
-            // W³¹czamy PlayerController
+            // Wï¿½ï¿½czamy PlayerController
             if (realController != null)
             {
                 realController.enabled = true;
@@ -216,7 +254,7 @@ public class PuzzleInteraction : MonoBehaviour
         }
         else
         {
-            Debug.LogError("<color=red>[B£¥D]</color> Skrypt próbowa³ przywróciæ ruch, ale nie znalaz³ gracza z tagiem 'Player' na scenie!");
+            Debug.LogError("<color=red>[Bï¿½ï¿½D]</color> Skrypt prï¿½bowaï¿½ przywrï¿½ciï¿½ ruch, ale nie znalazï¿½ gracza z tagiem 'Player' na scenie!");
         }
     }
 }
