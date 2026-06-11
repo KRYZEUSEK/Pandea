@@ -16,10 +16,8 @@ namespace MyGame.Intro
         {
             [TextArea(1, 6)]
             public string text;
-
             [Tooltip("Odczekaj tyle sekund przed tą porcją.")]
             public float pauseBeforeSeconds;
-
             [Tooltip("Dodaj nowa linijkę przed sekcją.")]
             public bool newLineBefore;
         }
@@ -28,17 +26,18 @@ namespace MyGame.Intro
         public struct Section
         {
             public string name;
-
             [Tooltip("Kroki w porcji tekstu.")]
             public Step[] steps;
-
             [Tooltip("Czas przed fade outem.")]
             public float holdAfterTypedSeconds;
         }
 
-        [Header("UI")]
+        [Header("UI & Video Referencje")]
         [SerializeField] private TMP_Text targetText;
         [SerializeField] private CanvasGroup canvasGroup;
+
+        [Tooltip("Przeciągnij tutaj obiekt RawImage, na którym jest nowy skrypt IntroVideoController.")]
+        [SerializeField] private IntroVideoController videoController;
 
         [Header("Sekcje")]
         [SerializeField] private Section[] sections;
@@ -76,15 +75,13 @@ namespace MyGame.Intro
         {
             targetText = GetComponentInChildren<TMP_Text>(true);
             canvasGroup = (targetText != null) ? targetText.GetComponent<CanvasGroup>() : null;
+            videoController = FindObjectOfType<IntroVideoController>();
         }
 
         private void Awake()
         {
-            if (targetText == null)
-                Debug.LogError($"{nameof(IntroTypewriterSections)}: Missing TMP_Text reference.", this);
-
-            if (canvasGroup == null)
-                Debug.LogError($"{nameof(IntroTypewriterSections)}: Missing CanvasGroup reference.", this);
+            if (targetText == null) Debug.LogError($"{nameof(IntroTypewriterSections)}: Missing TMP_Text reference.", this);
+            if (canvasGroup == null) Debug.LogError($"{nameof(IntroTypewriterSections)}: Missing CanvasGroup reference.", this);
         }
 
         private void OnEnable()
@@ -93,7 +90,6 @@ namespace MyGame.Intro
             {
                 savedTimeScale = Time.timeScale;
                 Time.timeScale = 0f;
-                Debug.Log("[IntroTypewriterSections] Pauzowanie czasu gry na czas cutscenki.");
             }
             routine = StartCoroutine(Play());
         }
@@ -106,67 +102,64 @@ namespace MyGame.Intro
             if (pauseTimeDuringCutscene)
             {
                 Time.timeScale = savedTimeScale;
-                Debug.Log("[IntroTypewriterSections] Przywrócenie pierwotnego czasu gry: " + savedTimeScale);
             }
         }
 
         private IEnumerator Play()
         {
-            if (targetText == null || canvasGroup == null) yield break;
-            if (sections == null || sections.Length == 0) yield break;
+            if (targetText == null || canvasGroup == null || sections == null || sections.Length == 0) yield break;
 
-           
+            
+            // Krok 1: Odpalenie loopującego wideo i poczekanie na jego pełne załadowanie
+            if (videoController != null)
+            {
+                yield return videoController.PlayLoopingVideoCoroutine();
+            }
+
             canvasGroup.alpha = 0f;
             targetText.text = string.Empty;
 
+            // Krok 2: Odtwarzanie tekstu
             for (int s = 0; s < sections.Length; s++)
             {
-                
                 targetText.text = string.Empty;
-
-                
                 yield return Fade(canvasGroup, 0f, 1f, fadeInSeconds);
 
-                
                 var section = sections[s];
-                var steps = section.steps;
-
-                if (steps != null)
+                if (section.steps != null)
                 {
-                    for (int i = 0; i < steps.Length; i++)
+                    for (int i = 0; i < section.steps.Length; i++)
                     {
-                        float pause = Mathf.Max(0f, steps[i].pauseBeforeSeconds);
+                        float pause = Mathf.Max(0f, section.steps[i].pauseBeforeSeconds);
                         yield return WaitRealtime(pause);
 
-                        if (steps[i].newLineBefore && targetText.text.Length > 0)
+                        if (section.steps[i].newLineBefore && targetText.text.Length > 0)
                             targetText.text += "\n";
 
-                        yield return TypeAppend(steps[i].text ?? string.Empty);
+                        yield return TypeAppend(section.steps[i].text ?? string.Empty);
                     }
                 }
 
-               
                 float hold = Mathf.Max(0f, section.holdAfterTypedSeconds);
                 yield return WaitRealtime(hold);
-
-               
                 yield return Fade(canvasGroup, 1f, 0f, fadeOutSeconds);
-
-               
                 yield return WaitRealtime(holdAfterFadeSeconds);
             }
 
+            // Krok 3: Wywołanie końcowego wideo i poczekanie na jego koniec
+            if (videoController != null)
+            {
+                yield return videoController.PlayEndingVideoCoroutine();
+            }
+
+            // Krok 4: Zakończenie (załadowanie sceny lub zamknięcie canvasu)
             if (!string.IsNullOrWhiteSpace(nextSceneName))
             {
                 SceneManager.LoadScene(nextSceneName);
             }
             else
             {
-                if (restorePlayerMovementOnComplete)
-                {
-                    RestorePlayerMovement();
-                }
-
+                if (restorePlayerMovementOnComplete) RestorePlayerMovement();
                 onComplete?.Invoke();
 
                 if (deactivateOnComplete)
@@ -180,7 +173,6 @@ namespace MyGame.Intro
         private void RestorePlayerMovement()
         {
             GameObject realPlayer = GameObject.FindGameObjectWithTag("Player");
-
             if (realPlayer != null)
             {
                 NavMeshAgent realAgent = realPlayer.GetComponent<NavMeshAgent>();
@@ -196,19 +188,10 @@ namespace MyGame.Intro
 
                     realAgent.enabled = true;
                     realAgent.isStopped = false;
-
-                    if (realAgent.isOnNavMesh)
-                    {
-                        realAgent.ResetPath();
-                    }
+                    if (realAgent.isOnNavMesh) realAgent.ResetPath();
                 }
 
-                if (realController != null)
-                {
-                    realController.enabled = true;
-                }
-                
-                Debug.Log("[IntroTypewriterSections] Ruch gracza został odblokowany po cutscence.");
+                if (realController != null) realController.enabled = true;
             }
 
             Cursor.lockState = CursorLockMode.None;
@@ -217,16 +200,12 @@ namespace MyGame.Intro
 
         private IEnumerator TypeAppend(string textToAppend)
         {
-            if (string.IsNullOrEmpty(textToAppend))
-                yield break;
-
+            if (string.IsNullOrEmpty(textToAppend)) yield break;
             for (int i = 0; i < textToAppend.Length; i++)
             {
                 char c = textToAppend[i];
                 targetText.text += c;
-
                 PlayBlipIfNeeded(c);
-
                 yield return new WaitForSecondsRealtime(typeSecondsPerChar);
             }
         }
@@ -238,27 +217,19 @@ namespace MyGame.Intro
 
             float prevPitch = sfxSource.pitch;
             sfxSource.pitch = UnityEngine.Random.Range(blipPitchRange.x, blipPitchRange.y);
-
             sfxSource.PlayOneShot(blipClip, blipVolume);
-
             sfxSource.pitch = prevPitch;
         }
 
         private IEnumerator Fade(CanvasGroup cg, float from, float to, float seconds)
         {
-            if (seconds <= 0f)
-            {
-                cg.alpha = to;
-                yield break;
-            }
-
+            if (seconds <= 0f) { cg.alpha = to; yield break; }
             float t = 0f;
             cg.alpha = from;
             while (t < seconds)
             {
                 t += Time.unscaledDeltaTime;
-                float p = Mathf.Clamp01(t / seconds);
-                cg.alpha = Mathf.Lerp(from, to, p);
+                cg.alpha = Mathf.Lerp(from, to, Mathf.Clamp01(t / seconds));
                 yield return null;
             }
             cg.alpha = to;
@@ -267,7 +238,6 @@ namespace MyGame.Intro
         private IEnumerator WaitRealtime(float seconds)
         {
             if (seconds <= 0f) yield break;
-
             float t = 0f;
             while (t < seconds)
             {
