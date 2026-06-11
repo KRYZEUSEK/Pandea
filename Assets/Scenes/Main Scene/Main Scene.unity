@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -241,6 +241,13 @@ MonoBehaviour:
   ignoreWhitespaceForBlip: 1
   blipPitchRange: {x: 0.98, y: 1.02}
   nextSceneName: 
+  deactivateOnComplete: 1
+  objectToDeactivate: {fileID: 762416023}
+  pauseTimeDuringCutscene: 1
+  restorePlayerMovementOnComplete: 1
+  onComplete:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &33289704
 GameObject:
   m_ObjectHideFlags: 0
@@ -2179,7 +2186,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 0
   m_TargetDisplay: 0
 --- !u!1 &507502880
 GameObject:
@@ -3228,6 +3235,13 @@ MonoBehaviour:
   ignoreWhitespaceForBlip: 1
   blipPitchRange: {x: 0.98, y: 1.02}
   nextSceneName: 
+  deactivateOnComplete: 1
+  objectToDeactivate: {fileID: 358792698}
+  pauseTimeDuringCutscene: 1
+  restorePlayerMovementOnComplete: 1
+  onComplete:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &749643486
 GameObject:
   m_ObjectHideFlags: 0
@@ -6611,7 +6625,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0dcab606af222a4282a02076caed69d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  czasRozjasniania: 15
+  czasRozjasniania: 10
+  autoStart: 0
   faderImage: {fileID: 2051089558}
 --- !u!1 &1395290197
 GameObject:
@@ -8114,6 +8129,34 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1464082224836247218, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1464082224836247218, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1464082224836247218, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 1382010303}
+    - target: {fileID: 1464082224836247218, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1464082224836247218, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: TriggerFadeIn
+      objectReference: {fileID: 0}
+    - target: {fileID: 1464082224836247218, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: StartManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 1464082224836247218, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 1804586369881560515, guid: 6c468c2cb5897ce4889995b0d3e92647, type: 3}
       propertyPath: m_Type
       value: 0
@@ -9091,7 +9134,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2137184555}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -0.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -9282,8 +9325,8 @@ SceneRoots:
   - {fileID: 962081137}
   - {fileID: 632014668}
   - {fileID: 963194228}
-  - {fileID: 1454485020}
   - {fileID: 136626720}
   - {fileID: 211582104}
   - {fileID: 694188268}
   - {fileID: 1259734201}
+  - {fileID: 1454485020}

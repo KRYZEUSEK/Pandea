@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -182,6 +182,14 @@ public class BuildingManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Z)) currentRotation -= rotationStepDegrees;
         if (Input.GetKeyDown(KeyCode.X)) currentRotation += rotationStepDegrees;
 
+        // Potwierdzanie postawienia prawym przyciskiem myszy (PPM / Mouse 1)
+        if (Input.GetMouseButtonDown(1))
+        {
+            if (!IsPointerOverUI())
+            {
+                TryPlaceFinalFromPreview();
+            }
+        }
     }
 
     private bool HasRequiredTool()
@@ -424,7 +432,7 @@ public class BuildingManager : MonoBehaviour
 
     private void EnterBuildMode(BuildableData data)
     {
-        input.Main.Place.performed += OnPlacePerformed;
+        // input.Main.Place.performed += OnPlacePerformed;
         input.Enable();
         selectedBuildable = data;
         buildMode = true;
@@ -452,7 +460,7 @@ public class BuildingManager : MonoBehaviour
 
     private void ExitBuildMode()
     {
-        input.Main.Place.performed -= OnPlacePerformed;
+        // input.Main.Place.performed -= OnPlacePerformed;
         input.Disable();
         buildMode = false;
 

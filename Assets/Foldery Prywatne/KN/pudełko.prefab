@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 491603013204357149}
   m_Layer: 0
   m_Name: "pude\u0142ko"
-  m_TagString: Untagged
+  m_TagString: Objective1
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -121,6 +121,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   puzzleCanvasName: PuzzleCanvas
   sceneToLoad: 
+  cutsceneCanvasName: Cutscene2
 --- !u!1001 &7572189719140930150
 PrefabInstance:
   m_ObjectHideFlags: 0
