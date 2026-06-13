@@ -5164,6 +5164,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   lookRotationSpeed: 8
+  interactableLayers:
+    serializedVersion: 2
+    m_Bits: 0
   heightFromPivotToFeet: 1.4
   jumpHeight: 2.3
   jumpDuration: 1.5
@@ -5287,6 +5290,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inventory: {fileID: 11400000, guid: 25d6dc41a3bf0cf4491b5fd8ca131fb6, type: 2}
   displayHotbar: {fileID: 0}
+  zielnikUI: {fileID: 0}
 --- !u!114 &2771466041489025639
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5345,6 +5349,10 @@ MonoBehaviour:
   navMeshSnapMaxDistance: 2
   validColor: {r: 0, g: 1, b: 0, a: 0.35}
   invalidColor: {r: 1, g: 0, b: 0, a: 0.35}
+  maxBuildRadius: 5
+  radiusRenderer: {fileID: 0}
+  circleSegments: 50
+  circleLineWidth: 0.05
 --- !u!114 &4428412339594487188
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5359,11 +5367,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hotbarSelector: {fileID: 0}
   chopKey: 114
-  interactDistance: 2.5
   treeLayerMask:
     serializedVersion: 2
     m_Bits: 256
-  rayRadius: 0.4
+  hitOffset: 0.2
+  hitRadius: 2
+  hitHeight: 0
   chopCooldown: 0.35
 --- !u!114 &4308371140831152381
 MonoBehaviour:
@@ -5379,6 +5388,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   burnTimeMultiplier: 5
   fireVFX: {fileID: 8636174048883403824}
+  postProcessVolumeName: BurningPostProcess
   postProcessVolume: {fileID: 0}
   burnColor: {r: 1, g: 0.7, b: 0.8, a: 1}
   minPulseIntensity: 0.45

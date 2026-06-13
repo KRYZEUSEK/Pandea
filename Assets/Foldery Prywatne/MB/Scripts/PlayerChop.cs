@@ -9,13 +9,13 @@ public class PlayerChop : MonoBehaviour
     [SerializeField] private KeyCode chopKey = KeyCode.R;
     [SerializeField] private LayerMask treeLayerMask;
 
-    [Header("Hitbox œcinania")]
+    [Header("Hitbox œcinania (Prostopad³oœcian)")]
     [Tooltip("Jak daleko przed graczem powstaje strefa uderzenia")]
-    [SerializeField] private float hitOffset = 0.5f;
-    [Tooltip("Wielkoœæ strefy uderzenia (promieñ kuli)")]
-    [SerializeField] private float hitRadius = 1.0f;
-    [Tooltip("Wysokoœæ, na której znajduje siê œrodek kuli (Daj blisko 0 dla ma³ych obiektów!)")]
-    [SerializeField] private float hitHeight = 0.2f;
+    [SerializeField] private float hitOffset = 1.0f;
+    [Tooltip("Wymiary strefy uderzenia (X: szerokoœæ, Y: wysokoœæ, Z: g³êbokoœæ)")]
+    [SerializeField] private Vector3 hitBoxSize = new Vector3(2f, 2f, 2f);
+    [Tooltip("Przesuniêcie w osi Y (daj na minus, np. -0.5, jeœli obiekty s¹ wciœniête pod ziemiê)")]
+    [SerializeField] private float hitHeightOffset = 0f;
 
     [Header("Cooldown")]
     [SerializeField] private float chopCooldown = 0.35f;
@@ -43,11 +43,11 @@ public class PlayerChop : MonoBehaviour
         // 2. Sprawdzenie narzêdzia
         if (hotbarSelector == null || !hotbarSelector.IsAxeEquipped()) return;
 
-        // 3. Wyliczenie œrodka kuli z uwzglêdnieniem nowej wysokoœci (hitHeight)
-        Vector3 hitCenter = transform.position + transform.forward * hitOffset + Vector3.up * hitHeight;
+        // 3. Wyliczenie œrodka pude³ka
+        Vector3 hitCenter = transform.position + transform.forward * hitOffset + Vector3.up * hitHeightOffset;
 
-        // 4. Zebranie obiektów
-        Collider[] hitColliders = Physics.OverlapSphere(hitCenter, hitRadius, treeLayerMask);
+        // 4. Zebranie obiektów w prostok¹tnym polu (z uwzglêdnieniem rotacji gracza!)
+        Collider[] hitColliders = Physics.OverlapBox(hitCenter, hitBoxSize / 2f, transform.rotation, treeLayerMask);
 
         // 5. Sprawdzenie trafieñ
         foreach (Collider col in hitColliders)
@@ -65,8 +65,11 @@ public class PlayerChop : MonoBehaviour
     // Rysowanie strefy uderzenia w edytorze
     private void OnDrawGizmosSelected()
     {
-        Vector3 hitCenter = transform.position + transform.forward * hitOffset + Vector3.up * hitHeight;
+        Vector3 hitCenter = transform.position + transform.forward * hitOffset + Vector3.up * hitHeightOffset;
         Gizmos.color = new Color(1f, 0f, 0f, 0.5f);
-        Gizmos.DrawWireSphere(hitCenter, hitRadius);
+
+        // Transformacja macierzy, aby Gizmo obraca³o siê razem z graczem
+        Gizmos.matrix = Matrix4x4.TRS(hitCenter, transform.rotation, hitBoxSize);
+        Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
     }
 }

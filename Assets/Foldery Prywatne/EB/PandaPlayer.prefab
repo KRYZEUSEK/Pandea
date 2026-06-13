@@ -5507,13 +5507,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hotbarSelector: {fileID: 8665864873130504698}
-  chopKey: 114
+  chopKey: 102
   treeLayerMask:
     serializedVersion: 2
     m_Bits: 256
-  hitOffset: 0.5
-  hitRadius: 1
-  hitHeight: 0.2
+  hitOffset: 2
+  hitBoxSize: {x: 2, y: 2, z: 2}
+  hitHeightOffset: 0
   chopCooldown: 0.35
 --- !u!114 &5663055315501117313
 MonoBehaviour:
