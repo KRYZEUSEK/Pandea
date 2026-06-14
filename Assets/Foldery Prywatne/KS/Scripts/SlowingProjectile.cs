@@ -62,15 +62,23 @@ public class SlowEffectHelper : MonoBehaviour
 {
     private Coroutine slowCoroutine;
     private float appliedSlow = 0f;
+    private PlayerControllerClick1 playerController1;
     private PlayerControllerClick playerController;
 
     private void Awake()
     {
+        playerController1 = GetComponent<PlayerControllerClick1>();
         playerController = GetComponent<PlayerControllerClick>();
     }
 
     public void ApplySlow(NavMeshAgent agent, float amount, float duration)
     {
+        if (playerController1 != null)
+        {
+            playerController1.AddSpeedModifier("SlowEffect", -amount, duration);
+            return;
+        }
+
         if (playerController != null)
         {
             playerController.AddSpeedModifier("SlowEffect", -amount, duration);
