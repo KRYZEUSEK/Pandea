@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db17369aa36837c4c862aaacd5087e11, type: 3}
+  m_Name: Grzyb
+  m_EditorClassIdentifier: 
+  plantName: "Po\u017Carycznik"
+  plantDescription: 
+  plantPicture: {fileID: 0}
+  prefabs:
+  - {fileID: 3309677305652062617, guid: 40a6d36472342d749ab1c4dfc1214197, type: 3}
+  isInteractable: 0
+  density: 0.1
+  minHeight: 0
+  maxHeight: 1
+  maxSlope: 90
+  noiseScale: 10
+  noiseThreshold: 0.4
+  noiseOffset: {x: 0, y: 0}
+  minScale: 0.2
+  maxScale: 0.4
+  isGroundCover: 0
