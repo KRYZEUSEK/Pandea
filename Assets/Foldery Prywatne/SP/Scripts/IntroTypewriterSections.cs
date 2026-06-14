@@ -6,6 +6,7 @@ using TMPro;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 namespace MyGame.Intro
 {
@@ -26,6 +27,8 @@ namespace MyGame.Intro
         public struct Section
         {
             public string name;
+            [Tooltip("Obrazek (Sprite), który pojawi się w tle podczas tej sekcji.")]
+            public Sprite backgroundImage;
             [Tooltip("Kroki w porcji tekstu.")]
             public Step[] steps;
             [Tooltip("Czas przed fade outem.")]
@@ -38,6 +41,9 @@ namespace MyGame.Intro
 
         [Tooltip("Przeciągnij tutaj obiekt RawImage, na którym jest nowy skrypt IntroVideoController.")]
         [SerializeField] private IntroVideoController videoController;
+
+        [Tooltip("Przeciągnij tutaj obiekt Image z Canvasu do obsługi teł graficznych (opcjonalnie).")]
+        [SerializeField] private Image backgroundImageComponent;
 
         [Header("Sekcje")]
         [SerializeField] private Section[] sections;
@@ -122,10 +128,15 @@ namespace MyGame.Intro
             // Krok 2: Odtwarzanie tekstu
             for (int s = 0; s < sections.Length; s++)
             {
+                var section = sections[s];
+                if (backgroundImageComponent != null && section.backgroundImage != null)
+                {
+                    backgroundImageComponent.sprite = section.backgroundImage;
+                }
+
                 targetText.text = string.Empty;
                 yield return Fade(canvasGroup, 0f, 1f, fadeInSeconds);
 
-                var section = sections[s];
                 if (section.steps != null)
                 {
                     for (int i = 0; i < section.steps.Length; i++)

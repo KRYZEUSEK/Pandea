@@ -174,8 +174,10 @@ MonoBehaviour:
   targetText: {fileID: 381512543}
   canvasGroup: {fileID: 381512541}
   videoController: {fileID: 0}
+  backgroundImageComponent: {fileID: 893925810}
   sections:
   - name: First
+    backgroundImage: {fileID: 21300000, guid: b5d6e64519bd5ec4e8ad710bc94a0583, type: 3}
     steps:
     - text: "Przedmiotem naszych bada\u0144 jest ma\u0142a oko\u0142o p\xF3\u0142
         metrowa Ailurus fulgens potocznie zwana jako pandka ruda."
@@ -187,6 +189,7 @@ MonoBehaviour:
       newLineBefore: 1
     holdAfterTypedSeconds: 1
   - name: Second
+    backgroundImage: {fileID: 21300000, guid: 08bd91941c1e2a241bb967578af06eed, type: 3}
     steps:
     - text: "Jedyn\u0105 cech\u0105, kt\xF3ra odr\xF3\u017Cnia go od innych osobnik\xF3w
         spojego gatunku jest ponad przeci\u0119tna inteligencja"
@@ -197,6 +200,7 @@ MonoBehaviour:
       newLineBefore: 1
     holdAfterTypedSeconds: 1
   - name: Third
+    backgroundImage: {fileID: 21300000, guid: 8a1fef1834c937146aa810a44d2a2772, type: 3}
     steps:
     - text: "Po opublikowaniu rezultat\xF3w badania internet zacz\u0105\u0142 wrze\u0107,
         a rz\u0105d zleci\u0142 kolejny etap operacji"
@@ -207,6 +211,7 @@ MonoBehaviour:
       newLineBefore: 1
     holdAfterTypedSeconds: 1
   - name: Fourth
+    backgroundImage: {fileID: 21300000, guid: f756faca76c0a7f48af041a48f950ed6, type: 3}
     steps:
     - text: "Procesy replikacji DNA okaza\u0142y si\u0119 sukcesem"
       pauseBeforeSeconds: 0
@@ -217,6 +222,7 @@ MonoBehaviour:
       newLineBefore: 1
     holdAfterTypedSeconds: 1
   - name: Fifth
+    backgroundImage: {fileID: 21300000, guid: 4afb6b7ebfa09214c891953c41890b32, type: 3}
     steps:
     - text: "Mimo szybkiego rozwoju nie stworzy\u0142y hierarchii - dochodz\u0105
         do rozwi\u0105za\u0144 wsp\xF3lnie"
@@ -227,6 +233,7 @@ MonoBehaviour:
       newLineBefore: 1
     holdAfterTypedSeconds: 1
   - name: Sixth
+    backgroundImage: {fileID: 0}
     steps:
     - text: "W przeciwie\u0144stwie do ludzi"
       pauseBeforeSeconds: 0
@@ -2826,7 +2833,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3198,8 +3205,10 @@ MonoBehaviour:
   targetText: {fileID: 561178760}
   canvasGroup: {fileID: 561178758}
   videoController: {fileID: 0}
+  backgroundImageComponent: {fileID: 641366166}
   sections:
   - name: First
+    backgroundImage: {fileID: 21300000, guid: f747c42969175834f926d82638a4649e, type: 3}
     steps:
     - text: To koniec
       pauseBeforeSeconds: 0
@@ -3209,6 +3218,7 @@ MonoBehaviour:
       newLineBefore: 1
     holdAfterTypedSeconds: 1
   - name: Second
+    backgroundImage: {fileID: 21300000, guid: 479e985fe06ae2247b5fdbb898de0c62, type: 3}
     steps:
     - text: "W wyniku braku porozumienia pomi\u0119dzy USA, a Rosj\u0105 w sprawie
         pandek wybuch\u0142a wojna"
@@ -3219,6 +3229,7 @@ MonoBehaviour:
       newLineBefore: 1
     holdAfterTypedSeconds: 1
   - name: Third
+    backgroundImage: {fileID: 0}
     steps:
     - text: "To one okaza\u0142y si\u0119 zapalnikiem, kt\xF3ry wreszcie zachwia\u0142
         tym kruchym balansem"
@@ -3226,6 +3237,7 @@ MonoBehaviour:
       newLineBefore: 0
     holdAfterTypedSeconds: 1
   - name: Fourth
+    backgroundImage: {fileID: 0}
     steps:
     - text: "U\u017Cyli ka\u017Cdego sposobu, \u017Ceby nas wyeliminowa\u0107, nawet
         bomb nuklearnych"
@@ -3236,6 +3248,7 @@ MonoBehaviour:
       newLineBefore: 1
     holdAfterTypedSeconds: 1
   - name: Fifth
+    backgroundImage: {fileID: 0}
     steps:
     - text: "Z planety nic nie zosta\u0142o, atmosfera zosta\u0142a zniszczona, nasz
         \u015Bwiat pogr\u0105\u017Cy\u0142 si\u0119 w wiecznej zimie"
@@ -3243,6 +3256,7 @@ MonoBehaviour:
       newLineBefore: 0
     holdAfterTypedSeconds: 1
   - name: Sixth
+    backgroundImage: {fileID: 21300000, guid: 270df69acbc40dd408e5f1dde7ea506d, type: 3}
     steps:
     - text: "To ju\u017C koniec naszej historii, ale nie ich "
       pauseBeforeSeconds: 0
@@ -3253,15 +3267,16 @@ MonoBehaviour:
       newLineBefore: 1
     holdAfterTypedSeconds: 1
   - name: Sixth
+    backgroundImage: {fileID: 0}
     steps:
-    - text: "Wie\u017C\u0119, \u017Ce to w\u0142a\u015Bnie one powinny lecie\u0107
-        w nieznane rakiet\u0105, kt\xF3r\u0105 razem zbudowali\u015Bmy"
+    - text: "Wierz\u0119, \u017Ce to w\u0142a\u015Bnie one powinny lecie\u0107 w
+        nieznane rakiet\u0105, kt\xF3r\u0105 razem zbudowali\u015Bmy"
       pauseBeforeSeconds: 0
       newLineBefore: 0
-    - text: "Wie\u017C\u0119, \u017Ce przetrwaj\u0105"
+    - text: "Wierz\u0119, \u017Ce przetrwaj\u0105"
       pauseBeforeSeconds: 0
       newLineBefore: 0
-    - text: "Wie\u017C\u0119 w nie, bo to moje najdro\u017Csze dzieci"
+    - text: "Wierz\u0119 w nie, bo to moje najdro\u017Csze dzieci"
       pauseBeforeSeconds: 0
       newLineBefore: 1
     holdAfterTypedSeconds: 1
@@ -3799,7 +3814,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -5817,6 +5832,16 @@ MonoBehaviour:
     layerName: 
     minDistance: 150
     maxDistance: 180
+    spawnImmediately: 1
+    targetPosition: {x: 0, y: 0}
+    isSpawned: 0
+    isHeightAdjusted: 0
+    spawnedInstance: {fileID: 0}
+  - name: Docelowy element
+    prefab: {fileID: 1611781417244674457, guid: f41bdabdc2e894d49a5e486cef1f67c1, type: 3}
+    layerName: 
+    minDistance: 90
+    maxDistance: 120
     spawnImmediately: 1
     targetPosition: {x: 0, y: 0}
     isSpawned: 0
