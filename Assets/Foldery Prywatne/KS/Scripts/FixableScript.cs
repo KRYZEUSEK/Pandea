@@ -55,6 +55,12 @@ public class FixableScript : MonoBehaviour
         if (fixPromptUI != null)
             fixPromptUI.SetActive(false);
 
+        // Powiadom QuestManager o ukonczeniu kroku
+        if (QuestManager.Instance != null)
+        {
+            QuestManager.Instance.CompleteCurrentStep();
+        }
+
         Destroy(this); // Niszczy ten komponent FixableScript
     }
 

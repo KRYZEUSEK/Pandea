@@ -21,6 +21,30 @@ public class PlayerControllerClick : MonoBehaviour
     [SerializeField] LayerMask obstacleLayers;
     [SerializeField] float lookRotationSpeed = 8f;
 
+    [Header("Speed Modification")]
+    [SerializeField] float maxSpeed = 8.0f;
+    [SerializeField] float minSpeed = 0.5f;
+
+    [System.Serializable]
+    public class SpeedModifier
+    {
+        public string id;
+        public float amount;
+        public float duration;
+        public float timer;
+
+        public SpeedModifier(string id, float amount, float duration)
+        {
+            this.id = id;
+            this.amount = amount;
+            this.duration = duration;
+            this.timer = duration;
+        }
+    }
+
+    private System.Collections.Generic.List<SpeedModifier> speedModifiers = new System.Collections.Generic.List<SpeedModifier>();
+    private float baseSpeed = -1f;
+
     [Header("Jumping")]
     [SerializeField] float jumpHeight = 2.0f;
     [SerializeField] float jumpDuration = 0.5f;
@@ -49,6 +73,11 @@ public class PlayerControllerClick : MonoBehaviour
         animator = GetComponent<Animator>();
         mainCamera = Camera.main;
 
+        if (agent != null)
+        {
+            baseSpeed = agent.speed;
+        }
+
         input = new CustomActions();
         AssignInputs();
     }
@@ -70,6 +99,22 @@ public class PlayerControllerClick : MonoBehaviour
     private void Update()
     {
         GroundCheck();
+
+        // Tick speed modifiers
+        bool speedChanged = false;
+        for (int i = speedModifiers.Count - 1; i >= 0; i--)
+        {
+            speedModifiers[i].timer -= Time.deltaTime;
+            if (speedModifiers[i].timer <= 0)
+            {
+                speedModifiers.RemoveAt(i);
+                speedChanged = true;
+            }
+        }
+        if (speedChanged)
+        {
+            RecalculateSpeed();
+        }
 
         if (isJumping) return;
 
@@ -222,5 +267,46 @@ public class PlayerControllerClick : MonoBehaviour
     {
         bool isWalking = agent.velocity.magnitude > 0.1f;
         animator.SetBool("isWalking", isWalking);
+    }
+
+    public void AddSpeedModifier(string id, float amount, float duration)
+    {
+        if (agent == null) return;
+        if (baseSpeed < 0f && agent != null) baseSpeed = agent.speed;
+
+        SpeedModifier existing = speedModifiers.Find(m => m.id == id);
+        if (existing != null)
+        {
+            existing.timer = duration;
+            existing.amount = amount;
+        }
+        else
+        {
+            speedModifiers.Add(new SpeedModifier(id, amount, duration));
+        }
+        RecalculateSpeed();
+    }
+
+    public void RemoveSpeedModifier(string id)
+    {
+        int removed = speedModifiers.RemoveAll(m => m.id == id);
+        if (removed > 0)
+        {
+            RecalculateSpeed();
+        }
+    }
+
+    private void RecalculateSpeed()
+    {
+        if (agent == null) return;
+        if (baseSpeed < 0f) baseSpeed = agent.speed;
+
+        float totalMod = 0f;
+        foreach (var mod in speedModifiers)
+        {
+            totalMod += mod.amount;
+        }
+
+        agent.speed = Mathf.Clamp(baseSpeed + totalMod, minSpeed, maxSpeed);
     }
 }

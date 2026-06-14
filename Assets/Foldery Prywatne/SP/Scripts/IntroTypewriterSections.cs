@@ -256,5 +256,39 @@ namespace MyGame.Intro
                 yield return null;
             }
         }
+
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                SkipCutscene();
+            }
+        }
+
+        private void SkipCutscene()
+        {
+            Debug.Log("[Cutscene] Skipped by player pressing Space.");
+            if (routine != null)
+            {
+                StopCoroutine(routine);
+                routine = null;
+            }
+
+            if (!string.IsNullOrWhiteSpace(nextSceneName))
+            {
+                SceneManager.LoadScene(nextSceneName);
+            }
+            else
+            {
+                if (restorePlayerMovementOnComplete) RestorePlayerMovement();
+                onComplete?.Invoke();
+
+                if (deactivateOnComplete)
+                {
+                    GameObject targetDeactivate = (objectToDeactivate != null) ? objectToDeactivate : gameObject;
+                    targetDeactivate.SetActive(false);
+                }
+            }
+        }
     }
 }

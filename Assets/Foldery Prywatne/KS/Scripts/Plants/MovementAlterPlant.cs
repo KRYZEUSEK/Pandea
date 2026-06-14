@@ -19,16 +19,16 @@ public class MovementAlterPlant : BasePlant
     {
         if (hasBeenActivated) return;
 
-        // Probujemy pobrac NavMeshAgenta z obiektu, ktory wszedl w rosline
-        NavMeshAgent agent = player.GetComponent<NavMeshAgent>();
+        // Probujemy pobrac PlayerControllerClick z obiektu gracza
+        PlayerControllerClick controller = player.GetComponent<PlayerControllerClick>();
 
-        // Sprawdzamy, czy gracz faktycznie ma NavMeshAgenta
-        if (agent != null)
+        if (controller != null)
         {
             hasBeenActivated = true;
 
-            // Uruchamiamy procedure zmiany predkosci
-            StartCoroutine(RestoreMovement(agent));
+            // Dodajemy modyfikator predkosci z unikalnym ID
+            string boostId = "PlantBoost_" + System.Guid.NewGuid().ToString();
+            controller.AddSpeedModifier(boostId, alterMovementValue, duration);
 
             // --- DEAKTYWACJA WIZUALNA I FIZYCZNA ROSLINY ---
 
@@ -45,30 +45,9 @@ public class MovementAlterPlant : BasePlant
             {
                 c.enabled = false;
             }
+
+            // Niszczymy ten obiekt po uplywie czasu
+            Destroy(gameObject, duration + 0.5f);
         }
-    }
-
-    IEnumerator RestoreMovement(NavMeshAgent agent)
-    {
-        // 1. Zwiekszamy predkosc o zadana wartosc
-        agent.speed += alterMovementValue;
-
-        // 2. Czekamy przez czas okreslony w zmiennej duration
-        yield return new WaitForSeconds(duration);
-
-        // 3. Sprawdzamy, czy agent nadal istnieje (zabezpieczenie przed bledami NullReference)
-        if (agent != null)
-        {
-            // KLUCZOWA POPRAWKA:
-            // Odejmujemy dokladnie tyle, ile dodalismy. 
-            // Dzieki temu nawet jesli gracz podniosl 5 roslin, kazda z nich 
-            // "odda" swoja porcje predkosci po uplywie swojego czasu.
-            agent.speed -= alterMovementValue;
-        }
-
-        // 4. Calkowicie usuwamy/dezaktywujemy obiekt rosliny z hierarchii
-        // Jesli korzystasz z Object Poolingu, SetActive(false) is OK.
-        // Jesli to obiekty jednorazowe, mozesz uzyc Destroy(gameObject).
-        Destroy(gameObject);
     }
 }

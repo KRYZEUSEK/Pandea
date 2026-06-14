@@ -208,6 +208,12 @@ public class PuzzleInteraction : MonoBehaviour
         // 2. Zmie tag obiektu Triggera na Untagged (domylny brak tagu)
         this.gameObject.tag = "Untagged";
 
+        // Powiadom QuestManager o ukonczeniu kroku
+        if (QuestManager.Instance != null)
+        {
+            QuestManager.Instance.CompleteCurrentStep();
+        }
+
         // 3. Wycz skrypt i Collider, aby nie dao si go uy ponownie
         Collider c = GetComponent<Collider>();
         if (c != null) c.enabled = false;

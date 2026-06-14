@@ -121,6 +121,12 @@ public class skrypt_canvas : MonoBehaviour
                 skrypt_pudelka.activePudelko.gameObject.tag = "Untagged";
                 targetScene = skrypt_pudelka.activePudelko.sceneToLoad;
                 cutsceneName = skrypt_pudelka.activePudelko.cutsceneCanvasName;
+
+                // Powiadom QuestManager o ukończeniu kroku
+                if (QuestManager.Instance != null)
+                {
+                    QuestManager.Instance.CompleteCurrentStep();
+                }
             }
 
             GameObject cutsceneGo = FindGameObjectEvenInactive(cutsceneName);
