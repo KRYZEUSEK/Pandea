@@ -69,7 +69,7 @@ public class EndlessTerrain : MonoBehaviour
             if (storyElements[i].spawnImmediately)
             {
                 Vector3 tempPos = new Vector3(spawnX, 0, spawnY);
-                GameObject spawnedGo = Instantiate(storyElements[i].prefab, tempPos, Quaternion.identity);
+                GameObject spawnedGo = Instantiate(storyElements[i].prefab, tempPos, storyElements[i].prefab.transform.rotation);
                 spawnedGo.transform.parent = transform;
 
                 storyElements[i].spawnedInstance = spawnedGo;
@@ -308,7 +308,7 @@ public class EndlessTerrain : MonoBehaviour
                     // W przeciwnym razie spawniemy go standardowo po dojściu na miejsce
                     else if (!el.isSpawned)
                     {
-                        GameObject go = Object.Instantiate(el.prefab, correctPos, Quaternion.identity);
+                        GameObject go = Object.Instantiate(el.prefab, correctPos, el.prefab.transform.rotation);
                         go.transform.parent = parentTerrain.transform;
 
                         // ZMIANA: Przypisanie warstwy dla normalnego spawnowania

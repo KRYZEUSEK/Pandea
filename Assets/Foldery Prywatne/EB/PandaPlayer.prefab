@@ -5340,6 +5340,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   lookRotationSpeed: 8
+  maxSpeed: 8
+  minSpeed: 0.5
   interactableLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -5613,7 +5615,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   trackedTransform: {fileID: 188695683379076193}
-  size: {x: 40, y: 40, z: 40}
+  size: {x: 100, y: 60, z: 100}
   layerMask:
     serializedVersion: 2
     m_Bits: 64
