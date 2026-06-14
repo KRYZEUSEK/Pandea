@@ -6152,9 +6152,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 94dd587290258a74d9cadd13a23eceef, type: 2}
   - {fileID: 11400000, guid: 2e83aa7494805fd4cb95cb7340f33699, type: 2}
   - {fileID: 11400000, guid: d541d234820980a4cae664018a220bd1, type: 2}
-  - {fileID: 11400000, guid: f1ed6dfd3c3d15e4294b99ff9969047b, type: 2}
-  - {fileID: 11400000, guid: e7c8abe8be9ce3243a056aa5032ca32e, type: 2}
-  - {fileID: 11400000, guid: 3654d61766ba9ee45b096e0cf6c0b34b, type: 2}
+  - {fileID: 11400000, guid: be23a28081ae8764b97373a3b5dacc31, type: 2}
+  - {fileID: 11400000, guid: 273e2102ee767254ab9eaafe92a959a0, type: 2}
   storyElements:
   - name: Baza
     prefab: {fileID: 5618743318629138398, guid: 84a543b2cefd01e45ab89b1b3f7ce9d9, type: 3}
